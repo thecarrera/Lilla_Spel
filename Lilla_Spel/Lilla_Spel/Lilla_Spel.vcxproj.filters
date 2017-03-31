@@ -13,35 +13,71 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{18550ff1-b064-4edd-a15c-3323055fb2f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Overhead Handler">
+      <UniqueIdentifier>{f372074a-e8df-4802-86cd-4344e33b9f38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sub Resources">
+      <UniqueIdentifier>{53ae3303-d1b5-458a-9cb6-4810f8fafba4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sub Resources\OBJ Import">
+      <UniqueIdentifier>{3a7aae12-8f80-4f86-92b4-af1b21c6cf35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Overhead Handler">
+      <UniqueIdentifier>{2be9a1d5-5a9b-4e9b-8881-ca54028e29be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sub Resources">
+      <UniqueIdentifier>{7b77c5c5-4b80-4360-9a23-2b7b2cae7058}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sub Resources\Obj Import">
+      <UniqueIdentifier>{24d8fcfd-a091-4ebb-8fe4-f1e7013e7ce1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Testcommit.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Includes.h">
+      <Filter>Header Files\Overhead Handler</Filter>
     </ClInclude>
     <ClInclude Include="DirectX.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Overhead Handler</Filter>
     </ClInclude>
-    <ClInclude Include="Includes.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Linker.h">
+      <Filter>Header Files\Overhead Handler</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjImport.h">
+      <Filter>Header Files\Sub Resources\Obj Import</Filter>
+    </ClInclude>
+    <ClInclude Include="WICTextureLoader.h">
+      <Filter>Header Files\Sub Resources\Obj Import</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DirectX.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Overhead Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files\Overhead Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="WICTextureLoader.cpp">
+      <Filter>Source Files\Sub Resources\OBJ Import</Filter>
+    </ClCompile>
+    <ClCompile Include="OBJ.cpp">
+      <Filter>Source Files\Sub Resources\OBJ Import</Filter>
+    </ClCompile>
+    <ClCompile Include="Linker.cpp">
+      <Filter>Source Files\Overhead Handler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="GeometryShader.hlsl">
-      <Filter>Source Files</Filter>
+    <FxCompile Include="VertexShader.hlsl">
+      <Filter>Source Files\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="PixelShader.hlsl">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="VertexShader.hlsl">
-      <Filter>Source Files</Filter>
+    <FxCompile Include="GeometryShader.hlsl">
+      <Filter>Source Files\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 #pragma once
 #include "Includes.h"
+#include "Linker.h"
 
 class DX
 {
@@ -47,11 +48,15 @@ private:
 	};
 	objMatrices cameraMatrices;
 
+	ID3D11Buffer* shaderBuffer = nullptr;
+	ID3D11SamplerState* samplerState = nullptr;
+
+	ID3D11ShaderResourceView* gTextureRTV = nullptr;
+
+private:
+	Linker linker;
 private:
 	DirectX::XMVECTOR cameraPos;
 	DirectX::XMVECTOR lookAT;
 	DirectX::XMVECTOR upVec;
-
-	int temp_amount_of_verts;
-
 };

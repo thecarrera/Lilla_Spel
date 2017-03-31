@@ -120,11 +120,16 @@
   <ItemGroup>
     <ClInclude Include="DirectX.h" />
     <ClInclude Include="Includes.h" />
-    <ClInclude Include="Testcommit.h" />
+    <ClInclude Include="Linker.h" />
+    <ClInclude Include="ObjImport.h" />
+    <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp" />
+    <ClCompile Include="Linker.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="OBJ.cpp" />
+    <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="GeometryShader.hlsl">

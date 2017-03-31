@@ -2,7 +2,6 @@
 
 DX::DX()
 {
-	this->temp_amount_of_verts = 0;
 }
 DX::~DX()
 {
@@ -27,6 +26,10 @@ void DX::Clean()
 	SAFE_RELEASE(this->gDepthStencil);
 
 	SAFE_RELEASE(this->gCBuffer);
+	SAFE_RELEASE(this->shaderBuffer);
+	SAFE_RELEASE(this->samplerState);
+
+	SAFE_RELEASE(this->gTextureRTV);
 }
 
 void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
@@ -35,7 +38,11 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
+	this->linker.LoadModel("Ogre.obj", this->gDevice, this->gVertexBuffer, this->shaderBuffer);
+
 	this->ConstantBuffer();
+
+	this->linker.Texture(this->gDevice, this->gDeviceContext, this->gTextureRTV);
 
 	this->CreateShaders();
 	
@@ -116,22 +123,37 @@ void DX::Render()
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
-	this->gDeviceContext->ClearState();
 	
-	UINT32 vertexSize = 12;
+	UINT32 vertexSize = this->linker.ReturnVertexInfo();
+	UINT32 offset = 0;
 
 	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
-	//this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBuffer, &vertexSize, NULL);
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBuffer, &vertexSize, &offset);
 
 	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
 	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
 	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
+	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
+
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+	cameraMatrices.worldM *= DirectX::XMMatrixRotationY(-0.02f);
+	//CameraMatrix.worldM *= DirectX::XMMatrixRotationX(-0.02f);
+
+	//this->UpdateCamera();
+
+	memcpy(dataPtr.pData, &this->cameraMatrices, sizeof(this->cameraMatrices));
+
+	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
+	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
-	this->gDeviceContext->Draw(this->temp_amount_of_verts, 0);
+	this->gDeviceContext->Draw(this->linker.getAmountOfVerticies(), 0);
 
 	this->gSwapChain->Present(1, 0);
 }
@@ -221,6 +243,20 @@ void DX::CreateShaders()
 
 	SAFE_RELEASE(pFS);
 	SAFE_RELEASE(error);
+
+	//Sampler State
+	D3D11_SAMPLER_DESC sampDesc;
+	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.MipLODBias = 0;
+	sampDesc.MaxAnisotropy = PIXELSAMPLE;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = 0;
+
+	hr = this->gDevice->CreateSamplerState(&sampDesc, &this->samplerState);
 }
 void DX::ConstantBuffer()
 {

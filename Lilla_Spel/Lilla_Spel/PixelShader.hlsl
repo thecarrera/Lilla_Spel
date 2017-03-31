@@ -1,3 +1,12 @@
+Texture2D txDiffuse : register(t0);
+SamplerState sampAni;
+cbuffer CBUFFER : register(b0)
+{
+	float3 Kd;
+	float3 Ka;
+	float3 Ks;
+}
+
 struct FS_IN
 {
 	float4 Pos : SV_POSITION;
@@ -19,9 +28,9 @@ float2 uv = input.Tex;
 
 uv.y = 1 - uv.y;
 
-float3 s = (0.5f, 0.5f, 0.5f) * cos + pow((0.3f,0.3f,0.3f),2.0f) * 1.f;
+float3 s = txDiffuse.Sample(sampAni, uv).xyz * cos + pow(float3(0.3f,0.3f,0.3f),3.0f) * 1.f;
 
 clamp(s, 0, 1);
 
-return float4(float3(0.0f,0.0f,0.0f), 1.f);
+return float4(s, 1.f);
 }
