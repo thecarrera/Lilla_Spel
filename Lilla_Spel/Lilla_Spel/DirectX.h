@@ -10,7 +10,7 @@ public:
 	void OfflineCreation(HMODULE hModule, HWND* wndHandle);
 	void Clean();
 
-	void DX::CreateDirect3DContext(HWND* wndHandle);
+	void CreateDirect3DContext(HWND* wndHandle);
 	void SetViewport();
 
 	void Update();

@@ -33,11 +33,16 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 {
 	this->CreateDirect3DContext(wndHandle);
 
+	this->SetViewport();
+
+	this->ConstantBuffer();
+
+	this->CreateShaders();
 	
 }
 void DX::Update()
 {
-	void Render();
+	this->Render();
 }
 
 void DX::CreateDirect3DContext(HWND* wndHandle)
@@ -113,8 +118,10 @@ void DX::Render()
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	this->gDeviceContext->ClearState();
 	
+	UINT32 vertexSize = 12;
+
 	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBuffer, NULL, NULL);
+	//this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBuffer, &vertexSize, NULL);
 
 	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -192,7 +199,7 @@ void DX::CreateShaders()
 	//Fragment Shader
 	ID3DBlob* pFS = nullptr;
 	D3DCompileFromFile(
-		L"FragmentShader.hlsl", // filename
+		L"PixelShader.hlsl", // filename
 		nullptr,		// optional macros
 		nullptr,		// optional include files
 		"FS_main",		// entry point
