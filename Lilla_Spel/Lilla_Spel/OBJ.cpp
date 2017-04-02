@@ -1,4 +1,14 @@
-#include "ObjImport.h"
+#include "Importers.h"
+
+/*
+#################################################################################################################################
+#																																#
+#							All the components for the basic OBJ import. 														#
+#							Note: This at the moment only takes one texture and applies it the whole model.						#
+#							This is a problem im aware of and im not considering to fixing due to time and planning.			#
+#																																#
+#################################################################################################################################
+*/
 
 OBJ::OBJ()
 {

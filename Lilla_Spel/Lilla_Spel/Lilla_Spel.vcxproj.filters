@@ -45,10 +45,10 @@
     <ClInclude Include="Linker.h">
       <Filter>Header Files\Overhead Handler</Filter>
     </ClInclude>
-    <ClInclude Include="ObjImport.h">
+    <ClInclude Include="WICTextureLoader.h">
       <Filter>Header Files\Sub Resources\Obj Import</Filter>
     </ClInclude>
-    <ClInclude Include="WICTextureLoader.h">
+    <ClInclude Include="Importers.h">
       <Filter>Header Files\Sub Resources\Obj Import</Filter>
     </ClInclude>
   </ItemGroup>

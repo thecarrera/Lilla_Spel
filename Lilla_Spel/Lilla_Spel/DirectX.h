@@ -2,6 +2,15 @@
 #include "Includes.h"
 #include "Linker.h"
 
+/*
+#################################################################################################################################
+#																																#
+#							All Direct X components, mostly the core engine of the pipeline.									#
+#							Allowing us to add key techniques as modules.														#
+#																																#
+#################################################################################################################################
+*/
+
 class DX
 {
 public:

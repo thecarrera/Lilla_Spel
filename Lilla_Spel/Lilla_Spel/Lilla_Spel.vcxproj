@@ -121,7 +121,7 @@
     <ClInclude Include="DirectX.h" />
     <ClInclude Include="Includes.h" />
     <ClInclude Include="Linker.h" />
-    <ClInclude Include="ObjImport.h" />
+    <ClInclude Include="Importers.h" />
     <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
