@@ -1,6 +1,7 @@
 #pragma once
 #include "Includes.h"
 #include "Linker.h"
+#include "Player.h"
 
 /*
 #################################################################################################################################
@@ -25,6 +26,8 @@ public:
 
 	void Update();
 	void Render();
+	void characterMove();
+	void cameraMov();
 
 	void CreateShaders();
 	void ConstantBuffer();
@@ -62,10 +65,15 @@ private:
 
 	ID3D11ShaderResourceView* gTextureRTV = nullptr;
 
+	objMatrices characterMatrices;
+	Player player;
+
+
 private:
 	Linker linker;
 private:
 	DirectX::XMVECTOR cameraPos;
 	DirectX::XMVECTOR lookAT;
 	DirectX::XMVECTOR upVec;
+	DirectX::XMVECTOR mRight;
 };

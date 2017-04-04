@@ -54,11 +54,28 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->linker.Texture(this->gDevice, this->gDeviceContext, this->gTextureRTV);
 
 	this->CreateShaders();
-	
+
 }
 void DX::Update()
 {
+
+	characterMove();
+
+	//this->cameraMov();
 	this->Render();
+
+}
+
+void DX::characterMove()
+{
+	player.move();
+}
+
+void DX::cameraMov()
+{
+	// move WorldM, rotate viewM
+	cameraMatrices.viewM = characterMatrices.worldM;
+	DirectX::XMVectorGetX(this->cameraPos);
 }
 
 void DX::CreateDirect3DContext(HWND* wndHandle)
@@ -150,10 +167,14 @@ void DX::Render()
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
-	cameraMatrices.worldM *= DirectX::XMMatrixRotationY(-0.02f);
+	//cameraMatrices.worldM *= DirectX::XMMatrixTranspose(1, 0, 0); 
 	//CameraMatrix.worldM *= DirectX::XMMatrixRotationX(-0.02f);
 
 	//this->UpdateCamera();
+
+	// camera proj = object view. camera view = object world. 
+
+
 
 	memcpy(dataPtr.pData, &this->cameraMatrices, sizeof(this->cameraMatrices));
 
@@ -269,16 +290,19 @@ void DX::CreateShaders()
 }
 void DX::ConstantBuffer()
 {
-	this->cameraPos = { 0, 0, -10 };
-	this->lookAT = { 0,0,0 };
+	this->cameraPos = { 0, 0, -20 };	// y 50% större än z ger bra-ish
+	this->lookAT = { 0, 0, 1 };		// lookAT vill vi ska vara på cameraPos av spelaren
 	this->upVec = { 0, 1, 0 };
+	this->mRight = DirectX::XMVector3Cross(upVec, lookAT);
+	this->mRight = DirectX::XMVector3Normalize(mRight);		//behöver right, right?
 
 	float FOV = { 0.45f * DirectX::XM_PI };
 	float ARO = (float)WIDTH / (float)HEIGHT;
 	float nPlane = 0.1f;
-	float fPlane = 20.0f;
+	float fPlane = 70.0f;
 
-	DirectX::XMMATRIX worldM = { 0.02f,0,0,0,
+	DirectX::XMMATRIX worldM = 
+	  { 0.02f,0,0,0,
 		0,0.02f,0,0,
 		0,0,0.02f,0,
 		0,0,0,1 };
