@@ -5,10 +5,22 @@ Player::Player()
 
 }
 
-Player::Player(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext)
+Player::Player(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext, DirectX::XMMATRIX cameraWorldMatrix)
 {
+	DirectX::XMStoreFloat4x4(&this->cameraWorldMatrix, cameraWorldMatrix);
+
+	this->mPosition = DirectX::XMFLOAT3(0, 0, 0);
+
+	// These 3 does not need to be updated I think, so we just define them here
+	this->mUp = DirectX::XMFLOAT3(0, 1, 0);
+	this->mForward = DirectX::XMFLOAT3(0, 0, 1);
+	this->mRight = DirectX::XMFLOAT3(1, 0, 0);
+	
+
 	this->gDevice = gDevice;
 	this->gDeviceContext = gDeviceContext;
+
+	this->initiateMatrices();
 }
 
 Player::~Player()
@@ -16,7 +28,7 @@ Player::~Player()
 
 }
 
-void Player::move()
+DirectX::XMMATRIX Player::move(DirectX::XMMATRIX worldM)
 {
 	float defaultMovementRate = 0.02f;
 
@@ -31,32 +43,61 @@ void Player::move()
 
 	if (GetAsyncKeyState(0x57)) //w
 	{
-		std::string message = "Up key press";
-		MessageBox(NULL, message.c_str(), NULL, NULL);
+		//std::string message = "Up key press";
+		//MessageBox(NULL, message.c_str(), NULL, NULL);
 
 		keyboardAmount.z = 1;
+
+		//test, uppdaterar world?
+
+		DirectX::XMMATRIX temp;
+		temp = 
+		  { 0.02f,0,0,0,
+			0,0.02f,0,0,
+			0,0,0.02f,0,
+			0,0,-10,1 };
+		temp = DirectX::XMMatrixTranspose(temp);
+		worldM += temp;
 	}
 
 	if (GetAsyncKeyState(0x53))	//s
 	{
-		std::string message = "Down key press";
-		MessageBox(NULL, message.c_str(), NULL, NULL);
+		DirectX::XMMATRIX temp;
+		temp =
+		{ 0.02f,0,0,0,
+			0,0.02f,0,0,
+			0,0,0.02f,0,
+			0,0,10,1 };
+		temp = DirectX::XMMatrixTranspose(temp);
+		worldM += temp; 
 
 		keyboardAmount.z = -1;
 	}
 
 	if (GetAsyncKeyState(0x41))	//a
 	{
-		std::string message = "Left key press";
-		MessageBox(NULL, message.c_str(), NULL, NULL);
+		DirectX::XMMATRIX temp;
+		temp =
+		{ 0.02f,0,0,0,
+			0,0.02f,0,0,
+			0,0,0.02f,0,
+			-10,0,0,1 };
+		temp = DirectX::XMMatrixTranspose(temp);
+		worldM += temp;
 
 		keyboardAmount.x = -1;
 	}
 
 	if (GetAsyncKeyState(0x44))	//d
 	{
-		std::string message = "Right key press";
-		MessageBox(NULL, message.c_str(), NULL, NULL);
+		DirectX::XMMATRIX temp;
+		temp =
+		{ 0.02f,0,0,0,
+			0,0.02f,0,0,
+			0,0,0.02f,0,
+			10,0,0,1 };
+		temp = DirectX::XMMatrixTranspose(temp);
+		worldM += temp;
 
 		keyboardAmount.x = 1;
 	}
@@ -85,71 +126,119 @@ void Player::move()
 	position = DirectX::XMVectorSetZ(position, DirectX::XMVectorGetZ(position) + DirectX::XMVectorGetZ(strafe));
 
 	//jfesnresigreijogrjio fortsätta och fixa karaktär movement
+	return worldM;
 }
 
-D3D11_SUBRESOURCE_DATA Player::getMatricesSubresource()
+//D3D11_SUBRESOURCE_DATA Player::getMatricesSubresource()
+//{
+//	D3D11_SUBRESOURCE_DATA data;
+//	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+//
+//	data.pSysMem = &matrices;
+//	data.SysMemPitch = 0;
+//	data.SysMemSlicePitch = 0;
+//	return data;
+//}
+
+//ID3D11Buffer* Player::createConstantBuffer()
+//{
+//	D3D11_BUFFER_DESC description;
+//	ZeroMemory(&description, sizeof(D3D11_BUFFER_DESC));
+//
+//	description.ByteWidth = sizeof(objMatrices);
+//	description.Usage = D3D11_USAGE_DYNAMIC;
+//	description.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+//	description.MiscFlags = 0;
+//	description.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+//
+//	ID3D11Buffer* pBuffer = nullptr;
+//
+//	D3D11_SUBRESOURCE_DATA matriceResource = getMatricesSubresource();
+//	HRESULT hr = this->gDevice->CreateBuffer(&description, &matriceResource, &pBuffer);
+//	if (FAILED(hr))
+//	{
+//		MessageBox(0, "matrix resource creation failed!", "error", MB_OK);
+//	}
+//	return (pBuffer);
+//}
+
+//void Player::updateConstantBuffer(ID3D11Buffer* VSConstantBuffer)
+//{
+//	D3D11_MAPPED_SUBRESOURCE dataPtr;
+//	ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE));
+//
+//	//Låser buffern för GPU:n och hämtar den till CPU
+//	this->gDeviceContext->Map(VSConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+//
+//	DirectX::XMMATRIX translation;
+//	translation = DirectX::XMMatrixTranslation(0.05f, 0.0f, 0.0f);
+//	//translation = DirectX::XMMatrixTranspose(translation);
+//	matrices.worldM *= translation;
+//
+//	//beror på, ska vi transposa en world matris istället?
+//
+//	memcpy(dataPtr.pData, &matrices, sizeof(matrices));
+//
+//	//Ger GPU:n tillgång till datan igen
+//	this->gDeviceContext->Unmap(VSConstantBuffer, 0);
+//}
+
+
+
+//ID3D11Buffer* Player::createPlayerPosBuffer()	//kan användas för typ ljus och grejer, borde nog använda kamerans position istället tho
+//{
+//	D3D11_BUFFER_DESC desc;
+//	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+//	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+//	desc.ByteWidth = sizeof(DirectX::XMFLOAT4);
+//	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+//	desc.Usage = D3D11_USAGE_DYNAMIC;
+//
+//	ID3D11Buffer* pBuffer = nullptr;
+//	D3D11_SUBRESOURCE_DATA data;
+//	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+//	data.pSysMem = &this->mPosition;
+//
+//	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &pBuffer);
+//	if (FAILED(hr))
+//	{
+//		MessageBox(0, "Player buffer cration failed", "error", MB_OK);
+//	}
+//
+//	return pBuffer;
+//}
+
+//void Player::updatePlayerPosBuffer(ID3D11Buffer* playerConstantBuffer)
+//{
+//	D3D11_MAPPED_SUBRESOURCE data;
+//	ZeroMemory(&data, sizeof(D3D11_MAPPED_SUBRESOURCE));
+//
+//	this->gDeviceContext->Map(playerConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+//	memcpy(data.pData, &this->mPosition, sizeof(DirectX::XMFLOAT3));
+//
+//	this->gDeviceContext->Unmap(playerConstantBuffer, 0);
+//}
+
+void Player::initiateMatrices()
 {
-	D3D11_SUBRESOURCE_DATA data;
-	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	DirectX::XMMATRIX worldM =
+	{ 1.0f,0,0,0,
+		0,1.0f,0,0,
+		0,0,1.0f,0,
+		0,0,0,1 };
 
-	data.pSysMem = &matrices;
-	data.SysMemPitch = 0;
-	data.SysMemSlicePitch = 0;
-	return data;
-}
+	DirectX::XMMATRIX viewM =
+	{ 1.0f,0,0,0,
+		0,1.0f,0,0,
+		0,0,1.0f,0,
+		0,0,0,1 };
 
-ID3D11Buffer* Player::createConstantBuffer()
-{
-	D3D11_BUFFER_DESC description;
-	ZeroMemory(&description, sizeof(D3D11_BUFFER_DESC));
+	DirectX::XMMATRIX projM =
+	{ 1.0f,0,0,0,
+		0,1.0f,0,0,
+		0,0,1.0f,0,
+		0,0,0,1 };
 
-	description.ByteWidth = sizeof(objMatrices);
-	description.Usage = D3D11_USAGE_DYNAMIC;
-	description.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	description.MiscFlags = 0;
-	description.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	this->matrices = { DirectX::XMMatrixTranspose(worldM), DirectX::XMMatrixTranspose(viewM), DirectX::XMMatrixTranspose(projM) };
 
-	ID3D11Buffer* pBuffer = nullptr;
-
-	D3D11_SUBRESOURCE_DATA matriceResource = getMatricesSubresource();
-	HRESULT hr = this->gDevice->CreateBuffer(&description, &matriceResource, &pBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"matrix resource creation failed!", L"error", MB_OK);
-	}
-	return (pBuffer);
-}
-
-ID3D11Buffer* Player::createPlayerPosBuffer()
-{
-	D3D11_BUFFER_DESC desc;
-	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
-	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.ByteWidth = sizeof(DirectX::XMFLOAT4);
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	desc.Usage = D3D11_USAGE_DYNAMIC;
-
-	ID3D11Buffer* pBuffer = nullptr;
-	D3D11_SUBRESOURCE_DATA data;
-	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
-	data.pSysMem = &this->mPosition;
-
-	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &pBuffer);
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"Player buffer cration failed", L"error", MB_OK);
-	}
-
-	return pBuffer;
-}
-
-void Player::updatePlayerPosBuffer(ID3D11Buffer* playerConstantBuffer)
-{
-	D3D11_MAPPED_SUBRESOURCE data;
-	ZeroMemory(&data, sizeof(D3D11_MAPPED_SUBRESOURCE));
-
-	this->gDeviceContext->Map(playerConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
-	memcpy(data.pData, &this->mPosition, sizeof(DirectX::XMFLOAT3));
-
-	this->gDeviceContext->Unmap(playerConstantBuffer, 0);
 }

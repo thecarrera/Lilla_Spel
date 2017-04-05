@@ -17,7 +17,7 @@ struct FS_IN
 
 float4 FS_main(FS_IN input) : SV_Target
 {
-float3 lightPos = { 1.0f, 0.0f, -10.0f };
+float3 lightPos = { 1.0f, 0.0f, -10.0f };	//kan ändra denna för bättre position för karaktären
 float3 lightDir = normalize(lightPos - input.wPos.xyz);
 float3 r = reflect(lightDir, input.Norm.xyz);
 float cos = dot(lightDir, input.Norm.xyz);

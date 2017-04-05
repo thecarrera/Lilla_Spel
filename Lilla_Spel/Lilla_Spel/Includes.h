@@ -24,3 +24,24 @@
 
 #define SAFE_RELEASE(x) if(x) x->Release(), x = nullptr
 #define SAFE_DELETE(x) if(x) delete[] x, x = nullptr
+
+struct objMatrices
+{
+	DirectX::XMMATRIX worldM;
+	DirectX::XMMATRIX viewM;
+	DirectX::XMMATRIX projM;
+};
+
+//struct VertexInfo
+//{
+//	//vertex positions
+//	float vpx, vpy, vpz;
+//
+//	// vertex normals
+//	float vnx, vny, vnz;
+//
+//	//uv coords
+//	float u, v;
+//
+//	int mtlType;
+//};

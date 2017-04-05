@@ -11,6 +11,10 @@
 
 DX::DX()
 {
+	player = new Player(this->gDevice, this->gDeviceContext, this->cameraMatrices.worldM);
+	//kolla är viewM rätt?
+//	this->matrixBuffer = this->player->createConstantBuffer();
+
 }
 DX::~DX()
 {
@@ -59,7 +63,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 void DX::Update()
 {
 
-	characterMove();
+	//characterMove();
 
 	//this->cameraMov();
 	this->Render();
@@ -68,7 +72,9 @@ void DX::Update()
 
 void DX::characterMove()
 {
-	player.move();
+	//player->move();
+	//this->player->updateConstantBuffer(this->matrixBuffer);
+	//releasa matrix efter 
 }
 
 void DX::cameraMov()
@@ -167,6 +173,10 @@ void DX::Render()
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
+
+
+	cameraMatrices.worldM = player->move(this->cameraMatrices.worldM);
+
 	//cameraMatrices.worldM *= DirectX::XMMatrixTranspose(1, 0, 0); 
 	//CameraMatrix.worldM *= DirectX::XMMatrixRotationX(-0.02f);
 
@@ -180,7 +190,11 @@ void DX::Render()
 
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 
+	this->gDeviceContext->VSSetConstantBuffers(0, 1, &this->matrixBuffer);
+
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
+	//this->gDeviceContext->GSSetConstantBuffers(0, 2, &this->matrixBuffer);
+
 	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
 	this->gDeviceContext->Draw(this->linker.getAmountOfVerticies(), 0);

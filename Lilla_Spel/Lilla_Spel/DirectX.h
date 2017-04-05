@@ -34,6 +34,8 @@ public:
 	void DepthBuffer();
 
 private:
+	ID3D11Buffer* matrixBuffer;
+
 	ID3D11Device* gDevice = nullptr;
 	ID3D11DeviceContext* gDeviceContext = nullptr;
 	IDXGISwapChain* gSwapChain = nullptr;
@@ -52,21 +54,16 @@ private:
 	ID3D11Texture2D* gDepthStencil = nullptr;
 
 	ID3D11Buffer* gCBuffer = nullptr;
-	struct objMatrices
-	{
-		DirectX::XMMATRIX worldM;
-		DirectX::XMMATRIX viewM;
-		DirectX::XMMATRIX projM;
-	};
-	objMatrices cameraMatrices;
 
 	ID3D11Buffer* shaderBuffer = nullptr;
 	ID3D11SamplerState* samplerState = nullptr;
 
 	ID3D11ShaderResourceView* gTextureRTV = nullptr;
 
+	objMatrices cameraMatrices;
+
 	objMatrices characterMatrices;
-	Player player;
+	Player * player;
 
 
 private:
