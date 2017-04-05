@@ -23,9 +23,9 @@ void Linker::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContex
 	}
 }
 
-int Linker::ReturnVertexInfo()
+int Linker::returnVertexInfo()
 {
-	return obj.ReturnVertexInfo();
+	return this->obj.returnVertexInfo();
 }
 
 int Linker::getAmountOfVerticies()

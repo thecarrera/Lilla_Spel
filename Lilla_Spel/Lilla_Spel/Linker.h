@@ -22,11 +22,11 @@ public:
 	//OBJ 
 	void LoadModel(std::string fileName, ID3D11Device* gDevice, ID3D11Buffer* &gVertexBuffer, ID3D11Buffer* &shaderBuffer);
 	void Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, ID3D11ShaderResourceView* &gTextureRTV);
-	int ReturnVertexInfo();
+	int returnVertexInfo();
 	int getAmountOfVerticies();
 
 private:
-	OBJ obj;
+	OBJHandler obj;
 
 	std::vector<ID3D11Buffer*> shaderBuffers;
 };

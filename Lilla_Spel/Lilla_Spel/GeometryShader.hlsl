@@ -1,4 +1,4 @@
-cbuffer CBUFFER : register(b0)
+cbuffer CBUFFER
 {
 	float4x4 worldM;
 	float4x4 viewM;
