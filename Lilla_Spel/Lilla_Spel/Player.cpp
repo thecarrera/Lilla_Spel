@@ -5,6 +5,12 @@ Player::Player()
 
 }
 
+Player::Player(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext)
+{
+	this->gDevice = gDevice;
+	this->gDeviceContext = gDeviceContext;
+}
+
 Player::~Player()
 {
 
@@ -78,5 +84,72 @@ void Player::move()
 	position = DirectX::XMVectorSetY(position, DirectX::XMVectorGetY(position) + DirectX::XMVectorGetY(strafe));
 	position = DirectX::XMVectorSetZ(position, DirectX::XMVectorGetZ(position) + DirectX::XMVectorGetZ(strafe));
 
-	jfesnresigreijogrjio fortsätta och fixa karaktär movement
+	//jfesnresigreijogrjio fortsätta och fixa karaktär movement
+}
+
+D3D11_SUBRESOURCE_DATA Player::getMatricesSubresource()
+{
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+
+	data.pSysMem = &matrices;
+	data.SysMemPitch = 0;
+	data.SysMemSlicePitch = 0;
+	return data;
+}
+
+ID3D11Buffer* Player::createConstantBuffer()
+{
+	D3D11_BUFFER_DESC description;
+	ZeroMemory(&description, sizeof(D3D11_BUFFER_DESC));
+
+	description.ByteWidth = sizeof(objMatrices);
+	description.Usage = D3D11_USAGE_DYNAMIC;
+	description.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	description.MiscFlags = 0;
+	description.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+	ID3D11Buffer* pBuffer = nullptr;
+
+	D3D11_SUBRESOURCE_DATA matriceResource = getMatricesSubresource();
+	HRESULT hr = this->gDevice->CreateBuffer(&description, &matriceResource, &pBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"matrix resource creation failed!", L"error", MB_OK);
+	}
+	return (pBuffer);
+}
+
+ID3D11Buffer* Player::createPlayerPosBuffer()
+{
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(DirectX::XMFLOAT4);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	ID3D11Buffer* pBuffer = nullptr;
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	data.pSysMem = &this->mPosition;
+
+	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &pBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Player buffer cration failed", L"error", MB_OK);
+	}
+
+	return pBuffer;
+}
+
+void Player::updatePlayerPosBuffer(ID3D11Buffer* playerConstantBuffer)
+{
+	D3D11_MAPPED_SUBRESOURCE data;
+	ZeroMemory(&data, sizeof(D3D11_MAPPED_SUBRESOURCE));
+
+	this->gDeviceContext->Map(playerConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &this->mPosition, sizeof(DirectX::XMFLOAT3));
+
+	this->gDeviceContext->Unmap(playerConstantBuffer, 0);
 }
