@@ -34,12 +34,6 @@
     <Filter Include="Header Files\Sub Resources\Obj Import">
       <UniqueIdentifier>{24d8fcfd-a091-4ebb-8fe4-f1e7013e7ce1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Characters">
-      <UniqueIdentifier>{98994b41-8407-4318-a51b-05e662323148}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\NewFilter1">
-      <UniqueIdentifier>{8f62bbb7-490e-4389-ba2f-18dc41aaeef2}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Includes.h">
@@ -56,9 +50,6 @@
     </ClInclude>
     <ClInclude Include="Importers.h">
       <Filter>Header Files\Sub Resources\Obj Import</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Header Files\Characters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
