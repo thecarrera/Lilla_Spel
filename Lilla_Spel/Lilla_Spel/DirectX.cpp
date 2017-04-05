@@ -133,7 +133,7 @@ void DX::Render()
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	
-	UINT32 vertexSize = this->linker.ReturnVertexInfo();
+	UINT32 vertexSize = this->linker.returnVertexInfo();
 	UINT32 offset = 0;
 
 	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);

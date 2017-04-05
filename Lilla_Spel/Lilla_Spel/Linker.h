@@ -22,7 +22,7 @@ public:
 	//OBJ 
 	void LoadModel(std::string fileName, ID3D11Device* gDevice, ID3D11Buffer* &gVertexBuffer, ID3D11Buffer* &shaderBuffer);
 	void Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, ID3D11ShaderResourceView* &gTextureRTV);
-	int returnVertexInfo();
+	UINT32 returnVertexInfo();
 	int getAmountOfVerticies();
 
 private:

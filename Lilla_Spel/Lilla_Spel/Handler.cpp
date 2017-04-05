@@ -21,6 +21,7 @@ void OBJHandler::LoadModel(std::string fileName, ID3D11Device* gDevice, ID3D11Bu
 
 	char cmd[256] = { 0 };
 	char mtlName[256] = { 0 };
+	int tempV = 0;
 
 	DirectX::XMFLOAT3 inputValues;
 	DirectX::XMFLOAT2 inputTex;
@@ -65,8 +66,6 @@ void OBJHandler::LoadModel(std::string fileName, ID3D11Device* gDevice, ID3D11Bu
 					mtl >> inputValues.x >> inputValues.y >> inputValues.z;
 
 					meshTex.at(this->amountOfTextures - 1).setDiffValues(inputValues);
-
-					std::cout << textureArray.Kd.x << " " << textureArray.Kd.y << " " << textureArray.Kd.z;
 				}
 				else if (strcmp(cmd, "Ka") == 0)
 				{
@@ -103,53 +102,41 @@ void OBJHandler::LoadModel(std::string fileName, ID3D11Device* gDevice, ID3D11Bu
 			this->mesh.at(this->amountOfMeshes).setGroupName(cmd);
 			this->amountOfMeshes++;
 		}
+		else if (strcmp(cmd, "v") == 0)
+		{
+			ss >> inputValues.x >> inputValues.y >> inputValues.z;
+			inputValues.z = (inputValues.z * -1.0f);
 
-			if (strcmp(cmd, "v") == 0)
+			this->mesh.at(this->amountOfMeshes - 1).addVertexPos(inputValues);
+		}
+		else if (strcmp(cmd, "vt") == 0)
+		{
+			ss >> inputTex.x >> inputTex.y;
+
+			this->mesh.at(this->amountOfMeshes - 1).addVertexUV(inputTex);
+		}
+		else if (strcmp(cmd, "vn") == 0)
+		{
+			ss >> inputValues.x >> inputValues.y >> inputValues.z;
+			inputValues.z = (inputValues.z * -1.0f);
+
+			this->mesh.at(this->amountOfMeshes - 1).addVertexNorm(inputValues);
+
+		}
+		else if (strcmp(cmd, "f") == 0)
+		{
+			for (int i = 3; i > 0; i--)
 			{
-				ss >> inputValues.x >> inputValues.y >> inputValues.z;
-				inputValues.z = (inputValues.z * -1.0f);
-
-				this->mesh.at(this->amountOfMeshes - 1).addVertexPos(inputValues);
+				ss >> temp_vert[i - 1].x >> trash >> temp_vert[i - 1].y >> trash >> temp_vert[i - 1].z;
 			}
-			else if (strcmp(cmd, "vt") == 0)
+
+			for (int i = 0; i < 3; i++)
 			{
-				ss >> inputTex.x >> inputTex.y;
-
-				this->mesh.at(this->amountOfMeshes - 1).addVertexUV(inputTex);
-			}
-			else if (strcmp(cmd, "vn") == 0)
-			{
-				ss >> inputValues.x >> inputValues.y >> inputValues.z;
-				inputValues.z = (inputValues.z * -1.0f);
-
-				this->mesh.at(this->amountOfMeshes - 1).addVertexNorm(inputValues);
-
-			}
-			else if (strcmp(cmd, "f") == 0)
-			{
-				for (int i = 3; i > 0; i--)
-				{
-					ss >> temp_vert[i - 1].x >> trash >> temp_vert[i - 1].y >> trash >> temp_vert[i - 1].z;
-				}
-
-				for (int i = 0; i < 3; i++)
-				{
-					this->mesh.at(this->amountOfMeshes - 1).createFaces(temp_vert[i - 1]);
-				}
+				this->mesh.at(this->amountOfMeshes - 1).createFaces(temp_vert[i - 1], tempV);
+				tempV++;
 			}
 		}
 	}
-
-	textureArray.Ka.x = 1;
-	textureArray.Ks.x = 1;
-	textureArray.Kd.x = 1;
-
-	textureArray.garbagex = 0;
-	textureArray.garbagey = 0;
-	textureArray.garbagez = 0;
-
-	this->objTex.push_back(textureArray);
-	this->matList.push_back(matL);
 
 	HRESULT hr;
 
@@ -158,32 +145,36 @@ void OBJHandler::LoadModel(std::string fileName, ID3D11Device* gDevice, ID3D11Bu
 	memset(&bufferDesc, 0, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(TriangleInfo) * this->amountOfVertecies;
+	bufferDesc.ByteWidth = sizeof(this->mesh.at(0).returnVertexInfo()) * this->getAmountOfVertecies();
 
 	D3D11_SUBRESOURCE_DATA data;
-	ZeroMemory(&data, sizeof(data));
-	data.pSysMem = this->vertexFace.data();
-	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gVertexBuffer);
-
-	if (FAILED(hr))
+	for (int i = 0; i < this->amountOfMeshes; i++)
 	{
-		return exit(-1);
+		ZeroMemory(&data, sizeof(data));
+		data.pSysMem = this->mesh.at(i).returnVertexData();
+		hr = gDevice->CreateBuffer(&bufferDesc, &data, &gVertexBuffer);
+		if (FAILED(hr))
+		{
+			return exit(-1);
+		}
 	}
 	D3D11_BUFFER_DESC cBufferDesc;
 	ZeroMemory(&cBufferDesc, sizeof(cBufferDesc));
 	cBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cBufferDesc.ByteWidth = sizeof(TextureInfo) * this->amountOfTextures;
+	cBufferDesc.ByteWidth = this->meshTex.at(0).returnTextureInfo() * this->amountOfTextures;
 	cBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cBufferDesc.MiscFlags = 0;
 	cBufferDesc.StructureByteStride = 0;
 
-	ZeroMemory(&data, sizeof(data));
-	data.pSysMem = this->objTex.data();
+	for (int i = 0; i < this->amountOfTextures; i++)
+	{
+		ZeroMemory(&data, sizeof(data));
+		data.pSysMem = this->meshTex.data();
 
-	hr = gDevice->CreateBuffer(&cBufferDesc, &data, &shaderBuffer);
-
-	std::cout << this->matList.at(0).daName;
+		hr = gDevice->CreateBuffer(&cBufferDesc, &data, &shaderBuffer);
+	}
+	std::cout << this->meshTex.at(0).returnDiffuseName();
 
 	if (FAILED(hr))
 	{
@@ -196,11 +187,14 @@ void OBJHandler::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceCo
 
 	wchar_t mat[256];
 
-	for (int i = 0; i < 256; i++)
-	{
-		mat[i] = this->matList.at(0).daName[i];
-	}
 
+	for (int i = 0; i < this->amountOfTextures; i++)
+	{
+		for (int j = 0; j < 256; j++)
+		{
+			mat[j] = this->meshTex.at(i).returnDiffuseName()[j];
+		}
+	}
 
 	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, mat, NULL, &gTextureRTV, NULL);
 
@@ -262,11 +256,11 @@ int OBJHandler::getAmountOfVertecies()
 	}
 	return sum;
 }
-int OBJHandler::returnVertexInfo()
+UINT32 OBJHandler::returnVertexInfo()
 {
 	return this->mesh.at(0).returnVertexInfo();
 }
 const char* OBJHandler::returnDiffuseName()
 {
-	return 
+	return this->meshTex.at(0).returnDiffuseName();
 }

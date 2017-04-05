@@ -58,8 +58,10 @@ DirectX::XMFLOAT2 OBJ::getVertUVAt(int index)
 	return this->vertexTex.at(index);
 }
 
-void OBJ::createFaces(DirectX::XMINT3 temp_vert)
+void OBJ::createFaces(DirectX::XMINT3 temp_vert, int count)
 {
+	TriangleInfo triangleArray;
+
 	DirectX::XMFLOAT3 inputValues;
 	DirectX::XMFLOAT2 inputTex;
 
@@ -71,31 +73,49 @@ void OBJ::createFaces(DirectX::XMINT3 temp_vert)
 
 	inputValues = this->getVertNormAt(temp_vert.y);
 
-	triangleArray.nx = vertexNorm.at(temp_vert[i].z - 1).x;
-	triangleArray.ny = vertexNorm.at(temp_vert[i].z - 1).y;
-	triangleArray.nz = vertexNorm.at(temp_vert[i].z - 1).z;
+	triangleArray.x = inputValues.x;
+	triangleArray.y = inputValues.y;
+	triangleArray.z = inputValues.z;
 
 	inputValues = this->getVertPosAt(temp_vert.z);
 
-	triangleArray.u = vertexTex.at(temp_vert[i].y - 1).x;
-	triangleArray.v = vertexTex.at(temp_vert[i].y - 1).y;
+	triangleArray.u = inputValues.x;
+	triangleArray.v = inputValues.y;
 
 	this->vertexFace.push_back(triangleArray);
 }
 
-int OBJ::returnVertexInfo()
+UINT32 OBJ::returnVertexInfo()
 {
 	return sizeof(TriangleInfo);
+}
+auto OBJ::returnVertexData()
+{
+	return this->vertexFace.data();
 }
 int OBJ::getAmountOfVertecies()
 {
 	return this->amountOfVertecies;
 }
 
-
 //Textures
 Textures::Textures()
 {
+	this->objTex.Kd.x = 1;
+	this->objTex.Kd.y = 1;
+	this->objTex.Kd.z = 1;
+
+	this->objTex.Ka.x = 1;
+	this->objTex.Ka.y = 1;
+	this->objTex.Ka.z = 1;
+
+	this->objTex.Ks.x = 1;
+	this->objTex.Ks.y = 1;
+	this->objTex.Ks.z = 1;
+
+	this->objTex.garbagex = 0;
+	this->objTex.garbagey = 0;
+	this->objTex.garbagez = 0;
 
 }
 Textures::~Textures() 
@@ -141,7 +161,11 @@ void Textures::setDiffAmbName(char* cmd)
 	}
 }
 
-const char* Textures::returnDiffuseName()
+char* Textures::returnDiffuseName()
 {
 	return this->matList.daName;
+}
+int Textures::returnTextureInfo()
+{
+	return sizeof(TextureInfo);
 }

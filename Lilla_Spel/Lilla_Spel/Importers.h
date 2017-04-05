@@ -9,6 +9,9 @@
 #																																#
 #################################################################################################################################
 */
+class OBJ;
+class Textures;
+
 class OBJHandler
 {
 public:
@@ -23,7 +26,7 @@ public:
 	int findAmountOfTextures(std::string fileName);
 
 	int getAmountOfVertecies();
-	int returnVertexInfo();
+	UINT32 returnVertexInfo();
 	const char* returnDiffuseName();
 
 	DirectX::XMMATRIX worldM;
@@ -55,9 +58,10 @@ public:
 	DirectX::XMFLOAT3 getVertNormAt(int index);
 	DirectX::XMFLOAT2 getVertUVAt(int index);
 
-	void OBJ::createFaces(DirectX::XMINT3 temp_vert);
+	void createFaces(DirectX::XMINT3 temp_vert, int);
 
-	int returnVertexInfo();
+	UINT32 returnVertexInfo();
+	auto returnVertexData();
 	int getAmountOfVertecies();
 private:
 	struct TriangleInfo
@@ -94,7 +98,8 @@ public:
 	void setSpecName(char* cmd);
 	void setNormName(char* cmd);
 
-	const char* returnDiffuseName();
+	char* returnDiffuseName();
+	int returnTextureInfo();
 
 private:
 	struct TextureInfo
