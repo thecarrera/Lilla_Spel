@@ -1,6 +1,7 @@
 #pragma once
 #include "Includes.h"
 #include "Linker.h"
+#include "SoundManager.h"
 
 /*
 #################################################################################################################################
@@ -29,6 +30,8 @@ public:
 	void CreateShaders();
 	void ConstantBuffer();
 	void DepthBuffer();
+
+	void Sound(HWND* wndHandle);
 
 private:
 	ID3D11Device* gDevice = nullptr;
@@ -63,6 +66,9 @@ private:
 	ID3D11ShaderResourceView* gTextureRTV = nullptr;
 
 	objMatrices characterMatrices;
+
+
+	SoundManager soundManager;
 
 
 private:

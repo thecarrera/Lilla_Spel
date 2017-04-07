@@ -12,6 +12,7 @@
 
 DX::DX()
 {
+	
 }
 DX::~DX()
 {
@@ -43,8 +44,10 @@ void DX::Clean()
 }
 
 void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
+
 {
 	this->CreateDirect3DContext(wndHandle);
+	this->Sound(wndHandle);
 	 
 	this->SetViewport();
 
@@ -58,6 +61,8 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->linker.Texture(this->gDevice, this->gDeviceContext, this->gTextureRTV);
 
 	this->CreateShaders();
+
+	soundManager.Play("Main theme.wav", false);
 
 }
 void DX::Update()
@@ -335,4 +340,11 @@ void DX::DepthBuffer()
 	{
 		return exit(-1);
 	}
+}
+
+void DX::Sound(HWND* wndHandle)
+{
+
+	soundManager.initialize(wndHandle);
+
 }

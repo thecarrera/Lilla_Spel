@@ -12,7 +12,7 @@ SoundManager::SoundManager()
 SoundManager::~SoundManager()
 {
 }
-bool SoundManager::initialize(HWND hwnd)
+bool SoundManager::initialize(HWND* hwnd)
 {
 	bool hres;
 
@@ -20,7 +20,22 @@ bool SoundManager::initialize(HWND hwnd)
 
 	return false;
 }
-bool SoundManager::initializeDS(HWND hwnd)
+void SoundManager::shutdown()
+{
+	shutdownWave(&SecondaryBuffer);
+
+	shutdownDS();
+
+}
+void SoundManager::Play(char * filepath, bool shouldLoop)
+{
+	loadWave(filepath, &SecondaryBuffer);
+	playWave();
+	
+
+
+}
+bool SoundManager::initializeDS(HWND* hwnd)
 {
 	HRESULT hres;
 	DSBUFFERDESC bufferDsc;
@@ -31,7 +46,7 @@ bool SoundManager::initializeDS(HWND hwnd)
 	if (FAILED(hres)) {
 		return false;
 	}
-	hres = DirectS->SetCooperativeLevel(hwnd, DSSCL_PRIORITY);
+	hres = DirectS->SetCooperativeLevel(*hwnd, DSSCL_PRIORITY);
 	if (FAILED(hres)) {
 		return false;
 	}
@@ -109,26 +124,26 @@ bool SoundManager::loadWave(char * filepath, IDirectSoundBuffer8 ** SecondaryBuf
 		(waveHeader.format[2] != 'V') || (waveHeader.format[3] != 'E')) {
 		return false;
 	}
-	if ((waveHeader.subChunkID[0] != 'f') || (waveHeader.subChunkID[1] != 'm') ||
-		(waveHeader.subChunkID[2] != 't') || (waveHeader.subChunkID[3] != ' ')) {
+	if ((waveHeader.subChunkId[0] != 'f') || (waveHeader.subChunkId[1] != 'm') ||
+		(waveHeader.subChunkId[2] != 't') || (waveHeader.subChunkId[3] != ' ')) {
 		return false;
 	}
 	if (waveHeader.audioFormat != WAVE_FORMAT_PCM) {
 		return false;
 	}
-	if (waveHeader.numChl != 2)
+	if (waveHeader.numChannels != 2)
 	{
 		return false;
 	}
-	if(waveHeader.smplRate != 44100)
+	if(waveHeader.sampleRate != 44100)
 	{
 		return false;
 	}
-	if (waveHeader.bitPS != 16) {
+	if (waveHeader.bitPerSecond != 16) {
 		return false;
 	}
-	if ((waveHeader.dataChuckID[0] != 'd') || (waveHeader.dataChuckID[1] != 'a') ||
-		(waveHeader.dataChuckID[2] != 't') || (waveHeader.dataChuckID[3] != 'a')) {
+	if ((waveHeader.dataChuckId[0] != 'd') || (waveHeader.dataChuckId[1] != 'a') ||
+		(waveHeader.dataChuckId[2] != 't') || (waveHeader.dataChuckId[3] != 'a')) {
 		return false;
 	}
 
@@ -142,7 +157,7 @@ bool SoundManager::loadWave(char * filepath, IDirectSoundBuffer8 ** SecondaryBuf
 
 	bufferdsc.dwSize = sizeof(DSBUFFERDESC);
 	bufferdsc.dwFlags = DSBCAPS_CTRLVOLUME;
-	bufferdsc.dwBufferBytes = waveHeader.dataSZ;
+	bufferdsc.dwBufferBytes = waveHeader.dataSize;
 	bufferdsc.dwReserved = 0;
 	bufferdsc.lpwfxFormat = &waveFormat;
 	bufferdsc.guid3DAlgorithm = DS3DALG_NO_VIRTUALIZATION;
@@ -160,18 +175,68 @@ bool SoundManager::loadWave(char * filepath, IDirectSoundBuffer8 ** SecondaryBuf
 	tmpBuff = 0;
 
 
-	// CONTINUE!!!
+	fseek(filePtr, sizeof(waveHeader), SEEK_SET);
+
+	waveData = new unsigned char[waveHeader.dataSize];
+	if (!waveData) {
+		return false;
+	}
+
+	count = fread(waveData, 1, waveHeader.dataSize, filePtr);
+	if (count != waveHeader.dataSize) {
+		return false;
+	}
+	error = fclose(filePtr);
+	if (error != 0) {
+		return false;
+	}
+
+	hres = (*SecondaryBuffer)->Lock(0, waveHeader.dataSize, (void**)&bufferptr, (DWORD*)&bufferSz, NULL, 0, 0);
+	if (FAILED(hres)) {
+		return false;
+	}
+
+	memcpy(bufferptr, waveData, waveHeader.dataSize);
+
+	hres = (*SecondaryBuffer)->Unlock((void*)bufferptr, bufferSz, NULL, 0);
+	if (FAILED(hres)) {
+		return false;
+	}
+
+	delete[]waveData;
+	waveData = 0;
 
 	return false;
 }
 
-void SoundManager::shutdownWave()
+void SoundManager::shutdownWave(IDirectSoundBuffer8** SecondaryBuffer)
 {
+	if (*SecondaryBuffer) {
+		(*SecondaryBuffer)->Release();
+		*SecondaryBuffer = 0;
+	}
+
+
 }
 
 bool SoundManager::playWave()
 {
-	return false;
+	HRESULT hres;
+
+	hres = SecondaryBuffer->SetCurrentPosition(0);
+	if (FAILED(hres)) {
+		return false;
+	}
+	hres = SecondaryBuffer->SetVolume(DSBVOLUME_MAX);
+	if (FAILED(hres)) {
+		return false;
+	}
+	hres = SecondaryBuffer->Play(0, 0, 0);
+	if (FAILED(hres)) {
+		return false;
+	}
+
+	return true;
 }
 
 

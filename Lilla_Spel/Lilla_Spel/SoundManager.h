@@ -18,29 +18,29 @@ private:
 	//Wave struct, in load, we will validate the data before loading it in to the struct and then passing it to the secondary buffer.
 	struct Wave {
 		char chunkID[4];
-		unsigned long chunkSZ;
+		unsigned long chunkSize;
 		char format[4];
-		char subChunkID[4];
-		unsigned long subChunkSZ;
+		char subChunkId[4];
+		unsigned long subChunkSize;
 		unsigned short audioFormat;
-		unsigned short numChl;
-		unsigned long smplRate;
-		unsigned long bytePS;
-		unsigned short blockAlgn;
-		unsigned short bitPS;
-		char dataChuckID[4];
-		unsigned long dataSZ;
+		unsigned short numChannels;
+		unsigned long sampleRate;
+		unsigned long bytePerSecond;
+		unsigned short blockAlign;
+		unsigned short bitPerSecond;
+		char dataChuckId[4];
+		unsigned long dataSize;
 };
-	bool initializeDS(HWND hwnd);
+	bool initializeDS(HWND* hwnd);
 	void shutdownDS();
 	bool loadWave(char* filepath, IDirectSoundBuffer8** SecondaryBuffer);
-	void shutdownWave();
+	void shutdownWave(IDirectSoundBuffer8** SecondaryBuffer);
 	bool playWave();
 
 public:
 	SoundManager();
 	~SoundManager();
-	bool initialize(HWND hwnd);
+	bool initialize(HWND* hwnd);
 	void shutdown();
 	void Play(char* filepath, bool shouldLoop);
 
