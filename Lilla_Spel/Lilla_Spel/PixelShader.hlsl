@@ -30,6 +30,8 @@ uv.y = 1 - uv.y;
 
 float3 s = txDiffuse.Sample(sampAni, uv).xyz * cos + pow(float3(0.3f,0.3f,0.3f),3.0f) * 1.f;
 
+s = float3(0.941f, 0.902f, 0.549f) * cos;
+
 clamp(s, 0, 1);
 
 return float4(s, 1.f);

@@ -1,5 +1,6 @@
 #include "DirectX.h"
 
+
 /*
 #################################################################################################################################
 #																																#
@@ -44,10 +45,13 @@ void DX::Clean()
 void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 {
 	this->CreateDirect3DContext(wndHandle);
-
+	 
 	this->SetViewport();
 
-	this->linker.LoadModel("Ogre.obj", this->gDevice, this->gVertexBuffer, this->shaderBuffer);
+
+	this->linker.LoadModel("MapProp_OBJ.obj", this->gDevice, this->gVertexBuffer, this->shaderBuffer);
+
+
 
 	this->ConstantBuffer();
 
@@ -128,7 +132,7 @@ void DX::SetViewport()
 }
 void DX::Render() 
 {
-	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
+	float clearColor[] = { 0.686f, 0.933f, 0.933f, 1.f };
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -150,7 +154,7 @@ void DX::Render()
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
-	cameraMatrices.worldM *= DirectX::XMMatrixRotationY(-0.02f); 
+	cameraMatrices.worldM *= DirectX::XMMatrixRotationY(-0.001f); 
 	//CameraMatrix.worldM *= DirectX::XMMatrixRotationX(-0.02f);
 
 	memcpy(dataPtr.pData, &this->cameraMatrices, sizeof(this->cameraMatrices));
@@ -267,21 +271,21 @@ void DX::CreateShaders()
 }
 void DX::ConstantBuffer()
 {
-	this->cameraPos = { 0, 0, -10 };	// y 50% större än z ger bra-ish
-	this->lookAT = { 0, 0, 1 };		// lookAT vill vi ska vara på cameraPos av spelaren
+	this->cameraPos = { 0, 10, -10 };	// y 50% större än z ger bra-ish
+	this->lookAT = { 0, 10, 100 };		// lookAT vill vi ska vara på cameraPos av spelaren
 	this->upVec = { 0, 1, 0 };
 	this->mRight = DirectX::XMVector3Cross(upVec, lookAT);
 	this->mRight = DirectX::XMVector3Normalize(mRight);		//behöver right, right?
 
-	float FOV = { 0.45f * DirectX::XM_PI };
+	float FOV = { 0.25f * DirectX::XM_PI };
 	float ARO = (float)WIDTH / (float)HEIGHT;
 	float nPlane = 0.1f;
-	float fPlane = 70.0f;
+	float fPlane = 370.0f;
 
 	DirectX::XMMATRIX worldM = 
-	  { 0.02f,0,0,0,
-		0,0.02f,0,0,
-		0,0,0.02f,0,
+	  { 1,0,0,0,
+		0,1,0,0,
+		0,0,1,0,
 		0,0,0,1 };
 
 	DirectX::XMMATRIX viewM = DirectX::XMMatrixLookAtLH(cameraPos, lookAT, upVec);
