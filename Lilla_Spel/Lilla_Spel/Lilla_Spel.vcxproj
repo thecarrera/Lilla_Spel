@@ -85,7 +85,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -121,8 +121,12 @@
   <ItemGroup>
     <ClInclude Include="DirectX.h" />
     <ClInclude Include="Includes.h" />
+    <ClInclude Include="InputFileReader.hpp" />
     <ClInclude Include="Linker.h" />
     <ClInclude Include="Importers.h" />
+    <ClInclude Include="OBJLoader.hpp" />
+    <ClInclude Include="TriangleData.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>

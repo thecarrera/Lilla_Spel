@@ -47,13 +47,17 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->linker.LoadModel("Ogre.obj", this->gDevice, this->gVertexBuffer, this->shaderBuffer);
+	//this->linker.LoadModel("Ogre.obj", this->gDevice, this->gVertexBuffer, this->shaderBuffer);
 
 	this->ConstantBuffer();
 
-	this->linker.Texture(this->gDevice, this->gDeviceContext, this->gTextureRTV);
+	//this->linker.Texture(this->gDevice, this->gDeviceContext, this->gTextureRTV);
 
 	this->CreateShaders();
+
+	Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
+		this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
+	
 
 }
 void DX::Update()
@@ -133,11 +137,10 @@ void DX::Render()
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	
-	UINT32 vertexSize = this->linker.ReturnVertexInfo();
+	UINT32 vertexSize = sizeof(float) * 5;
 	UINT32 offset = 0;
 
 	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBuffer, &vertexSize, &offset);
 
 	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -160,8 +163,10 @@ void DX::Render()
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
 	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
-	this->gDeviceContext->Draw(this->linker.getAmountOfVerticies(), 0);
-
+	for (int i = 0; i <this->gVertexBuffer2_size; i++) {
+		this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+		this->gDeviceContext->Draw(this->vertexCountOBJ[i], 0);
+	}
 	this->gSwapChain->Present(1, 0);
 }
 
@@ -193,9 +198,9 @@ void DX::CreateShaders()
 
 	D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
 		{ "SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 } 
 	};
+
 
 	this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), pVS->GetBufferPointer(), pVS->GetBufferSize(), &this->gVertexLayout);
 
@@ -267,7 +272,7 @@ void DX::CreateShaders()
 }
 void DX::ConstantBuffer()
 {
-	this->cameraPos = { 0, 0, -10 };	// y 50% större än z ger bra-ish
+	this->cameraPos = { 0, 0, -20 };	// y 50% större än z ger bra-ish
 	this->lookAT = { 0, 0, 1 };		// lookAT vill vi ska vara på cameraPos av spelaren
 	this->upVec = { 0, 1, 0 };
 	this->mRight = DirectX::XMVector3Cross(upVec, lookAT);
@@ -279,10 +284,10 @@ void DX::ConstantBuffer()
 	float fPlane = 70.0f;
 
 	DirectX::XMMATRIX worldM = 
-	  { 0.02f,0,0,0,
-		0,0.02f,0,0,
-		0,0,0.02f,0,
-		0,0,0,1 };
+	  { 1.0f, 0, 0, 0,
+		0, 1.0f, 0, 0,
+		0, 0, 1.0f, 0,
+		0, 0, 0, 1 };
 
 	DirectX::XMMATRIX viewM = DirectX::XMMatrixLookAtLH(cameraPos, lookAT, upVec);
 	DirectX::XMMATRIX projM = DirectX::XMMatrixPerspectiveFovLH(FOV, ARO, nPlane, fPlane);

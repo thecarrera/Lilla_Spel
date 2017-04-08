@@ -10,8 +10,8 @@ cbuffer CBUFFER : register(b0)
 struct FS_IN
 {
 	float4 Pos : SV_POSITION;
-	float4 Norm : NORMAL;
-	float2 Tex : TEXCOORD;
+	float3 uv : UV;
+	float3 Norm : NORMAL;
 	float4 wPos : POSITION;
 };
 
@@ -24,7 +24,7 @@ float cos = dot(lightDir, input.Norm.xyz);
 
 float spec = dot(r, -input.wPos.xyz);
 
-float2 uv = input.Tex;
+float2 uv = input.uv;
 
 uv.y = 1 - uv.y;
 

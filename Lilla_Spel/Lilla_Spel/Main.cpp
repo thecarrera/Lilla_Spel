@@ -1,5 +1,6 @@
 #include "DirectX.h"
 
+
 #define _CRT_SECURE_NO_WARNINGS
 
 HWND InitWindow(HMODULE hModule);

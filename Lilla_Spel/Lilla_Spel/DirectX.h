@@ -1,6 +1,6 @@
 #pragma once
-#include "Includes.h"
-#include "Linker.h"
+//#include "Linker.h"
+#include "includes.h"
 
 /*
 #################################################################################################################################
@@ -64,9 +64,14 @@ private:
 
 	objMatrices characterMatrices;
 
+	// New code
+	int* vertexCountOBJ = nullptr;
+	int gVertexBuffer2_size;
+	float* objCoords;
+	ID3D11Buffer** gVertexBufferArray = nullptr;
 
 private:
-	Linker linker;
+	//Linker linker;
 private:
 	DirectX::XMVECTOR cameraPos;
 	DirectX::XMVECTOR lookAT;
