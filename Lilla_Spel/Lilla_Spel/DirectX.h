@@ -1,6 +1,7 @@
 #pragma once
 //#include "Linker.h"
 #include "includes.h"
+#include "Player.h"
 
 /*
 #################################################################################################################################
@@ -24,11 +25,15 @@ public:
 	void SetViewport();
 
 	void Update();
-	void Render();
+	void Render(bool isPlayer);
 
 	void CreateShaders();
 	void ConstantBuffer();
 	void DepthBuffer();
+
+	void updateConstantBuffer();
+	void updateCameraConstantBuffer();
+	void resetConstantBuffer();
 
 private:
 	ID3D11Device* gDevice = nullptr;
@@ -49,26 +54,21 @@ private:
 	ID3D11Texture2D* gDepthStencil = nullptr;
 
 	ID3D11Buffer* gCBuffer = nullptr;
-	struct objMatrices
-	{
-		DirectX::XMMATRIX worldM;
-		DirectX::XMMATRIX viewM;
-		DirectX::XMMATRIX projM;
-	};
-	objMatrices cameraMatrices;
 
 	ID3D11Buffer* shaderBuffer = nullptr;
 	ID3D11SamplerState* samplerState = nullptr;
 
 	ID3D11ShaderResourceView* gTextureRTV = nullptr;
 
-	objMatrices characterMatrices;
+	objMatrices cameraMatrices;
+
+	Player * player;
 
 	// New code
 	int* vertexCountOBJ = nullptr;
 	int gVertexBuffer2_size;
-	float* objCoords;
-	ID3D11Buffer** gVertexBufferArray = nullptr;
+	float* objCoords;	//denna?
+	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
 
 private:
 	//Linker linker;

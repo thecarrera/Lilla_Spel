@@ -49,20 +49,39 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	//this->linker.LoadModel("Ogre.obj", this->gDevice, this->gVertexBuffer, this->shaderBuffer);
 
-	this->ConstantBuffer();
+	this->player = new Player();
+	DirectX::XMMATRIX world =
+	{ 1.0f, 0, 0, 0,
+		0, 1.0f, 0, 0,
+		0, 0, 1.0f, 0,
+		0, 0, 0, 1 };
+	//world = DirectX::XMMatrixTranspose(world); //unnecesarry in this tilfälle
+
+	this->ConstantBuffer(); //kamera
+
+	this->player->initiateMatrices(world, this->cameraMatrices.viewM, this->cameraMatrices.projM);
 
 	//this->linker.Texture(this->gDevice, this->gDeviceContext, this->gTextureRTV);
 
 	this->CreateShaders();
 
-	Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
+	Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray, //vertexbuffarray array med verticernas arrayer
 		this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 	
-
+	
 }
 void DX::Update()
 {
-	this->Render();
+	//this->player->updateConstantBuffer(this->gCBuffer);
+	player->move();
+	this->updateConstantBuffer();
+	this->Render(true);
+
+	this->resetConstantBuffer();
+	this->Render(false);
+
+	//en renderloop för spelaren och en för resten, bool beroende på vart i arrayen vi är
+	//this->Render();
 }
 
 void DX::CreateDirect3DContext(HWND* wndHandle)
@@ -130,7 +149,7 @@ void DX::SetViewport()
 
 	this->gDeviceContext->RSSetViewports(1, &vp);
 }
-void DX::Render() 
+void DX::Render(bool isPlayer) 
 {
 	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
 
@@ -150,22 +169,37 @@ void DX::Render()
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
 	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
 
-	D3D11_MAPPED_SUBRESOURCE dataPtr;
-	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
-	cameraMatrices.worldM *= DirectX::XMMatrixRotationY(-0.02f); 
-	//CameraMatrix.worldM *= DirectX::XMMatrixRotationX(-0.02f);
 
-	memcpy(dataPtr.pData, &this->cameraMatrices, sizeof(this->cameraMatrices));
 
-	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+	//D3D11_MAPPED_SUBRESOURCE dataPtr;
+	//this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+	//cameraMatrices.worldM *= DirectX::XMMatrixRotationY(-0.02f); 
+	////cameraMatrix.worldM *= DirectX::XMMatrixRotationX(-0.02f);
+
+	//memcpy(dataPtr.pData, &this->cameraMatrices, sizeof(this->cameraMatrices));
+
+	//this->gDeviceContext->Unmap(this->gCBuffer, 0);
+
+
+
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
 	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
-	for (int i = 0; i <this->gVertexBuffer2_size; i++) {
-		this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-		this->gDeviceContext->Draw(this->vertexCountOBJ[i], 0);
+	if (isPlayer == true)
+	{
+		this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
+		this->gDeviceContext->Draw(this->vertexCountOBJ[0], 0);
+	}
+
+	if (isPlayer == false)
+	{
+		for (int i = 1; i < this->gVertexBuffer2_size; i++) {
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+			this->gDeviceContext->Draw(this->vertexCountOBJ[i], 0);
+		}
 	}
 	this->gSwapChain->Present(1, 0);
 }
@@ -272,7 +306,7 @@ void DX::CreateShaders()
 }
 void DX::ConstantBuffer()
 {
-	this->cameraPos = { 0, 0, -20 };	// y 50% större än z ger bra-ish
+	this->cameraPos = { 0, 50, -25};	// y 50% större än z ger bra-ish
 	this->lookAT = { 0, 0, 1 };		// lookAT vill vi ska vara på cameraPos av spelaren
 	this->upVec = { 0, 1, 0 };
 	this->mRight = DirectX::XMVector3Cross(upVec, lookAT);
@@ -289,7 +323,7 @@ void DX::ConstantBuffer()
 		0, 0, 1.0f, 0,
 		0, 0, 0, 1 };
 
-	DirectX::XMMATRIX viewM = DirectX::XMMatrixLookAtLH(cameraPos, lookAT, upVec);
+	DirectX::XMMATRIX viewM = DirectX::XMMatrixLookAtLH(cameraPos, lookAT, upVec);	//getfunctions
 	DirectX::XMMATRIX projM = DirectX::XMMatrixPerspectiveFovLH(FOV, ARO, nPlane, fPlane);
 
 	this->cameraMatrices = { DirectX::XMMatrixTranspose(worldM), DirectX::XMMatrixTranspose(viewM), DirectX::XMMatrixTranspose(projM)};
@@ -304,7 +338,7 @@ void DX::ConstantBuffer()
 
 	HRESULT hr = 0;
 	D3D11_SUBRESOURCE_DATA data;
-	data.pSysMem = &this->cameraMatrices;
+	data.pSysMem = &this->player->getMatrices();
 
 	hr = gDevice->CreateBuffer(&cBufferDesc, &data, &this->gCBuffer);
 
@@ -336,4 +370,76 @@ void DX::DepthBuffer()
 	{
 		return exit(-1);
 	}
+}
+
+void DX::updateConstantBuffer()
+{
+	objMatrices playerMatrices = player->getMatrices();
+
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE)); //behövs imnte
+
+
+	//Låser buffern för GPU:n och hämtar den till CPU
+	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+	//do stuff, just setting the matrices right
+
+	memcpy(dataPtr.pData, &playerMatrices, sizeof(playerMatrices)); //SJÄLVA UPPDTAERINGEN MED NYA MATRICE
+
+	//Ger GPU:n tillgång till datan igen
+	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+}
+
+//fixa med kamera
+
+//void DX::updateCameraConstantBuffer()
+//{
+//	objMatrices playerMatrices = player->getMatrices();
+//
+//	D3D11_MAPPED_SUBRESOURCE dataPtr;
+//	ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE)); //behövs imnte
+//
+//															//playerMatrices.worldM = playerMatrices.worldM * DirectX::XMMatrixTranslation(0.1f, 0.0f, 0.0f);
+//	player->setMatrices(playerMatrices);
+//
+//	//Låser buffern för GPU:n och hämtar den till CPU
+//	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+//
+//	//do stuff 
+//
+//
+//
+//	memcpy(dataPtr.pData, &playerMatrices, sizeof(playerMatrices)); //SJÄLVA UPPDTAERINGEN MED NYA MATRICE
+//
+//																	//Ger GPU:n tillgång till datan igen
+//	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+//}
+
+void DX::resetConstantBuffer()
+{
+	objMatrices standardMatrices;
+
+	standardMatrices.worldM =
+	{ 1.0f,0,0,0,
+		0,1.0f,0,0,
+		0,0,1.0f,0,
+		0,0,0,1 };
+
+	standardMatrices.viewM = this->cameraMatrices.viewM;
+
+	standardMatrices.projM = this->cameraMatrices.projM;
+
+	standardMatrices = { DirectX::XMMatrixTranspose(standardMatrices.worldM), standardMatrices.viewM, standardMatrices.projM };
+
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+	ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE)); //behövs imnte
+
+	//Låser buffern för GPU:n och hämtar den till CPU
+	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+	memcpy(dataPtr.pData, &standardMatrices, sizeof(standardMatrices)); //SJÄLVA UPPDTAERINGEN MED NYA MATRICE
+
+	//Ger GPU:n tillgång till datan igen
+	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 }
