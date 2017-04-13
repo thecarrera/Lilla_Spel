@@ -126,6 +126,7 @@
     <ClInclude Include="Linker.h" />
     <ClInclude Include="Importers.h" />
     <ClInclude Include="OBJLoader.hpp" />
+    <ClInclude Include="ParticleClass.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="TriangleData.h" />
     <ClInclude Include="Vertex.h" />
@@ -139,6 +140,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="OBJ.cpp" />
+    <ClCompile Include="ParticleClass.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>
