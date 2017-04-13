@@ -8,7 +8,7 @@
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
-//#include <DirectXMath.h>
+#include <DirectXMath.h>
 
 //#include <wincodec.h>
 //#include <wrl.h>
@@ -34,4 +34,23 @@ struct objMatrices
 	DirectX::XMMATRIX worldM;
 	DirectX::XMMATRIX viewM;
 	DirectX::XMMATRIX projM;
+};
+
+struct ParticleType
+{
+	float PositionX;
+	float PositionY;
+	float PositionZ;
+	float red;
+	float green;
+	float blue;
+	float velocity;
+	bool active;
+};
+
+struct vertexType
+{
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT2 texture;
+	DirectX::XMFLOAT4 color;
 };
