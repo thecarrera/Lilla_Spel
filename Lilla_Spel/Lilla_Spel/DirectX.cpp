@@ -57,9 +57,11 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 		0, 0, 0, 1 };
 	//world = DirectX::XMMatrixTranspose(world); //unnecesarry in this tilfälle
 
-	this->ConstantBuffer(); //kamera
+	this->createGCBuffer(); //kamera
 
-	this->player->initiateMatrices(world, this->cameraMatrices.viewM, this->cameraMatrices.projM);
+	this->camera = new Camera();
+
+	this->player->initiateMatrices(world, this->camera->getCameraMatrices().viewM, this->camera->getCameraMatrices().projM);
 
 	//this->linker.Texture(this->gDevice, this->gDeviceContext, this->gTextureRTV);
 
@@ -73,15 +75,27 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 void DX::Update()
 {
 	//this->player->updateConstantBuffer(this->gCBuffer);
-	player->move();
-	this->updateConstantBuffer();
+	player->move(this->camera);
+
+	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
+
+	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
+	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	this->updatePlayerConstantBuffer(); //annars ser inte rör
 	this->Render(true);
+
+	//updateraKamera
 
 	this->resetConstantBuffer();
 	this->Render(false);
 
+	this->updateCameraConstantBuffer();
+	//en till render?
+
 	//en renderloop för spelaren och en för resten, bool beroende på vart i arrayen vi är
 	//this->Render();
+	this->gSwapChain->Present(1, 0);
 }
 
 void DX::CreateDirect3DContext(HWND* wndHandle)
@@ -150,12 +164,7 @@ void DX::SetViewport()
 	this->gDeviceContext->RSSetViewports(1, &vp);
 }
 void DX::Render(bool isPlayer) 
-{
-	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
-
-	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
-	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
-	
+{	
 	UINT32 vertexSize = sizeof(float) * 5;
 	UINT32 offset = 0;
 
@@ -175,7 +184,7 @@ void DX::Render(bool isPlayer)
 	//D3D11_MAPPED_SUBRESOURCE dataPtr;
 	//this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
-	//cameraMatrices.worldM *= DirectX::XMMatrixRotationY(-0.02f); 
+	//this->cameraMatrices.worldM *= DirectX::XMMatrixRotationY(-0.02f); 
 	////cameraMatrix.worldM *= DirectX::XMMatrixRotationX(-0.02f);
 
 	//memcpy(dataPtr.pData, &this->cameraMatrices, sizeof(this->cameraMatrices));
@@ -201,7 +210,6 @@ void DX::Render(bool isPlayer)
 			this->gDeviceContext->Draw(this->vertexCountOBJ[i], 0);
 		}
 	}
-	this->gSwapChain->Present(1, 0);
 }
 
 void DX::CreateShaders()
@@ -304,30 +312,8 @@ void DX::CreateShaders()
 
 	hr = this->gDevice->CreateSamplerState(&sampDesc, &this->samplerState);
 }
-void DX::ConstantBuffer()
+void DX::createGCBuffer()
 {
-	this->cameraPos = { 0, 50, -25};	// y 50% större än z ger bra-ish
-	this->lookAT = { 0, 0, 1 };		// lookAT vill vi ska vara på cameraPos av spelaren
-	this->upVec = { 0, 1, 0 };
-	this->mRight = DirectX::XMVector3Cross(upVec, lookAT);
-	this->mRight = DirectX::XMVector3Normalize(mRight);		//behöver right, right?
-
-	float FOV = { 0.45f * DirectX::XM_PI };
-	float ARO = (float)WIDTH / (float)HEIGHT;
-	float nPlane = 0.1f;
-	float fPlane = 70.0f;
-
-	DirectX::XMMATRIX worldM = 
-	  { 1.0f, 0, 0, 0,
-		0, 1.0f, 0, 0,
-		0, 0, 1.0f, 0,
-		0, 0, 0, 1 };
-
-	DirectX::XMMATRIX viewM = DirectX::XMMatrixLookAtLH(cameraPos, lookAT, upVec);	//getfunctions
-	DirectX::XMMATRIX projM = DirectX::XMMatrixPerspectiveFovLH(FOV, ARO, nPlane, fPlane);
-
-	this->cameraMatrices = { DirectX::XMMatrixTranspose(worldM), DirectX::XMMatrixTranspose(viewM), DirectX::XMMatrixTranspose(projM)};
-
 	D3D11_BUFFER_DESC cBufferDesc;
 	cBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	cBufferDesc.ByteWidth = sizeof(objMatrices);
@@ -346,7 +332,6 @@ void DX::ConstantBuffer()
 	{
 		exit(-1);
 	}
-
 }
 void DX::DepthBuffer()
 {
@@ -372,13 +357,11 @@ void DX::DepthBuffer()
 	}
 }
 
-void DX::updateConstantBuffer()
+void DX::updatePlayerConstantBuffer() //med player matriser
 {
-	objMatrices playerMatrices = player->getMatrices();
+	objMatrices playerMatrices = this->player->getMatrices();
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
-	ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE)); //behövs imnte
-
 
 	//Låser buffern för GPU:n och hämtar den till CPU
 	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
@@ -393,28 +376,22 @@ void DX::updateConstantBuffer()
 
 //fixa med kamera
 
-//void DX::updateCameraConstantBuffer()
-//{
-//	objMatrices playerMatrices = player->getMatrices();
-//
-//	D3D11_MAPPED_SUBRESOURCE dataPtr;
-//	ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE)); //behövs imnte
-//
-//															//playerMatrices.worldM = playerMatrices.worldM * DirectX::XMMatrixTranslation(0.1f, 0.0f, 0.0f);
-//	player->setMatrices(playerMatrices);
-//
-//	//Låser buffern för GPU:n och hämtar den till CPU
-//	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-//
-//	//do stuff 
-//
-//
-//
-//	memcpy(dataPtr.pData, &playerMatrices, sizeof(playerMatrices)); //SJÄLVA UPPDTAERINGEN MED NYA MATRICE
-//
-//																	//Ger GPU:n tillgång till datan igen
-//	this->gDeviceContext->Unmap(this->gCBuffer, 0);
-//}
+void DX::updateCameraConstantBuffer() //används inte än
+{
+	objMatrices cameraMatrices = this->camera->getCameraMatrices();
+
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+
+	//Låser buffern för GPU:n och hämtar den till CPU
+	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+	//do stuff 
+
+	memcpy(dataPtr.pData, &cameraMatrices, sizeof(cameraMatrices)); //SJÄLVA UPPDTAERINGEN MED NYA MATRICE
+
+	//Ger GPU:n tillgång till datan igen
+	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+}
 
 void DX::resetConstantBuffer()
 {
@@ -426,9 +403,9 @@ void DX::resetConstantBuffer()
 		0,0,1.0f,0,
 		0,0,0,1 };
 
-	standardMatrices.viewM = this->cameraMatrices.viewM;
+	standardMatrices.viewM = this->camera->getCameraMatrices().viewM;
 
-	standardMatrices.projM = this->cameraMatrices.projM;
+	standardMatrices.projM = this->camera->getCameraMatrices().projM;
 
 	standardMatrices = { DirectX::XMMatrixTranspose(standardMatrices.worldM), standardMatrices.viewM, standardMatrices.projM };
 

@@ -6,8 +6,28 @@ class Camera
 {
 private:
 	objMatrices cameraMatrices;
+
+	DirectX::XMFLOAT3 cameraPos;
+	DirectX::XMFLOAT3 lookAt;
+	DirectX::XMFLOAT3 upVec;
+	DirectX::XMFLOAT3 mRight;
+
+	float FOV;
+	float ARO;
+	float nPlane;
+	float fPlane;
+
 public:
-	Camera(objMatrices cameraMatrices);
+	Camera();
 	~Camera();
 
+	void createCamera();
+	void updateCamera();
+
+	objMatrices getCameraMatrices()const;
+	void setCameraMatrices(objMatrices cameraMatrices);
+
+	void move(DirectX::XMMATRIX temp);
+
+	void setCameraPos(DirectX::XMFLOAT3 cameraPos);
 };

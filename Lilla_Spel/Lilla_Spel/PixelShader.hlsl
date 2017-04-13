@@ -28,7 +28,7 @@ float2 uv = input.uv;
 
 uv.y = 1 - uv.y;
 
-float3 s = txDiffuse.Sample(sampAni, uv).xyz * cos + pow(float3(0.3f,0.3f,0.3f),3.0f) * 1.f;
+float3 s = /*txDiffuse.Sample(sampAni, uv).xyz*/ float3(1.f, 1.f, 1.f) * cos; //+ pow(spec,2.0f) * 0.6f;
 
 clamp(s, 0, 1);
 
