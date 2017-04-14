@@ -39,6 +39,8 @@ void DX::Clean()
 	SAFE_RELEASE(this->samplerState);
 
 	SAFE_RELEASE(this->gTextureRTV);
+	SAFE_DELETE(this->gVertexBufferArray);
+	
 }
 
 void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
@@ -77,10 +79,7 @@ void DX::Update()
 	//this->player->updateConstantBuffer(this->gCBuffer);
 	player->move(this->camera);
 
-	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
-
-	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
-	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	this->clearRender();
 
 	this->updatePlayerConstantBuffer(); //annars ser inte rör
 	this->Render(true);
@@ -177,21 +176,6 @@ void DX::Render(bool isPlayer)
 	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
 	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
-
-
-
-
-	//D3D11_MAPPED_SUBRESOURCE dataPtr;
-	//this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-
-	//this->cameraMatrices.worldM *= DirectX::XMMatrixRotationY(-0.02f); 
-	////cameraMatrix.worldM *= DirectX::XMMatrixRotationX(-0.02f);
-
-	//memcpy(dataPtr.pData, &this->cameraMatrices, sizeof(this->cameraMatrices));
-
-	//this->gDeviceContext->Unmap(this->gCBuffer, 0);
-
-
 
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
@@ -376,7 +360,7 @@ void DX::updatePlayerConstantBuffer() //med player matriser
 
 //fixa med kamera
 
-void DX::updateCameraConstantBuffer() //används inte än
+void DX::updateCameraConstantBuffer()
 {
 	objMatrices cameraMatrices = this->camera->getCameraMatrices();
 
@@ -384,10 +368,8 @@ void DX::updateCameraConstantBuffer() //används inte än
 
 	//Låser buffern för GPU:n och hämtar den till CPU
 	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-
-	//do stuff 
-
-	memcpy(dataPtr.pData, &cameraMatrices, sizeof(cameraMatrices)); //SJÄLVA UPPDTAERINGEN MED NYA MATRICE
+	// Copy camera matrix to buffer
+	memcpy(dataPtr.pData, &cameraMatrices, sizeof(cameraMatrices));
 
 	//Ger GPU:n tillgång till datan igen
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
@@ -419,4 +401,12 @@ void DX::resetConstantBuffer()
 
 	//Ger GPU:n tillgång till datan igen
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+}
+
+void DX::clearRender()
+{
+	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
+
+	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
+	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

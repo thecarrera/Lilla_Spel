@@ -36,6 +36,8 @@ public:
 	void updateCameraConstantBuffer();
 	void resetConstantBuffer();
 
+	void clearRender();
+
 private:
 	ID3D11Device* gDevice = nullptr;
 	ID3D11DeviceContext* gDeviceContext = nullptr;
