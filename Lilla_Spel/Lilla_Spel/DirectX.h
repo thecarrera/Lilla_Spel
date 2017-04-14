@@ -3,7 +3,7 @@
 #include "includes.h"
 #include "Player.h"
 #include "Camera.h"
-
+#include "Collision.h"
 /*
 #################################################################################################################################
 #																																#
@@ -65,6 +65,8 @@ private:
 
 	Camera* camera;
 	Player* player;
+	Collision col;
+
 
 	// New code
 	int* vertexCountOBJ = nullptr;

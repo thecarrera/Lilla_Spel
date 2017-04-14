@@ -76,6 +76,11 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 }
 void DX::Update()
 {
+	if(col.TestCollision(camera->getCameraMatrices().worldM)){
+		cout << "Collision!!" << endl;
+
+	}
+
 	//this->player->updateConstantBuffer(this->gCBuffer);
 	player->move(this->camera);
 
