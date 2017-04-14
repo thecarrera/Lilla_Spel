@@ -120,6 +120,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="DirectX.h" />
     <ClInclude Include="Includes.h" />
     <ClInclude Include="InputFileReader.hpp" />
@@ -133,6 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="DirectX.cpp" />
     <ClCompile Include="Linker.cpp" />
     <ClCompile Include="Main.cpp">
