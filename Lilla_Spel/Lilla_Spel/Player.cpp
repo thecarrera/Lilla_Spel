@@ -16,7 +16,7 @@ Player::~Player()
 
 }
 
-void Player::move(Camera* &camera)
+void Player::move(Camera* &camera, bool )
 {
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
 	{
@@ -25,21 +25,27 @@ void Player::move(Camera* &camera)
 
 	if (GetAsyncKeyState(0x57)) //w
 	{
-		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f)));
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
+
+		//camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f)));
 	}
 
 	if (GetAsyncKeyState(0x53))	//s
 	{
-		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, -0.0f, 0.2f)));
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, -0.0f, -0.2f));
+		
+		//camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, -0.0f, 0.2f)));
 	}
 
 	if (GetAsyncKeyState(0x41))	//a
 	{
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f));
 		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f)));
 	}
 
 	if (GetAsyncKeyState(0x44))	//d
 	{
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f));
 		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f)));
 	}
 

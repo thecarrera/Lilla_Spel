@@ -76,9 +76,8 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 }
 void DX::Update()
 {
-	if(col.TestCollision(camera->getCameraMatrices().worldM)){
+	if(col.TestCollision(player->getMatrices().worldM)){
 		cout << "Collision!!" << endl;
-
 	}
 
 	//this->player->updateConstantBuffer(this->gCBuffer);
@@ -94,7 +93,7 @@ void DX::Update()
 	this->resetConstantBuffer();
 	this->Render(false);
 
-	this->updateCameraConstantBuffer();
+	//this->updateCameraConstantBuffer();
 	//en till render?
 
 	//en renderloop för spelaren och en för resten, bool beroende på vart i arrayen vi är
@@ -348,7 +347,15 @@ void DX::DepthBuffer()
 
 void DX::updatePlayerConstantBuffer() //med player matriser
 {
-	objMatrices playerMatrices = this->player->getMatrices();
+
+	TEMP.worldM = this->player->getMatrices().worldM;
+	TEMP.viewM = camera->getCameraMatrices().viewM;
+	TEMP.projM = camera->getCameraMatrices().projM;
+
+	objMatrices playerMatrices = TEMP; //this->player->getMatrices();
+
+	XMFLOAT4X4 temp;
+	XMStoreFloat4x4(&temp, this->player->getMatrices().worldM);
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 

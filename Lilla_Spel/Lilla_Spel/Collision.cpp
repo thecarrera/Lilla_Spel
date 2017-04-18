@@ -5,9 +5,9 @@
 Collision::Collision()
 {
 	// Test variable, this is the center of the cube
-	XMFLOAT3 center = { 29.76096f, 1.83139f, -2.32647f };
+	XMFLOAT3 center = { -29.76096f, 0.0f, -2.32647f };
 
-	XMFLOAT3 extent = { 1,1,1 };
+	XMFLOAT3 extent = { 1.0f, 1.0f, 1.0f };
 
 	m_BoundingBox = new BoundingBox[1];
 
@@ -26,8 +26,15 @@ Collision::~Collision()
 
 bool Collision::TestCollision(XMMATRIX trans)
 {
-	m_BoundingBox[0].Transform(m_BoundingBox[0], trans);
+	XMFLOAT4X4 temp;
+	XMStoreFloat4x4(&temp, trans);
 
+	// Update player bb _14, _34
+	m_PlayerBox.Center = XMFLOAT3{ temp._14, 0, temp._34 };
+
+
+	//cout << temp._14 << "   " << temp._34 << endl;
+	//cout << m_BoundingBox[0].Center.x << "  " << m_BoundingBox[0].Center.z << endl;
 
 	if (m_BoundingBox[0].Intersects(m_PlayerBox))
 	{
@@ -37,4 +44,9 @@ bool Collision::TestCollision(XMMATRIX trans)
 	{
 		return false;
 	}
+}
+
+void Collision::updatePlayerBB()
+{
+
 }

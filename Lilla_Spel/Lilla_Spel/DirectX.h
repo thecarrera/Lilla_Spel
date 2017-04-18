@@ -74,6 +74,9 @@ private:
 	float* objCoords;	//denna?
 	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
 
+
+	objMatrices TEMP;
+
 private:
 	//Linker linker;
 private:

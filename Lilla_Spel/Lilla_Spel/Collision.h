@@ -1,5 +1,8 @@
 #pragma once
 #include <DirectXCollision.h>
+#include <iostream>
+using namespace std;
+
 using namespace DirectX;
 
 //Todo:
@@ -17,4 +20,6 @@ public:
 
 
 	bool TestCollision(XMMATRIX trans);
+
+	void updatePlayerBB();
 };
