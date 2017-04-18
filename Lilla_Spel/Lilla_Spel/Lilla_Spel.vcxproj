@@ -121,9 +121,9 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DirectX.h" />
+    <ClInclude Include="FbxImport.h" />
     <ClInclude Include="Includes.h" />
     <ClInclude Include="InputFileReader.hpp" />
-    <ClInclude Include="Linker.h" />
     <ClInclude Include="Importers.h" />
     <ClInclude Include="OBJLoader.hpp" />
     <ClInclude Include="Player.h" />
@@ -134,7 +134,6 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DirectX.cpp" />
-    <ClCompile Include="Linker.cpp" />
     <ClCompile Include="Main.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>

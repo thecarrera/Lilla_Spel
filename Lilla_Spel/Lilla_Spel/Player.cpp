@@ -19,22 +19,22 @@ void Player::move()
 
 	if (GetAsyncKeyState(0x57)) //w
 	{
-		this->matrices.worldM = this->matrices.worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
 	}
 
 	if (GetAsyncKeyState(0x53))	//s
 	{
-		this->matrices.worldM = this->matrices.worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f));
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f));
 	}
 
 	if (GetAsyncKeyState(0x41))	//a
 	{
-		this->matrices.worldM = this->matrices.worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.1f, 0.0f, 0.0f));
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.1f, 0.0f, 0.0f));
 	}
 
 	if (GetAsyncKeyState(0x44))	//d
 	{
-		this->matrices.worldM = this->matrices.worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.1f, 0.0f, 0.0f));
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.1f, 0.0f, 0.0f));
 	}
 
 	if (GetAsyncKeyState(VK_SPACE))	//space

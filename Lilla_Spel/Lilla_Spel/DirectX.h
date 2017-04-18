@@ -70,8 +70,9 @@ private:
 	float* objCoords;	//denna?
 	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
 
-private:
-	//Linker linker;
+public:
+	FBXImport FBXImport;
+
 private:
 	DirectX::XMVECTOR cameraPos;
 	DirectX::XMVECTOR lookAT;
