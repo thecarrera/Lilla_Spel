@@ -39,6 +39,8 @@ void DX::Clean()
 	SAFE_RELEASE(this->samplerState);
 
 	SAFE_RELEASE(this->gTextureRTV);
+	SAFE_DELETE(this->gVertexBufferArray);
+	
 }
 
 void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
@@ -56,9 +58,11 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 		0, 0, 1.0f, 0,
 		0, 0, 0, 1 };
 
-	this->ConstantBuffer(); //kamera
+	this->createGCBuffer(); //kamera
 
-	this->player->initiateMatrices(world, this->cameraMatrices.viewM, this->cameraMatrices.projM);
+	this->camera = new Camera();
+
+	this->player->initiateMatrices(world, this->camera->getCameraMatrices().viewM, this->camera->getCameraMatrices().projM);
 
 	this->CreateShaders();
 
@@ -68,18 +72,21 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 }
 void DX::Update()
 {
-	player->move();
+	//this->player->updateConstantBuffer(this->gCBuffer);
+	player->move(this->camera);
 
-	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
+	this->clearRender();
 
-	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
-	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	this->updatePlayerConstantBuffer(); //annars ser inte rÃ¶r
 
-	this->updateConstantBuffer();
 	this->Render(true);
+
+	//updateraKamera
 
 	this->resetConstantBuffer();
 	this->Render(false);
+
+	this->updateCameraConstantBuffer();
 
 	this->gSwapChain->Present(1, 0);
 }
@@ -150,7 +157,7 @@ void DX::SetViewport()
 	this->gDeviceContext->RSSetViewports(1, &vp);
 }
 void DX::Render(bool isPlayer) 
-{
+{	
 	UINT32 vertexSize = sizeof(float) * 5;
 	UINT32 offset = 0;
 
@@ -163,21 +170,6 @@ void DX::Render(bool isPlayer)
 	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
 	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
-
-
-
-
-	//D3D11_MAPPED_SUBRESOURCE dataPtr;
-	//this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-
-	//cameraMatrices.worldM *= DirectX::XMMatrixRotationY(-0.02f); 
-	////cameraMatrix.worldM *= DirectX::XMMatrixRotationX(-0.02f);
-
-	//memcpy(dataPtr.pData, &this->cameraMatrices, sizeof(this->cameraMatrices));
-
-	//this->gDeviceContext->Unmap(this->gCBuffer, 0);
-
-
 
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
@@ -296,30 +288,8 @@ void DX::CreateShaders()
 
 	hr = this->gDevice->CreateSamplerState(&sampDesc, &this->samplerState);
 }
-void DX::ConstantBuffer()
+void DX::createGCBuffer()
 {
-	this->cameraPos = { 0, 50, -25};
-	this->lookAT = { 0, 0, 1 };	
-	this->upVec = { 0, 1, 0 };
-	this->mRight = DirectX::XMVector3Cross(upVec, lookAT);
-	this->mRight = DirectX::XMVector3Normalize(mRight);	
-
-	float FOV = { 0.45f * DirectX::XM_PI };
-	float ARO = (float)WIDTH / (float)HEIGHT;
-	float nPlane = 0.1f;
-	float fPlane = 70.0f;
-
-	DirectX::XMMATRIX worldM = 
-	  { 1.0f, 0, 0, 0,
-		0, 1.0f, 0, 0,
-		0, 0, 1.0f, 0,
-		0, 0, 0, 1 };
-
-	DirectX::XMMATRIX viewM = DirectX::XMMatrixLookAtLH(cameraPos, lookAT, upVec);
-	DirectX::XMMATRIX projM = DirectX::XMMatrixPerspectiveFovLH(FOV, ARO, nPlane, fPlane);
-
-	this->cameraMatrices = { DirectX::XMMatrixTranspose(worldM), DirectX::XMMatrixTranspose(viewM), DirectX::XMMatrixTranspose(projM)};
-
 	D3D11_BUFFER_DESC cBufferDesc;
 	cBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	cBufferDesc.ByteWidth = sizeof(objMatrices);
@@ -338,7 +308,6 @@ void DX::ConstantBuffer()
 	{
 		exit(-1);
 	}
-
 }
 void DX::DepthBuffer()
 {
@@ -364,13 +333,11 @@ void DX::DepthBuffer()
 	}
 }
 
-void DX::updateConstantBuffer()
+void DX::updatePlayerConstantBuffer() //med player matriser
 {
-	objMatrices playerMatrices = player->getMatrices();
+	objMatrices playerMatrices = this->player->getMatrices();
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
-	//ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE));
-
 
 	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
@@ -379,28 +346,22 @@ void DX::updateConstantBuffer()
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 }
 
-//void DX::updateCameraConstantBuffer()
-//{
-//	objMatrices playerMatrices = player->getMatrices();
-//
-//	D3D11_MAPPED_SUBRESOURCE dataPtr;
-//	ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE)); //behövs imnte
-//
-//															//playerMatrices.worldM = playerMatrices.worldM * DirectX::XMMatrixTranslation(0.1f, 0.0f, 0.0f);
-//	player->setMatrices(playerMatrices);
-//
-//	//Låser buffern för GPU:n och hämtar den till CPU
-//	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-//
-//	//do stuff 
-//
-//
-//
-//	memcpy(dataPtr.pData, &playerMatrices, sizeof(playerMatrices)); //SJÄLVA UPPDTAERINGEN MED NYA MATRICE
-//
-//																	//Ger GPU:n tillgång till datan igen
-//	this->gDeviceContext->Unmap(this->gCBuffer, 0);
-//}
+//fixa med kamera
+
+void DX::updateCameraConstantBuffer()
+{
+	objMatrices cameraMatrices = this->camera->getCameraMatrices();
+
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+
+	//LÃ¥ser buffern fÃ¶r GPU:n och hÃ¤mtar den till CPU
+	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+	// Copy camera matrix to buffer
+	memcpy(dataPtr.pData, &cameraMatrices, sizeof(cameraMatrices));
+
+	//Ger GPU:n tillgÃ¥ng till datan igen
+	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+}
 
 void DX::resetConstantBuffer()
 {
@@ -412,9 +373,9 @@ void DX::resetConstantBuffer()
 		0,0,1.0f,0,
 		0,0,0,1 };
 
-	standardMatrices.viewM = this->cameraMatrices.viewM;
+	standardMatrices.viewM = this->camera->getCameraMatrices().viewM;
 
-	standardMatrices.projM = this->cameraMatrices.projM;
+	standardMatrices.projM = this->camera->getCameraMatrices().projM;
 
 	standardMatrices = { DirectX::XMMatrixTranspose(standardMatrices.worldM), standardMatrices.viewM, standardMatrices.projM };
 
@@ -426,4 +387,12 @@ void DX::resetConstantBuffer()
 	memcpy(dataPtr.pData, &standardMatrices, sizeof(standardMatrices));
 
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+}
+
+void DX::clearRender()
+{
+	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
+
+	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
+	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

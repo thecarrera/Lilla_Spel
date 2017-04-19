@@ -1,3 +1,3 @@
 load
-Z:\Meshes\Palm_2.obj
-Z:\Meshes\Bush_2.obj
+Z:\Meshes\Placeholder_character.obj
+Z:\Meshes\MapProp_OBJ.obj

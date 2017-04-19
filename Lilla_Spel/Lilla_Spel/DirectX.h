@@ -2,6 +2,7 @@
 //#include "Linker.h"
 #include "includes.h"
 #include "Player.h"
+#include "Camera.h"
 
 /*
 #################################################################################################################################
@@ -28,12 +29,14 @@ public:
 	void Render(bool isPlayer);
 
 	void CreateShaders();
-	void ConstantBuffer();
+	void createGCBuffer();
 	void DepthBuffer();
 
-	void updateConstantBuffer();
+	void updatePlayerConstantBuffer();
 	void updateCameraConstantBuffer();
 	void resetConstantBuffer();
+
+	void clearRender();
 
 private:
 	ID3D11Device* gDevice = nullptr;
@@ -60,9 +63,8 @@ private:
 
 	ID3D11ShaderResourceView* gTextureRTV = nullptr;
 
-	objMatrices cameraMatrices;
-
-	Player * player;
+	Camera* camera;
+	Player* player;
 
 	// New code
 	int* vertexCountOBJ = nullptr;
