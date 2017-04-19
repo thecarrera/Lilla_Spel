@@ -16,39 +16,62 @@ Player::~Player()
 
 }
 
-void Player::move(Camera* &camera, bool )
+void Player::move(Camera* &camera, bool collision )
 {
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
 	{
 		PostQuitMessage(0);
 	}
 
+	// If collision is detected, determine which key was last pressed and do an opposite movement action
+	if (collision) {
+		switch (lastKeyPressed)
+		{
+		case 0:
+			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f));
+			break;
+		case 1:
+			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
+			break;
+		case 2:
+			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f));
+			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f)));
+			break;
+		case 3:
+			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f));
+			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f)));
+			break;
+		}
+	}
+
+	// Check which key is pressed and store last key press as int. wsad = 0123
 	if (GetAsyncKeyState(0x57)) //w
 	{
+		lastKeyPressed = 0;
 		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
-
-		//camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f)));
 	}
 
 	if (GetAsyncKeyState(0x53))	//s
 	{
-		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, -0.0f, -0.2f));
-		
-		//camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, -0.0f, 0.2f)));
+		lastKeyPressed = 1;
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, -0.0f, -0.2f));	
 	}
 
 	if (GetAsyncKeyState(0x41))	//a
 	{
+		lastKeyPressed = 2;
 		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f));
 		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f)));
 	}
 
 	if (GetAsyncKeyState(0x44))	//d
 	{
+		lastKeyPressed = 3;
 		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f));
 		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f)));
 	}
 
+	
 	if (GetAsyncKeyState(0x51)) //q
 	{
 		if (this->flyingUp == false)

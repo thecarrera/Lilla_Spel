@@ -7,7 +7,9 @@ using namespace DirectX;
 
 //Todo:
 // 1. Make bounding box appear ingame - done
-// 2. Check collision against bb
+// 2. Check collision against bb - done
+// 3. Import bb data from file
+// 4. Stop movement if collision is detected - done
 
 class Collision
 {
@@ -21,5 +23,5 @@ public:
 
 	bool TestCollision(XMMATRIX trans);
 
-	void updatePlayerBB();
+	void updatePlayerBB(XMMATRIX trans);
 };

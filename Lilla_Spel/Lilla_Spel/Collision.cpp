@@ -26,13 +26,7 @@ Collision::~Collision()
 
 bool Collision::TestCollision(XMMATRIX trans)
 {
-	XMFLOAT4X4 temp;
-	XMStoreFloat4x4(&temp, trans);
-
-	// Update player bb _14, _34
-	m_PlayerBox.Center = XMFLOAT3{ temp._14, 0, temp._34 };
-
-
+	updatePlayerBB(trans);
 	//cout << temp._14 << "   " << temp._34 << endl;
 	//cout << m_BoundingBox[0].Center.x << "  " << m_BoundingBox[0].Center.z << endl;
 
@@ -46,7 +40,12 @@ bool Collision::TestCollision(XMMATRIX trans)
 	}
 }
 
-void Collision::updatePlayerBB()
+void Collision::updatePlayerBB(XMMATRIX trans)
 {
 
+	XMFLOAT4X4 temp;
+	XMStoreFloat4x4(&temp, trans);
+
+	// Update player bb _14, _34
+	m_PlayerBox.Center = XMFLOAT3{ temp._14, 0, temp._34 };
 }

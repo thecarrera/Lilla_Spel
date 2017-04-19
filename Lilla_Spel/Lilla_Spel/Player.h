@@ -17,11 +17,13 @@ private:
 	time_t currentTime;
 	time_t timeWhenBurrowed;
 	int burrowCD;
+
+	int lastKeyPressed;
 public:
 	Player();
 	virtual ~Player();
 	
-	void move(Camera* &camera);
+	void move(Camera* &camera, bool collision);
 	void initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj);
 	void setMatrices(objMatrices all);
 	objMatrices getMatrices()const;

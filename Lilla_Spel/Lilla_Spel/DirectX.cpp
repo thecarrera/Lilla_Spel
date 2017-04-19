@@ -81,7 +81,7 @@ void DX::Update()
 	}
 
 	//this->player->updateConstantBuffer(this->gCBuffer);
-	player->move(this->camera);
+	player->move(this->camera, col.TestCollision(player->getMatrices().worldM));
 
 	this->clearRender();
 
