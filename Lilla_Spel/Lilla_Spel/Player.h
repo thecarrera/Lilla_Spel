@@ -24,6 +24,9 @@ public:
 	void move(Camera* &camera);
 	void initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj);
 	void setMatrices(objMatrices all);
+	void setWorldM(DirectX::XMMATRIX world);
+	void setViewM(DirectX::XMMATRIX view);
+	void setProjectionM(DirectX::XMMATRIX projection);
 	objMatrices getMatrices()const;
 };
 

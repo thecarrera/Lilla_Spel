@@ -112,6 +112,21 @@ void Player::setMatrices(objMatrices all)
 	this->matrices.projM = all.projM;
 }
 
+void Player::setWorldM(DirectX::XMMATRIX world)
+{
+	this->matrices.worldM = world;
+}
+
+void Player::setViewM(DirectX::XMMATRIX view)
+{
+	this->matrices.viewM = view;
+}
+
+void Player::setProjectionM(DirectX::XMMATRIX projection)
+{
+	this->matrices.projM = projection;
+}
+
 objMatrices Player::getMatrices()const
 {
 	return this->matrices;

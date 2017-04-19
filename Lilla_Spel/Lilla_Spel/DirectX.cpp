@@ -75,9 +75,13 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 void DX::Update()
 {
 	//this->player->updateConstantBuffer(this->gCBuffer);
+	
 	player->move(this->camera);
 
 	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
+	player->setWorldM(this->camera->getCameraMatrices().worldM);
+	//player->setViewM(this->camera->getCameraMatrices().viewM);
+	player->setProjectionM(this->camera->getCameraMatrices().projM);
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -90,7 +94,6 @@ void DX::Update()
 	this->resetConstantBuffer();
 	this->Render(false);
 
-	this->updateCameraConstantBuffer();
 	//en till render?
 
 	//en renderloop för spelaren och en för resten, bool beroende på vart i arrayen vi är
@@ -212,6 +215,15 @@ void DX::Render(bool isPlayer)
 	}
 }
 
+//Flytta detta och blobsen till particle klassen right? 
+void DX::RenderParticles()
+{
+	this->gDeviceContext->VSSetShader(this->gVSParticle, nullptr, 0);
+	this->gDeviceContext->GSSetShader(this->gGSParticle, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->gPSParticle, nullptr, 0);
+	//fasiuhafsdhiof fortsätt här
+}
+
 void DX::CreateShaders()
 {
 	HRESULT hr;
@@ -296,6 +308,75 @@ void DX::CreateShaders()
 	}
 
 	SAFE_RELEASE(pFS);
+
+	//Particle Vertex
+	ID3DBlob* VSPBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"VSParticle.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"vs_5_0",
+		0,
+		0,
+		&VSPBlob,
+		&error);
+
+	hr = this->gDevice->CreateVertexShader(VSPBlob->GetBufferPointer(), VSPBlob->GetBufferSize(), nullptr, &this->gVSParticle);
+
+	if (error)
+	{
+		OutputDebugStringA((char*)error->GetBufferPointer());
+	}
+
+	SAFE_RELEASE(VSPBlob);
+
+	//Particle Geometry
+	ID3DBlob* GSPBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"GSParticle.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"gs_5_0",
+		0,
+		0,
+		&GSPBlob,
+		&error);
+
+	hr = this->gDevice->CreateGeometryShader(GSPBlob->GetBufferPointer(), GSPBlob->GetBufferSize(), nullptr, &this->gGSParticle);
+
+	if (error)
+	{
+		OutputDebugStringA((char*)error->GetBufferPointer());
+	}
+
+	SAFE_RELEASE(GSPBlob);
+
+	//Particle Geometry
+	ID3DBlob* PSPBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"PSParticle.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"ps_5_0",
+		0,
+		0,
+		&PSPBlob,
+		&error);
+
+	hr = this->gDevice->CreatePixelShader(PSPBlob->GetBufferPointer(), PSPBlob->GetBufferSize(), nullptr, &this->gPSParticle);
+
+	if (error)
+	{
+		OutputDebugStringA((char*)error->GetBufferPointer());
+	}
+
+	SAFE_RELEASE(PSPBlob);
+
+
+
 	SAFE_RELEASE(error);
 
 	//Sampler State

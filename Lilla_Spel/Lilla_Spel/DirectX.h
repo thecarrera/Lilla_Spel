@@ -27,6 +27,7 @@ public:
 
 	void Update();
 	void Render(bool isPlayer);
+	void RenderParticles();
 
 	void CreateShaders();
 	void createGCBuffer();
@@ -63,6 +64,11 @@ private:
 
 	Camera* camera;
 	Player* player;
+
+	//Particles
+	ID3D11VertexShader* gVSParticle = nullptr;
+	ID3D11GeometryShader* gGSParticle = nullptr;
+	ID3D11PixelShader* gPSParticle = nullptr;
 
 	// New code
 	int* vertexCountOBJ = nullptr;

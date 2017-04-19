@@ -2,6 +2,8 @@
 
 ParticleClass::ParticleClass(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext)
 {
+	particles = new Particle[];
+
 	this->gDevice = gDevice;
 	this->gDeviceContext = gDeviceContext;
 }
@@ -99,6 +101,25 @@ void ParticleClass::createTexture()
 	}
 }
 
+void ParticleClass::initiateParticles()
+{
+
+}
+
+void ParticleClass::setVertexBuffer()
+{
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc)); //zeroar memoriet
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(triangleVertices);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = triangleVertices;
+	gDevice->CreateBuffer(&bufferDesc, &data, &gVertexBuffer);
+}
+
 
 
 
@@ -107,5 +128,5 @@ void ParticleClass::createTexture()
 
 int ParticleClass::getmIndexCount()
 {
-	return this->mIndexCount
+	return this->mIndexCount;
 }

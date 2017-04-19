@@ -2,25 +2,29 @@
 #define PARTICLECLASS_H
 
 #include "Includes.h"
+#include "Particle.h"
 
 //http://www.rastertek.com/dx11tut39.html //referens
 
 class ParticleClass
 {
 private:
+	Particle* particles;	//array med partikalrna 
+
 	//devices
 	ID3D11Device* gDevice;
 	ID3D11DeviceContext* gDeviceContext;
 
-	//partikel randomizer grejer
-	float mParticleDeviationX;
-	float mParticleDeviationY;
-	float mParticleDeviationZ;
-	float mParticleVelocity;
-	float mParticleVelocityVariation;
-	float mParticleSize;
-	float mParticlesPerSecond;
-	int mMaxParticles;
+	//partikel spawner satta saker
+	float centerPoint;
+	float radius;
+	float spawningInterval;
+
+	//partikel spawner randomizer grejer
+	float pitch; //runt Y
+	float yaw;	 //runt X
+	float breadthOnAngle;
+
 
 	//counters
 	int amountOfParticlers;
@@ -29,10 +33,7 @@ private:
 	//texture
 	ID3D11Resource* textureResoure;
 	ID3D11ShaderResourceView* textureView;
-
-	//array av partiklar
-	ParticleType* particleArray;
-
+	
 	//info om verticerna
 	int mVertexCount;
 	int mIndexCount;
@@ -41,7 +42,6 @@ private:
 	//buffers
 	ID3D11Buffer* mVertexBuffer;
 	ID3D11Buffer* mIndexBuffer;
-
 
 public:
 	ParticleClass(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext);
@@ -54,7 +54,9 @@ public:
 	void render();
 	//function för return texture
 	void createTexture();
+	void initiateParticles();
 
+	void setVertexBuffer();
 
 
 
