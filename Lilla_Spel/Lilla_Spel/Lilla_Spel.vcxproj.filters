@@ -34,63 +34,84 @@
     <Filter Include="Header Files\Sub Resources\Obj Import">
       <UniqueIdentifier>{24d8fcfd-a091-4ebb-8fe4-f1e7013e7ce1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Sub Resources\Obj Import\New">
+      <UniqueIdentifier>{33e63ca0-1fb6-4be2-a7ee-8a8245969dd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sub Resources\Obj Import\Old">
+      <UniqueIdentifier>{b725800b-8658-495f-b683-0c08cadfa22d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Overhead Handler\DirectX">
+      <UniqueIdentifier>{e5eb221d-e9f6-4f60-8f26-01d2e7ce29af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Overhead Handler\Libraries">
+      <UniqueIdentifier>{b1e6f614-f088-4830-8bd8-a20d10cf1fa9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sub Resources\Movement">
+      <UniqueIdentifier>{0cfa19bc-61fe-4842-9ba6-d457c8eae881}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Overhead Handler\DirectX">
+      <UniqueIdentifier>{048ba1e6-c005-47ad-a65c-afd076f76080}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sub Resources\OBJ Import\Old">
+      <UniqueIdentifier>{c35719de-ff72-46fb-a03f-1a242f96b45b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sub Resources\Movement">
+      <UniqueIdentifier>{7017c8ca-50a5-46e7-8ce7-3d71340b6f53}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Includes.h">
-      <Filter>Header Files\Overhead Handler</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX.h">
-      <Filter>Header Files\Overhead Handler</Filter>
-    </ClInclude>
-    <ClInclude Include="Linker.h">
-      <Filter>Header Files\Overhead Handler</Filter>
+    <ClInclude Include="Importers.h">
+      <Filter>Header Files\Sub Resources\Obj Import\Old</Filter>
     </ClInclude>
     <ClInclude Include="WICTextureLoader.h">
-      <Filter>Header Files\Sub Resources\Obj Import</Filter>
-    </ClInclude>
-    <ClInclude Include="Importers.h">
-      <Filter>Header Files\Sub Resources\Obj Import</Filter>
+      <Filter>Header Files\Sub Resources\Obj Import\Old</Filter>
     </ClInclude>
     <ClInclude Include="InputFileReader.hpp">
-      <Filter>Header Files\Overhead Handler</Filter>
+      <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
     </ClInclude>
     <ClInclude Include="OBJLoader.hpp">
-      <Filter>Header Files\Overhead Handler</Filter>
+      <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
     </ClInclude>
     <ClInclude Include="TriangleData.h">
-      <Filter>Header Files\Overhead Handler</Filter>
+      <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
-      <Filter>Header Files\Overhead Handler</Filter>
+      <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="DirectX.h">
+      <Filter>Header Files\Overhead Handler\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes.h">
+      <Filter>Header Files\Overhead Handler\Libraries</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Overhead Handler\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Header Files\Sub Resources\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="FbxImport.h">
+      <Filter>Header Files\Overhead Handler\Libraries</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">
-      <Filter>Source Files\Overhead Handler</Filter>
+      <Filter>Source Files\Overhead Handler\DirectX</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
-      <Filter>Source Files\Overhead Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="WICTextureLoader.cpp">
-      <Filter>Source Files\Sub Resources\OBJ Import</Filter>
+      <Filter>Source Files\Overhead Handler\DirectX</Filter>
     </ClCompile>
     <ClCompile Include="OBJ.cpp">
-      <Filter>Source Files\Sub Resources\OBJ Import</Filter>
+      <Filter>Source Files\Sub Resources\OBJ Import\Old</Filter>
     </ClCompile>
-    <ClCompile Include="Linker.cpp">
-      <Filter>Source Files\Overhead Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="WICTextureLoader.cpp">
+      <Filter>Source Files\Sub Resources\OBJ Import\Old</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Overhead Handler\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files\Sub Resources\Movement</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

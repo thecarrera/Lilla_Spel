@@ -36,7 +36,7 @@ void Player::move(Camera* &camera)
 	if (GetAsyncKeyState(0x41))	//a
 	{
 		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f)));
-	}
+  }
 
 	if (GetAsyncKeyState(0x44))	//d
 	{

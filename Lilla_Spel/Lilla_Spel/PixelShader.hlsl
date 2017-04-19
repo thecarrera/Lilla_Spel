@@ -17,7 +17,7 @@ struct FS_IN
 
 float4 FS_main(FS_IN input) : SV_Target
 {
-float3 lightPos = { 1.0f, 0.0f, -10.0f };
+float3 lightPos = { 1.0f, 50.0f, -10.0f };
 float3 lightDir = normalize(lightPos - input.wPos.xyz);
 float3 r = reflect(lightDir, input.Norm.xyz);
 float cos = dot(lightDir, input.Norm.xyz);
@@ -28,7 +28,7 @@ float2 uv = input.uv;
 
 uv.y = 1 - uv.y;
 
-float3 s = /*txDiffuse.Sample(sampAni, uv).xyz*/ float3(1.f, 1.f, 1.f) * cos; //+ pow(spec,2.0f) * 0.6f;
+float3 s = /*txDiffuse.Sample(sampAni, uv).xyz*/ float3(1.0f, 1.0f, 1.0f) * cos + pow(spec,2.f) * 0.3f;
 
 clamp(s, 0, 1);
 

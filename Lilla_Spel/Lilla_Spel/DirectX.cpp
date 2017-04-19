@@ -49,7 +49,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	//this->linker.LoadModel("Ogre.obj", this->gDevice, this->gVertexBuffer, this->shaderBuffer);
+	this->FBXImport.loadModel("file.gay", this->gDevice, this->gVertexBufferArray);
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
@@ -57,7 +57,6 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 		0, 1.0f, 0, 0,
 		0, 0, 1.0f, 0,
 		0, 0, 0, 1 };
-	//world = DirectX::XMMatrixTranspose(world); //unnecesarry in this tilfälle
 
 	this->createGCBuffer(); //kamera
 
@@ -65,14 +64,11 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->player->initiateMatrices(world, this->camera->getCameraMatrices().viewM, this->camera->getCameraMatrices().projM);
 
-	//this->linker.Texture(this->gDevice, this->gDeviceContext, this->gTextureRTV);
-
 	this->CreateShaders();
 
-	Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray, //vertexbuffarray array med verticernas arrayer
+	Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 		this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
-	
-	
+
 }
 void DX::Update()
 {
@@ -81,7 +77,8 @@ void DX::Update()
 
 	this->clearRender();
 
-	this->updatePlayerConstantBuffer(); //annars ser inte rör
+	this->updatePlayerConstantBuffer(); //annars ser inte rÃ¶r
+
 	this->Render(true);
 
 	//updateraKamera
@@ -90,10 +87,7 @@ void DX::Update()
 	this->Render(false);
 
 	this->updateCameraConstantBuffer();
-	//en till render?
 
-	//en renderloop för spelaren och en för resten, bool beroende på vart i arrayen vi är
-	//this->Render();
 	this->gSwapChain->Present(1, 0);
 }
 
@@ -259,17 +253,15 @@ void DX::CreateShaders()
 	//Fragment Shader
 	ID3DBlob* pFS = nullptr;
 	D3DCompileFromFile(
-		L"PixelShader.hlsl", // filename
-		nullptr,		// optional macros
-		nullptr,		// optional include files
-		"FS_main",		// entry point
-		"ps_5_0",		// shader model (target)
-		0,				// shader compile options
-		0,				// effect compile options
-		&pFS,			// double pointer to ID3DBlob		
-		&error			// pointer for Error Blob messages.
-						// how to use the Error blob, see here
-						// https://msdn.microsoft.com/en-us/library/windows/desktop/hh968107(v=vs.85).aspx
+		L"PixelShader.hlsl",
+		nullptr,		
+		nullptr,		
+		"FS_main",		
+		"ps_5_0",		
+		0,				
+		0,				
+		&pFS,			
+		&error			
 	);
 
 	hr = this->gDevice->CreatePixelShader(pFS->GetBufferPointer(), pFS->GetBufferSize(), nullptr, &this->gFragmentShader);
@@ -325,7 +317,7 @@ void DX::DepthBuffer()
 	dBufferDesc.Height = (UINT)HEIGHT;
 	dBufferDesc.MipLevels = 1;
 	dBufferDesc.ArraySize = 1;
-	dBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	dBufferDesc.SampleDesc.Count = PIXELSAMPLE;
 	dBufferDesc.SampleDesc.Quality = 0;
 	dBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -347,14 +339,10 @@ void DX::updatePlayerConstantBuffer() //med player matriser
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 
-	//Låser buffern för GPU:n och hämtar den till CPU
 	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
-	//do stuff, just setting the matrices right
+	memcpy(dataPtr.pData, &playerMatrices, sizeof(playerMatrices));
 
-	memcpy(dataPtr.pData, &playerMatrices, sizeof(playerMatrices)); //SJÄLVA UPPDTAERINGEN MED NYA MATRICE
-
-	//Ger GPU:n tillgång till datan igen
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 }
 
@@ -366,12 +354,12 @@ void DX::updateCameraConstantBuffer()
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 
-	//Låser buffern för GPU:n och hämtar den till CPU
+	//LÃ¥ser buffern fÃ¶r GPU:n och hÃ¤mtar den till CPU
 	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 	// Copy camera matrix to buffer
 	memcpy(dataPtr.pData, &cameraMatrices, sizeof(cameraMatrices));
 
-	//Ger GPU:n tillgång till datan igen
+	//Ger GPU:n tillgÃ¥ng till datan igen
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 }
 
@@ -380,7 +368,7 @@ void DX::resetConstantBuffer()
 	objMatrices standardMatrices;
 
 	standardMatrices.worldM =
-	{ 1.0f,0,0,0,
+	  { 1.0f,0,0,0,
 		0,1.0f,0,0,
 		0,0,1.0f,0,
 		0,0,0,1 };
@@ -392,14 +380,12 @@ void DX::resetConstantBuffer()
 	standardMatrices = { DirectX::XMMatrixTranspose(standardMatrices.worldM), standardMatrices.viewM, standardMatrices.projM };
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
-	ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE)); //behövs imnte
+	//ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-	//Låser buffern för GPU:n och hämtar den till CPU
 	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
-	memcpy(dataPtr.pData, &standardMatrices, sizeof(standardMatrices)); //SJÄLVA UPPDTAERINGEN MED NYA MATRICE
+	memcpy(dataPtr.pData, &standardMatrices, sizeof(standardMatrices));
 
-	//Ger GPU:n tillgång till datan igen
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 }
 
