@@ -18,15 +18,21 @@ private:
 	time_t timeWhenBurrowed;
 	int burrowCD;
 
-	int lastKeyPressed;
+	int lastKeyPressed = -1;
+	bool canPressW = true;
+	bool canPressS = true;
+	bool canPressA = true;
+	bool canPressD = true;
 public:
 	Player();
 	virtual ~Player();
 	
-	void move(Camera* &camera, bool collision);
+	void move(Camera* &camera, CollisionData collision);
 	void initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj);
 	void setMatrices(objMatrices all);
 	objMatrices getMatrices()const;
+
+	bool getIsDigging() const;
 };
 
 

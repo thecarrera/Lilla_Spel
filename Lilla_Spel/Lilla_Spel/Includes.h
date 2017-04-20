@@ -15,7 +15,7 @@
 //#include "WICTextureLoader.h"
 
 #include "TriangleData.h"
-
+#include "Collision.h"
 
 
 #pragma comment (lib, "d3d11.lib")

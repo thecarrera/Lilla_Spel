@@ -1,4 +1,3 @@
 load
 Z:\Meshes\Placeholder_character.obj
-Z:\Meshes\MapProp_OBJ.obj
 Z:\Meshes\Col_test.obj

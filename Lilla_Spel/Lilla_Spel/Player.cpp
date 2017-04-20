@@ -16,15 +16,16 @@ Player::~Player()
 
 }
 
-void Player::move(Camera* &camera, bool collision )
+void Player::move(Camera* &camera, CollisionData collisionData )
 {
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
 	{
 		PostQuitMessage(0);
 	}
 
+
 	// If collision is detected, determine which key was last pressed and do an opposite movement action
-	if (collision) {
+	if (collisionData.collision) {
 		switch (lastKeyPressed)
 		{
 		case 0:
@@ -42,6 +43,7 @@ void Player::move(Camera* &camera, bool collision )
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f)));
 			break;
 		}
+		return;
 	}
 
 	// Check which key is pressed and store last key press as int. wsad = 0123
@@ -144,4 +146,9 @@ void Player::setMatrices(objMatrices all)
 objMatrices Player::getMatrices()const
 {
 	return this->matrices;
+}
+
+bool Player::getIsDigging() const
+{
+	return digging;
 }

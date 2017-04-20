@@ -9,14 +9,14 @@ Collision::Collision()
 
 	XMFLOAT3 extent = { 1.0f, 1.0f, 1.0f };
 
-	m_BoundingBox = new BoundingBox[1];
+	m_BoundingBox = new BBox[1];
 
-	m_BoundingBox[0] = BoundingBox(center, extent);
-
+	m_BoundingBox[0].setBoundingBox(BoundingBox(center, extent));
+	m_BoundingBox[0].setCollisionType(4);
 
 	center = { -0.058672f, 2.26698f, 0.451068f };
 
-	m_PlayerBox = BoundingBox(center, extent);
+	m_PlayerBox.setBoundingBox(BoundingBox(center, extent));
 }
 
 
@@ -24,28 +24,55 @@ Collision::~Collision()
 {
 }
 
-bool Collision::TestCollision(XMMATRIX trans)
+CollisionData Collision::getColllisionData(XMMATRIX trans, bool isDigging)
 {
+	
 	updatePlayerBB(trans);
-	//cout << temp._14 << "   " << temp._34 << endl;
-	//cout << m_BoundingBox[0].Center.x << "  " << m_BoundingBox[0].Center.z << endl;
 
-	if (m_BoundingBox[0].Intersects(m_PlayerBox))
+	//cout << temp._14 << "   " << temp._34 << endl;
+	//cout << m_BoundingBox[0].getBoundingBox().Center.x << "  " << m_BoundingBox[0].getBoundingBox().Center.z << endl;
+	for (int i = 0; i < 1; i++)
 	{
-		return true;
+		// Check if player is burried and check if he is colliding with either "belowCollider" or "above and below collider"
+		if (isDigging && (m_BoundingBox[i].collisionBelow || m_BoundingBox[i].collisionBoth))
+			 m_BoundingBox[i].isCollidingWithPlayer ? collisionData.collision = true : collisionData.collision = false;
+		
+		// If player is not burried, but still colliding, check if its a pressure plate, lever or above collision
+		else if (!isDigging && m_BoundingBox[i].isCollidingWithPlayer)
+		{
+			if (m_BoundingBox[i].collisionPressurePlate) {
+				collisionData.collision = false;
+				// Pressure plate type has id 4
+				collisionData.collisionType = 4;
+			}
+			else if (m_BoundingBox[i].collisionLever) {
+				collisionData.collision = false;
+				collisionData.collisionType = 5;
+			}
+			else if(m_BoundingBox[i].collisionAbove){
+				collisionData.collision = true;
+			}
+			else if (m_BoundingBox[i].collisionBoth) {
+				collisionData.collision = true;
+			}
+			else {
+				collisionData.collision = false;
+			}
+		}
+		else
+		{
+			collisionData.collision = false;
+		}
 	}
-	else
-	{
-		return false;
-	}
+
+	return collisionData;
 }
 
-void Collision::updatePlayerBB(XMMATRIX trans)
+void Collision::updatePlayerBB(XMMATRIX& trans)
 {
-
 	XMFLOAT4X4 temp;
 	XMStoreFloat4x4(&temp, trans);
 
 	// Update player bb _14, _34
-	m_PlayerBox.Center = XMFLOAT3{ temp._14, 0, temp._34 };
+	m_PlayerBox.getBoundingBox().Center = XMFLOAT3{ temp._14, 0, temp._34 };
 }
