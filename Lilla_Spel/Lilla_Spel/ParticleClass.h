@@ -30,18 +30,21 @@ private:
 	int amountOfParticlers;
 	float accumulatedTime;
 
-	//texture
-	ID3D11Resource* textureResoure;
-	ID3D11ShaderResourceView* textureView;
-	
 	//info om verticerna
 	int mVertexCount;
 	int mIndexCount;
-	vertexType* mVertices;
+	VertexType* mVertices;
 
 	//buffers
 	ID3D11Buffer* mVertexBuffer;
-	ID3D11Buffer* mIndexBuffer;
+
+	//random grejer som gör så partiklar kan spawna härifrån
+	ParticleType* m_particleList;
+
+	float m_particleDeviationX, m_particleDeviationY, m_particleDeviationZ;
+	float m_particleVelocity, m_particleVelocityVariation;
+	float m_particleSize, m_particlesPerSecond;
+	int m_maxParticles;
 
 public:
 	ParticleClass(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext);
@@ -52,12 +55,10 @@ public:
 	void kill();
 	bool frameUpdate(float frameTime); // ska vi ha frame time?
 	void render();
-	//function för return texture
-	void createTexture();
 	void initiateParticles();
-
-	void setVertexBuffer();
-
+	void initializeBuffers();
+	void shutdownBuffers();
+	void emitParticles(float frameTime);
 
 
 	int getmIndexCount();

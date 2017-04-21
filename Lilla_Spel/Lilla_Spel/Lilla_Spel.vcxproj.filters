@@ -40,6 +40,9 @@
     <Filter Include="Source Files\Particle Effects">
       <UniqueIdentifier>{2de387a1-4b2a-492f-8276-59ce2aea3d00}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders\Particle Shaders">
+      <UniqueIdentifier>{c1420093-3373-42bd-8372-af6c7a81c1d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Includes.h">
@@ -78,6 +81,9 @@
     <ClInclude Include="ParticleClass.h">
       <Filter>Header Files\Particle Effects</Filter>
     </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>Header Files\Particle Effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">
@@ -98,11 +104,14 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleClass.cpp">
       <Filter>Source Files\Particle Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle.cpp">
+      <Filter>Source Files\Particle Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +123,15 @@
     </FxCompile>
     <FxCompile Include="GeometryShader.hlsl">
       <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VSParticle.hlsl">
+      <Filter>Source Files\Shaders\Particle Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="GSParticle.hlsl">
+      <Filter>Source Files\Shaders\Particle Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PSParticle.hlsl">
+      <Filter>Source Files\Shaders\Particle Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

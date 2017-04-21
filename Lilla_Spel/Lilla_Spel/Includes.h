@@ -36,19 +36,19 @@ struct objMatrices
 	DirectX::XMMATRIX projM;
 };
 
-//struct ParticleType
-//{
-//	float PositionX;
-//	float PositionY;
-//	float PositionZ;
-//	float red;
-//	float green;
-//	float blue;
-//	float velocity;
-//	bool active;
-//};
+struct ParticleType
+{
+	float PositionX;
+	float PositionY;
+	float PositionZ;
+	float red;
+	float green;
+	float blue;
+	float velocity;
+	bool active;
+};
 
-struct vertexType
+struct VertexType
 {
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT2 texture;
