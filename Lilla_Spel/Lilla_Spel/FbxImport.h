@@ -69,6 +69,8 @@ private:
 	{
 		HRESULT hr;
 
+		gVertexBufferArray = new ID3D11Buffer*[FBX.meshCount];
+
 		for (unsigned int i = 0; i < FBX.meshCount; i++)
 		{
 			ID3D11Buffer* test;
