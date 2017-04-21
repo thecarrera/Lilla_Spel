@@ -24,10 +24,10 @@ Collision::~Collision()
 {
 }
 
-CollisionData Collision::getColllisionData(XMMATRIX trans, bool isDigging)
+CollisionData Collision::getColllisionData(XMMATRIX playerWorldMatrix, bool isDigging)
 {
 	
-	updatePlayerBB(trans);
+	updatePlayerBB(playerWorldMatrix);
 
 	//cout << temp._14 << "   " << temp._34 << endl;
 	//cout << m_BoundingBox[0].getBoundingBox().Center.x << "  " << m_BoundingBox[0].getBoundingBox().Center.z << endl;
@@ -57,21 +57,23 @@ CollisionData Collision::getColllisionData(XMMATRIX trans, bool isDigging)
 			}
 			else {
 				collisionData.collision = false;
+				collisionData.collisionType = -1;
 			}
 		}
 		else
 		{
 			collisionData.collision = false;
+			collisionData.collisionType = -1;
 		}
 	}
 
 	return collisionData;
 }
 
-void Collision::updatePlayerBB(XMMATRIX& trans)
+void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
 {
 	XMFLOAT4X4 temp;
-	XMStoreFloat4x4(&temp, trans);
+	XMStoreFloat4x4(&temp, playerWorldMatrix);
 
 	// Update player bb _14, _34
 	m_PlayerBox.getBoundingBox().Center = XMFLOAT3{ temp._14, 0, temp._34 };

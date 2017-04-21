@@ -7,7 +7,7 @@
 // 2. Check collision against bb - done
 // 3. Import bb data from file
 // 4. Stop movement if collision is detected - done
-// 5. Make player move / stand still based on collision type
+// 5. Make player move / stand still based on collision type - done
 
 
 
@@ -55,7 +55,7 @@ public:
 	~Collision();
 
 
-	CollisionData getColllisionData(XMMATRIX trans, bool isDigging);
+	CollisionData getColllisionData(XMMATRIX playerWorldMatrix, bool isDigging);
 
-	void updatePlayerBB(XMMATRIX& trans);
+	void updatePlayerBB(XMMATRIX& playerWorldMatrix);
 };
