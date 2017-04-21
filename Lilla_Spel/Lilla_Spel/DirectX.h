@@ -73,7 +73,7 @@ private:
 	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
 
 public:
-	FBXImport FBXImport;
+	FBXImport FBX;
 
 private:
 	DirectX::XMVECTOR cameraPos;

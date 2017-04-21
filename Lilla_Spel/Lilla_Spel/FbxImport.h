@@ -15,10 +15,19 @@ private:
 
 	class Mesh {
 	public:
-		Vertex* vertices;
+		Vertex* vertices = nullptr;
 		int vertexCount = 0;
 		int strLength;
-		std::string texturePath;
+		unsigned int vertSize = 0;
+		std::string texturePath = "";
+
+		// 0 - Not a Bounding Box
+		// 1 - Above ground Bounding Box
+		// 2 - Below ground Bounding Box
+		// 3 - Above and Below ground Bounding Box
+		// 4 - Pressure Plate Bounding Box
+		// 5 - Lever Bounding Box
+		int customAttribute = 0;
 
 		~Mesh() {
 			if (vertexCount != 0) {
@@ -26,17 +35,15 @@ private:
 			}
 		};
 
-		void addVertex(int count) {
-			Vertex* newA = new Vertex[count];
-
-			vertices = newA;
+		void addVertex() {
+			vertices = new Vertex[this->vertexCount];
 		}
 	};
 
 	class FBXData
 	{
 	public:
-		Mesh* meshes;
+		Mesh* meshes = nullptr;
 		int meshCount = 0;
 
 		~FBXData()
@@ -53,69 +60,150 @@ private:
 		};
 	};
 
-	void BindDataToBuffer(ID3D11Device* gDevice, ID3D11Buffer** &gVertexBufferArray, int vertexcount, Vertex* &vertices)
+private:
+	FBXData* data;
+	int fileCount = 0;
+
+private:
+	void BindDataToBuffer(ID3D11Device* gDevice, ID3D11Buffer** &gVertexBufferArray, FBXData &FBX)
 	{
 		HRESULT hr;
 
-		D3D11_BUFFER_DESC bufferDesc;
-		ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-		memset(&bufferDesc, 0, sizeof(bufferDesc));
-		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		bufferDesc.ByteWidth = sizeof(Vertex) * vertexcount;
-		
-		D3D11_SUBRESOURCE_DATA data;
-		ZeroMemory(&data, sizeof(data));
-		data.pSysMem = vertices;
-		hr = gDevice->CreateBuffer(&bufferDesc, &data, gVertexBufferArray);
-
-		if (FAILED(hr))
+		for (unsigned int i = 0; i < FBX.meshCount; i++)
 		{
-			exit(-1);
+			ID3D11Buffer* test;
+
+			D3D11_BUFFER_DESC bufferDesc;
+			ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+			bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+			bufferDesc.ByteWidth = sizeof(Vertex) * FBX.meshes[i].vertexCount;
+
+			D3D11_SUBRESOURCE_DATA data;
+			ZeroMemory(&data, sizeof(data));
+			data.pSysMem = &FBX.meshes[i].vertices[0];
+			hr = gDevice->CreateBuffer(&bufferDesc, &data, &gVertexBufferArray[i]);
+
+			if (FAILED(hr))
+			{
+				exit(-1);
+			}
 		}
 
 		getchar();
 	}
 
-	FBXData data;
+	void loadModel(std::string fileDir, ID3D11Device* gDevice, ID3D11Buffer**& gVertexBufferArray, int count)
+	{
+		std::ifstream is(fileDir, std::ios::binary);
+		//char* dump;
+		char* temp;
+
+		if (!is.is_open())
+		{
+			std::cout << "Could not find the file!" << std::endl;
+		}
+		else
+		{
+			is.read((char*)&data[count].meshCount, sizeof(int));
+
+
+			data[count].AddMesh(data[count].meshCount);
+
+			for (int i = 0; i < data[count].meshCount; i++)
+			{
+
+				is.read((char*)&data[count].meshes[i].strLength, sizeof(int));
+				std::cout << data[count].meshes[i].strLength << std::endl;
+
+				temp = new char[data[count].meshes[i].strLength];
+
+				is.read((char*)temp, data[count].meshes[i].strLength);
+
+				temp[data[count].meshes[i].strLength + 1] = 0;
+
+				data[count].meshes[i].texturePath = temp;
+
+				is.read((char*)&data[count].meshes[i].vertexCount, sizeof(int));
+				is.read((char*)&data[count].meshes[i].vertSize, sizeof(int));
+
+				data[count].meshes[i].addVertex();
+
+				is.read((char*)data[count].meshes[i].vertices, data[count].meshes[i].vertSize);
+
+				std::cout << data[0].meshes[i].vertices[0].position[0] << std::endl;
+				
+
+				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int)); 
+
+			}
+			is.close();
+
+			std::cout << data[count].meshes[0].texturePath << std::endl;
+
+			this->BindDataToBuffer(gDevice, gVertexBufferArray, data[count]);
+
+			std::cout << data[0].meshes[0].vertices[0].position[0] << std::endl;
+			getchar();
+		}
+	};
+
+	void addFile() 
+	{
+		fileCount++;
+		FBXData* temp = new FBXData[fileCount];
+
+		if (fileCount <= 1)
+		{
+			data = temp;
+		}
+		else
+		{
+			for (int i = 0; i < fileCount; i++) 
+			{
+				temp[i] = data[i];
+			}
+			data = temp;
+		}	
+	};
+
 
 public:
-	void loadModel(std::string fileDir, ID3D11Device* gDevice, ID3D11Buffer**& gVertexBufferArray)
-	{
-
-		std::ifstream is(fileDir, std::ios::binary);
-
-		is.read((char*)&data.meshCount, sizeof(int));
-
-		std::cout << data.meshCount << std::endl;
-
-		data.AddMesh(data.meshCount);
-
-		for (int i = 0; i < data.meshCount; i++)
-		{
-			is.read((char*)&data.meshes[i].vertexCount, sizeof(int));
-			is.read((char*)&data.meshes[i].strLength, sizeof(int));
-			is.read((char*)(&data.meshes[i].texturePath), data.meshes[i].strLength);
-
-			data.meshes[i].addVertex(data.meshes[i].vertexCount);
-
-			for (int j = 0; j < data.meshes[i].vertexCount; j++)
-			{
-				is.read((char*)&data.meshes[i].vertices[j], sizeof(Vertex));
-			}
-			
-			this->BindDataToBuffer(gDevice, gVertexBufferArray, this->data.meshes[i].vertexCount, data.meshes[i].vertices);
+	FBXImport() {};
+	~FBXImport() {
+		if (fileCount > 0) {
+			delete[] data;
 		}
-		is.close();
-	
-	};	
+	};
 
-	int getSumVertices() {
-		int sum;
+	void Import(std::string fileDir, ID3D11Device* gDevice, ID3D11Buffer**& gVertexBufferArray) 
+	{
+		this->addFile();
 
-		for (int i = 0; i < data.meshCount; i++)
+		loadModel(fileDir, gDevice, gVertexBufferArray, fileCount - 1);
+	};
+
+	int getPlayerSumVertices()
+	{
+		int sum = 0;
+
+		for (int i = 0; i < data[0].meshCount; i++)
 		{
-			sum += data.meshes[i].vertexCount;
+			sum += data[0].meshes[i].vertexCount;
+		}
+		return sum;
+	}
+
+	int getSumVertices() 
+	{
+		int sum = 0;
+
+		for (int i = 1; i < fileCount; i++)
+		{
+			for (int j = 0; j < data[i].meshCount; j++)
+			{
+				sum += data[i].meshes[i].vertexCount;
+			}
 		}
 		return sum;
 	}
