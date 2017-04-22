@@ -71,10 +71,8 @@ private:
 
 		gVertexBufferArray = new ID3D11Buffer*[FBX.meshCount];
 
-		for (unsigned int i = 0; i < FBX.meshCount; i++)
+		for (int i = 0; i < FBX.meshCount; i++)
 		{
-			ID3D11Buffer* test;
-
 			D3D11_BUFFER_DESC bufferDesc;
 			ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 			bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;

@@ -24,7 +24,7 @@ float cos = dot(lightDir, input.Norm.xyz);
 
 float spec = dot(r, -input.wPos.xyz);
 
-float2 uv = input.uv;
+float3 uv = input.uv;
 
 uv.y = 1 - uv.y;
 
