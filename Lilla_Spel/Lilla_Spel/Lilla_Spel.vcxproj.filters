@@ -84,14 +84,14 @@
     <ClInclude Include="Includes.h">
       <Filter>Header Files\Overhead Handler\Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files\Overhead Handler\DirectX</Filter>
-    </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Header Files\Sub Resources\Movement</Filter>
     </ClInclude>
     <ClInclude Include="FbxImport.h">
       <Filter>Header Files\Overhead Handler\Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Sub Resources\Movement</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -107,10 +107,10 @@
     <ClCompile Include="WICTextureLoader.cpp">
       <Filter>Source Files\Sub Resources\OBJ Import\Old</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files\Overhead Handler\DirectX</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
+      <Filter>Source Files\Sub Resources\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
       <Filter>Source Files\Sub Resources\Movement</Filter>
     </ClCompile>
   </ItemGroup>

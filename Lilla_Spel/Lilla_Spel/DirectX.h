@@ -1,8 +1,8 @@
 #pragma once
 //#include "Linker.h"
 #include "includes.h"
-#include "Player.h"
 #include "Camera.h"
+#include "Player.h"
 
 /*
 #################################################################################################################################
@@ -27,6 +27,7 @@ public:
 
 	void Update();
 	void Render(bool isPlayer);
+	void clearRender();
 
 	void CreateShaders();
 	void createGCBuffer();
@@ -36,7 +37,8 @@ public:
 	void updateCameraConstantBuffer();
 	void resetConstantBuffer();
 
-	void clearRender();
+	void flushGame();
+	void menuControls();
 
 private:
 	ID3D11Device* gDevice = nullptr;
@@ -63,21 +65,25 @@ private:
 
 	ID3D11ShaderResourceView* gTextureRTV = nullptr;
 
-	Camera* camera;
-	Player* player;
-
 	// New code
-	int* vertexCountOBJ = nullptr;
-	int gVertexBuffer2_size;
-	float* objCoords;	//denna?
+	//int* vertexCountOBJ = nullptr;
+	//float* objCoords;	//denna?
 	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
+	int gVertexBuffer2_size;
 
 public:
 	FBXImport FBX;
 
 private:
+	Camera* camera;
+	Player* player;
+
 	DirectX::XMVECTOR cameraPos;
 	DirectX::XMVECTOR lookAT;
 	DirectX::XMVECTOR upVec;
 	DirectX::XMVECTOR mRight;
+private:
+	bool menuMsg = false;
+	time_t tButtonPress;
+	time_t lTimePress;
 };

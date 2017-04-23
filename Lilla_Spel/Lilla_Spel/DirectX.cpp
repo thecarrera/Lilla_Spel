@@ -28,6 +28,7 @@ void DX::Clean()
 	SAFE_RELEASE(this->gVertexShader);
 
 	SAFE_RELEASE(this->gGeometryShader);
+
 	SAFE_RELEASE(this->gFragmentShader);
 
 	SAFE_RELEASE(this->depthState);
@@ -35,10 +36,12 @@ void DX::Clean()
 	SAFE_RELEASE(this->gDepthStencil);
 
 	SAFE_RELEASE(this->gCBuffer);
+
 	SAFE_RELEASE(this->shaderBuffer);
 	SAFE_RELEASE(this->samplerState);
 
 	SAFE_RELEASE(this->gTextureRTV);
+
 	SAFE_DELETE(this->gVertexBufferArray);
 	
 }
@@ -50,12 +53,13 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->SetViewport();
 
 	this->FBX.Import("cube.gay", this->gDevice, this->gVertexBufferArray);
+	//this->FBX.Import("cube.gay", this->gDevice, this->gVertexBufferArray);
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
-	{ 1.0f, 0, 0, 0,
-		0, 1.0f, 0, 0,
-		0, 0, 1.0f, 0,
+	{ 5.0f, 0, 0, 0,
+		0, 5.0f, 0, 0,
+		0, 0, 5.0f, 0,
 		0, 0, 0, 1 };
 
 	this->createGCBuffer(); //kamera
@@ -72,22 +76,29 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 }
 void DX::Update()
 {
-	//this->player->updateConstantBuffer(this->gCBuffer);
-	player->move(this->camera);
+	if (this->menuMsg == false)
+	{
+		//this->player->updateConstantBuffer(this->gCBuffer);
+		player->move(this->camera, this->menuMsg, this->tButtonPress, this->lTimePress);
 
-	this->clearRender();
+		this->clearRender();
 
-	this->updatePlayerConstantBuffer(); //annars ser inte rör
+		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
-	this->Render(true);
+		this->Render(true);
 
-	//updateraKamera
+		//updateraKamera
 
-	this->resetConstantBuffer();
-	this->Render(false);
+		this->resetConstantBuffer();
+		this->Render(false);
 
-	this->updateCameraConstantBuffer();
-
+		this->updateCameraConstantBuffer();
+	}
+	else
+	{
+		this->clearRender();
+		this->menuControls();
+	}
 	this->gSwapChain->Present(1, 0);
 }
 
@@ -171,7 +182,6 @@ void DX::Render(bool isPlayer)
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
 	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
 
-
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
 	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
@@ -190,6 +200,13 @@ void DX::Render(bool isPlayer)
 			this->gDeviceContext->Draw(FBX.getSumVertices(), 0);
 		}
 	}
+}
+void DX::clearRender()
+{
+	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
+
+	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
+	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void DX::CreateShaders()
@@ -220,7 +237,8 @@ void DX::CreateShaders()
 
 	D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
 		{ "SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 } 
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 
@@ -347,9 +365,6 @@ void DX::updatePlayerConstantBuffer() //med player matriser
 
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 }
-
-//fixa med kamera
-
 void DX::updateCameraConstantBuffer()
 {
 	objMatrices cameraMatrices = this->camera->getCameraMatrices();
@@ -359,12 +374,12 @@ void DX::updateCameraConstantBuffer()
 	//Låser buffern för GPU:n och hämtar den till CPU
 	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 	// Copy camera matrix to buffer
+
 	memcpy(dataPtr.pData, &cameraMatrices, sizeof(cameraMatrices));
 
 	//Ger GPU:n tillgång till datan igen
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 }
-
 void DX::resetConstantBuffer()
 {
 	objMatrices standardMatrices;
@@ -391,10 +406,45 @@ void DX::resetConstantBuffer()
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 }
 
-void DX::clearRender()
+void DX::flushGame() 
 {
-	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
-
-	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
-	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	this->player->flushGame();
+	this->camera->createCamera();
 }
+void DX::menuControls()
+{
+	this->tButtonPress = GetCurrentTime();
+	
+	if (GetAsyncKeyState(VK_ESCAPE))//Esc
+	{
+		if (this->tButtonPress - this->lTimePress >= 1500)
+		{
+			this->lTimePress = GetCurrentTime();
+			this->flushGame();
+			this->menuMsg = false;
+		}
+	}
+	if (GetAsyncKeyState(0x57)) //w
+	{
+		if (this->tButtonPress - this->lTimePress >= 300)
+		{
+			this->lTimePress = GetCurrentTime();
+
+			std::cout << "test" << std::endl;
+		}
+	}
+
+	if (GetAsyncKeyState(0x53))	//s
+	{
+		if (this->tButtonPress - this->lTimePress >= 300)
+		{
+			this->lTimePress = GetCurrentTime();
+
+			std::cout << "test" << std::endl;
+		}
+	}
+}
+//fixa med kamera
+
+
+

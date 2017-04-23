@@ -1,5 +1,4 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#pragma once
 
 #include "Includes.h"
 #include "Camera.h"
@@ -19,43 +18,15 @@ private:
 	int burrowCD;
 public:
 	Player();
-	virtual ~Player();
+	~Player();
 	
-	void move(Camera* &camera);
+	void move(Camera* &camera, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress);
 	void initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj);
 	void setMatrices(objMatrices all);
 	objMatrices getMatrices()const;
+
+	void flushGame();
 };
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#endif

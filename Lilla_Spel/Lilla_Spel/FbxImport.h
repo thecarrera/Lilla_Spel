@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Includes.h"
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -63,18 +65,36 @@ private:
 private:
 	FBXData* data;
 	int fileCount = 0;
+	int totalSumMeshes = 0;
 
 private:
 	void BindDataToBuffer(ID3D11Device* gDevice, ID3D11Buffer** &gVertexBufferArray, FBXData &FBX)
 	{
 		HRESULT hr;
 
-		gVertexBufferArray = new ID3D11Buffer*[FBX.meshCount];
-
-		for (unsigned int i = 0; i < FBX.meshCount; i++)
+		if (gVertexBufferArray != nullptr)
 		{
-			ID3D11Buffer* test;
+			ID3D11Buffer** tempBuffer = new ID3D11Buffer*[this->totalSumMeshes + FBX.meshCount];
+			tempBuffer = { nullptr };
+		
+			for (int i = 0; i < this->totalSumMeshes; i++)
+			{
+				tempBuffer[i] = gVertexBufferArray[i];
+			}
 
+			gVertexBufferArray = tempBuffer;
+
+			this->totalSumMeshes += FBX.meshCount;
+		}
+		else 
+		{
+			gVertexBufferArray = new ID3D11Buffer*[FBX.meshCount];
+
+			this->totalSumMeshes += FBX.meshCount;
+		}
+
+		for (int i = 0; i < FBX.meshCount; i++)
+		{
 			D3D11_BUFFER_DESC bufferDesc;
 			ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 			bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -91,8 +111,6 @@ private:
 				exit(-1);
 			}
 		}
-
-		getchar();
 	}
 
 	void loadModel(std::string fileDir, ID3D11Device* gDevice, ID3D11Buffer**& gVertexBufferArray, int count)
@@ -146,7 +164,6 @@ private:
 			this->BindDataToBuffer(gDevice, gVertexBufferArray, data[count]);
 
 			std::cout << data[0].meshes[0].vertices[0].position[0] << std::endl;
-			getchar();
 		}
 	};
 
@@ -169,7 +186,6 @@ private:
 		}	
 	};
 
-
 public:
 	FBXImport() {};
 	~FBXImport() {
@@ -182,7 +198,7 @@ public:
 	{
 		this->addFile();
 
-		loadModel(fileDir, gDevice, gVertexBufferArray, fileCount - 1);
+		this->loadModel(fileDir, gDevice, gVertexBufferArray, fileCount - 1);
 	};
 
 	int getPlayerSumVertices()
@@ -195,7 +211,6 @@ public:
 		}
 		return sum;
 	}
-
 	int getSumVertices() 
 	{
 		int sum = 0;
@@ -209,4 +224,9 @@ public:
 		}
 		return sum;
 	}
+
+	int getTotalMeshes() 
+	{
+		return this->totalSumMeshes;
+	};
 };

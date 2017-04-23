@@ -9,6 +9,7 @@ struct GS_IN
 {
 	float4 Pos : SV_POSITION;
 	float3 uv : UV;
+	float3 Norm : NORMAL;
 };
 
 struct FS_OUT
@@ -31,7 +32,7 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream <FS_OUT> OutputStream
 		output.Pos = mul(mul(mul(input[i].Pos, worldM), viewM), projM);
 		output.wPos = mul(input[i].Pos, worldM);
 		output.uv = input[i].uv;
-		output.normal = n;
+		output.normal = input[i].Norm;
 
 		OutputStream.Append(output);
 	}

@@ -15,7 +15,6 @@
 //#include "WICTextureLoader.h"
 
 #include "TriangleData.h"
-
 #include "FbxImport.h"
 
 #pragma comment (lib, "d3d11.lib")
@@ -28,6 +27,7 @@
 
 #define SAFE_RELEASE(x) if(x) x->Release(), x = nullptr
 #define SAFE_DELETE(x) if(x) delete[] x, x = nullptr
+//#define SAFE_LOOP2_DELETE(x,y) if(x) for(int i = 0; i < y; i++){if(x[i]) delete x[i]; } delete[] x, x = nullptr
 
 struct objMatrices
 {

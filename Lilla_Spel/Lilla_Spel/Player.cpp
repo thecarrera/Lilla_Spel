@@ -10,17 +10,20 @@ Player::Player()
 	this->burrowCD = 3000;
 	this->timeWhenBurrowed = 0;
 }
-
 Player::~Player()
 {
-
 }
 
-void Player::move(Camera* &camera)
+void Player::move(Camera* &camera, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress)
 {
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
 	{
-		PostQuitMessage(0);
+		tButtonPress = GetCurrentTime();
+		if (tButtonPress - lTimePress >= 1500)
+		{
+			lTimePress = GetCurrentTime();
+			menuMsg = true;
+		}
 	}
 
 	if (GetAsyncKeyState(0x57)) //w
@@ -91,7 +94,7 @@ void Player::move(Camera* &camera)
 			flyingUp = false;
 		}
 
-		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(velocity.x, velocity.y, velocity.z)));
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(velocity.x, -velocity.y, velocity.z));
 
 		// if payer hitbox = hitbox ground -> velocity.y = 0;
 	}
@@ -104,15 +107,24 @@ void Player::initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, D
 	this->matrices.viewM = view;
 	this->matrices.projM = proj;
 }
-
 void Player::setMatrices(objMatrices all)
 {
 	this->matrices.worldM = all.worldM;
 	this->matrices.viewM = all.viewM;
 	this->matrices.projM = all.projM;
 }
-
 objMatrices Player::getMatrices()const
 {
 	return this->matrices;
+}
+
+void Player::flushGame()
+{
+	this->flyingUp = false;
+	this->velocity.x = 0;
+	this->velocity.y = 0;
+	this->velocity.z = 0;
+	this->digging = false;
+	this->burrowCD = 3000;
+	this->timeWhenBurrowed = 0;
 }
