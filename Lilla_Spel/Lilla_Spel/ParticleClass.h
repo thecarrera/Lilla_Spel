@@ -25,7 +25,6 @@ private:
 	float yaw;	 //runt X
 	float breadthOnAngle;
 
-
 	//counters
 	int amountOfParticlers;
 	float accumulatedTime;
@@ -56,10 +55,14 @@ public:
 	bool frameUpdate(float frameTime); // ska vi ha frame time?
 	void render();
 	void initiateParticles();
+	void shutdownParticleSystem();
 	void initializeBuffers();
 	void shutdownBuffers();
 	void emitParticles(float frameTime);
-
+	void updateParticles(float frameTime);
+	void killParticles();
+	void updateBuffers();
+	void renderBuffers();
 
 	int getmIndexCount();
 

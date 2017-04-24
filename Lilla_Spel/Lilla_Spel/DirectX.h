@@ -3,6 +3,7 @@
 #include "includes.h"
 #include "Player.h"
 #include "Camera.h"
+#include "ParticleClass.h"
 
 /*
 #################################################################################################################################
@@ -66,6 +67,8 @@ private:
 	Player* player;
 
 	//Particles
+	ParticleClass* particleClass;
+
 	ID3D11VertexShader* gVSParticle = nullptr;
 	ID3D11GeometryShader* gGSParticle = nullptr;
 	ID3D11PixelShader* gPSParticle = nullptr;

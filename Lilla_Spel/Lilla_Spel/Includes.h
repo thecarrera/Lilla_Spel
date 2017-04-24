@@ -51,6 +51,5 @@ struct ParticleType
 struct VertexType
 {
 	DirectX::XMFLOAT3 position;
-	DirectX::XMFLOAT2 texture;
 	DirectX::XMFLOAT4 color;
 };

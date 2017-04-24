@@ -49,6 +49,9 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	//this->linker.LoadModel("Ogre.obj", this->gDevice, this->gVertexBuffer, this->shaderBuffer);
 
+	//PARTICLE GREJER
+	this->particleClass = new ParticleClass(this->gDevice, this->gDeviceContext);
+
 	this->player = new Player();
 	DirectX::XMMATRIX world =
 	{ 1.0f, 0, 0, 0,
@@ -75,6 +78,10 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 void DX::Update()
 {
 	//this->player->updateConstantBuffer(this->gCBuffer);
+	
+	//updattera particle GREJER
+	this->particleClass->frameUpdate(frameTime);
+
 	
 	player->move(this->camera);
 

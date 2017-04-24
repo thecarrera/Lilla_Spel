@@ -1,3 +1,5 @@
+//SKA ANVÄNDAS SEN
+
 struct GSOutput
 {
 	float4 pos : SV_POSITION;
