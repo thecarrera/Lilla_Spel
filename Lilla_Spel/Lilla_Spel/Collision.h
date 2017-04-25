@@ -1,5 +1,7 @@
 #pragma once
 #include "BBox.h"
+#include "PressurePlate.h"
+#include "Lever.h"
 
 
 //Todo:
@@ -55,7 +57,32 @@ public:
 	~Collision();
 
 
-	CollisionData getColllisionData(XMMATRIX playerWorldMatrix, bool isDigging);
-
+	CollisionData calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging);
+	CollisionData& getCollisionData();
 	void updatePlayerBB(XMMATRIX& playerWorldMatrix);
+};
+
+
+
+// Lever toggle on off
+// Pressure plate time active - every one is different
+
+// Todo:
+// 1. Know if we step on a pressure plate and print it
+// 2. Print out for as long as the pressure plate is active
+
+
+// This class is used for pressure plates and levers. 
+class InteractiveCollision
+{
+private:
+	Lever* m_lever;
+	PressurePlate* m_pressurePlate;
+
+public:
+
+	void test(CollisionData collisionData);
+
+	InteractiveCollision();
+	~InteractiveCollision();
 };

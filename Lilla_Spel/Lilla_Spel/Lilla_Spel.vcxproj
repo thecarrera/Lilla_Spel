@@ -125,10 +125,12 @@
     <ClInclude Include="DirectX.h" />
     <ClInclude Include="Includes.h" />
     <ClInclude Include="InputFileReader.hpp" />
+    <ClInclude Include="Lever.h" />
     <ClInclude Include="Linker.h" />
     <ClInclude Include="Importers.h" />
     <ClInclude Include="OBJLoader.hpp" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PressurePlate.h" />
     <ClInclude Include="TriangleData.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="WICTextureLoader.h" />
@@ -138,12 +140,14 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="DirectX.cpp" />
+    <ClCompile Include="Lever.cpp" />
     <ClCompile Include="Linker.cpp" />
     <ClCompile Include="Main.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="OBJ.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PressurePlate.cpp" />
     <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>

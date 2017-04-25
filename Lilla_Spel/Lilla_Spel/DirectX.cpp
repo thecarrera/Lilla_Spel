@@ -81,7 +81,9 @@ void DX::Update()
 	}*/
 
 	//this->player->updateConstantBuffer(this->gCBuffer);
-	player->move(this->camera, col.getColllisionData(player->getMatrices().worldM, player->getIsDigging()));
+	player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()));
+
+	interactiveCol.test(col.getCollisionData());
 
 	this->clearRender();
 

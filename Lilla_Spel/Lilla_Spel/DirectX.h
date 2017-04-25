@@ -66,7 +66,7 @@ private:
 	Camera* camera;
 	Player* player;
 	Collision col;
-
+	InteractiveCollision interactiveCol;
 
 	// New code
 	int* vertexCountOBJ = nullptr;

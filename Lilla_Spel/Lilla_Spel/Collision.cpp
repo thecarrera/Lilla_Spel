@@ -12,7 +12,7 @@ Collision::Collision()
 	m_BoundingBox = new BBox[1];
 
 	m_BoundingBox[0].setBoundingBox(BoundingBox(center, extent));
-	m_BoundingBox[0].setCollisionType(4);
+	m_BoundingBox[0].setCollisionType(5);
 
 	center = { -0.058672f, 2.26698f, 0.451068f };
 
@@ -24,7 +24,7 @@ Collision::~Collision()
 {
 }
 
-CollisionData Collision::getColllisionData(XMMATRIX playerWorldMatrix, bool isDigging)
+CollisionData Collision::calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging)
 {
 	
 	updatePlayerBB(playerWorldMatrix);
@@ -70,6 +70,11 @@ CollisionData Collision::getColllisionData(XMMATRIX playerWorldMatrix, bool isDi
 	return collisionData;
 }
 
+CollisionData& Collision::getCollisionData()
+{
+	return this->collisionData;
+}
+
 void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
 {
 	XMFLOAT4X4 temp;
@@ -77,4 +82,41 @@ void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
 
 	// Update player bb _14, _34
 	m_PlayerBox.getBoundingBox().Center = XMFLOAT3{ temp._14, 0, temp._34 };
+}
+
+/*****************************************************************************************/
+/*****************************************************************************************/
+/*****************************************************************************************/
+
+void InteractiveCollision::test(CollisionData collisionData)
+{
+
+	// Check for the pressure plate collision
+	if (collisionData.collisionType == 4) {
+		m_pressurePlate[0].activatePressurePlate();
+		//cout << "Activating pressure plate!" << endl;
+	}
+	else if (collisionData.collisionType == 5 && GetAsyncKeyState(0x45)) {
+		m_lever[0].activateLever();
+	}
+
+	if (m_pressurePlate[0].getPressurePlateData().active && !m_pressurePlate[0].getPressurePlateData().ticking) {
+		//cout << "plate is active" << endl;
+	}
+
+}
+
+InteractiveCollision::InteractiveCollision()
+{
+
+	// Hardcoded for now
+	m_pressurePlate = new PressurePlate[1];
+	m_pressurePlate[0] = PressurePlate(2000);
+
+	m_lever = new Lever[1];
+	m_lever[0] = Lever();
+}
+
+InteractiveCollision::~InteractiveCollision()
+{
 }
