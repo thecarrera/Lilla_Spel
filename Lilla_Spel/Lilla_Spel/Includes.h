@@ -2,13 +2,13 @@
 
 #pragma comment(lib, "windowscodecs.lib")
 
-#include <iostream>
 #include <vector>
 
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
-//#include <DirectXMath.h>
+#include <DirectXMath.h>
+#include <DirectXCollision.h>
 
 //#include <wincodec.h>
 //#include <wrl.h>
@@ -17,6 +17,8 @@
 #include "TriangleData.h"
 #include "Collision.h"
 
+
+#include "FbxImport.h"
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")

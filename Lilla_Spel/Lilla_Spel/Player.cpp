@@ -64,7 +64,7 @@ void Player::move(Camera* &camera, CollisionData collisionData )
 		lastKeyPressed = 2;
 		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f));
 		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f)));
-	}
+  }
 
 	if (GetAsyncKeyState(0x44))	//d
 	{
