@@ -77,6 +77,9 @@ private:
 
 	objMatrices TEMP;
 
+
+	FBXImport FBXImport;
+
 private:
 	//Linker linker;
 private:

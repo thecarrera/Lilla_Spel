@@ -141,7 +141,6 @@
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="DirectX.cpp" />
     <ClCompile Include="Lever.cpp" />
-    <ClCompile Include="Linker.cpp" />
     <ClCompile Include="Main.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
