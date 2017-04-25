@@ -12,7 +12,7 @@ Collision::Collision()
 	m_BoundingBox = new BBox[1];
 
 	m_BoundingBox[0].setBoundingBox(BoundingBox(center, extent));
-	m_BoundingBox[0].setCollisionType(5);
+	m_BoundingBox[0].setCollisionType(4);
 
 	center = { -0.058672f, 2.26698f, 0.451068f };
 
@@ -29,8 +29,6 @@ CollisionData Collision::calculateCollisionData(XMMATRIX playerWorldMatrix, bool
 	
 	updatePlayerBB(playerWorldMatrix);
 
-	//cout << temp._14 << "   " << temp._34 << endl;
-	//cout << m_BoundingBox[0].getBoundingBox().Center.x << "  " << m_BoundingBox[0].getBoundingBox().Center.z << endl;
 	for (int i = 0; i < 1; i++)
 	{
 		// Check if player is burried and check if he is colliding with either "belowCollider" or "above and below collider"
