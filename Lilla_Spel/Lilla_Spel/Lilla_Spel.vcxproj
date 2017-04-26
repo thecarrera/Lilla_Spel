@@ -128,6 +128,7 @@
     <ClInclude Include="OBJLoader.hpp" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleClass.h" />
+    <ClInclude Include="ParticleShader.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="TriangleData.h" />
     <ClInclude Include="Vertex.h" />
@@ -143,6 +144,7 @@
     <ClCompile Include="OBJ.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleClass.cpp" />
+    <ClCompile Include="ParticleShader.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>

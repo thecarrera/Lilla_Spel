@@ -46,11 +46,15 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->CreateDirect3DContext(wndHandle);
 
 	this->SetViewport();
+	
+	//clock
+	this->frameTime = time(0);
 
 	//this->linker.LoadModel("Ogre.obj", this->gDevice, this->gVertexBuffer, this->shaderBuffer);
 
-	//PARTICLE GREJER
-	this->particleClass = new ParticleClass(this->gDevice, this->gDeviceContext);
+	//PARTICLE!!!!!
+	this->initiateParticles(*wndHandle);
+
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
@@ -75,12 +79,46 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	
 	
 }
+
+void DX::initiateParticles(HWND hwnd)
+{
+	this->mParticleSystem = 0;
+	this->mParticleShader = 0;
+
+	//PARTIKEL SHADERN!!!
+	//creatar partikel shader objektet
+	this->mParticleShader = new ParticleShader();
+
+	//initializar particle shader objektet
+	this->mParticleShader->initialize(this->gDevice, hwnd);
+
+	//PARTIKEL SYSTEMET!!!
+	this->mParticleSystem = new ParticleClass();
+
+	this->mParticleSystem->initialize(this->gDevice);
+}
+
+//Flytta detta och blobsen till particle klassen right? 
+void DX::RenderParticles()
+{
+	this->mParticleSystem->render(this->gDeviceContext);
+
+	this->mParticleShader->render(this->gDeviceContext, this->mParticleSystem->getmIndexCount(),
+		this->camera->getCameraMatrices().worldM, this->camera->getCameraMatrices().viewM,
+		this->camera->getCameraMatrices().projM);
+	//MATRISERNA KAN VARA FEL
+
+
+}
+
+//SHUTDOWN KAN VARA BRA ATT LÄGGA IN MED
+
 void DX::Update()
 {
 	//this->player->updateConstantBuffer(this->gCBuffer);
 	
-	//updattera particle GREJER
-	this->particleClass->frameUpdate(frameTime);
+	//PARTICLE!!!!
+	this->mParticleSystem->frameUpdate(this->frameTime, this->gDeviceContext);
 
 	
 	player->move(this->camera);
@@ -183,13 +221,15 @@ void DX::Render(bool isPlayer)
 	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
+
 	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
+
 	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
+
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
 	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
 
-
-
+	//något mer här?
 
 	//D3D11_MAPPED_SUBRESOURCE dataPtr;
 	//this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
@@ -215,20 +255,13 @@ void DX::Render(bool isPlayer)
 
 	if (isPlayer == false)
 	{
+		this->RenderParticles();
+
 		for (int i = 1; i < this->gVertexBuffer2_size; i++) {
-			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset); //första parametern 0 egentligen, 1 pga en partikel vertex buffern innan?
 			this->gDeviceContext->Draw(this->vertexCountOBJ[i], 0);
 		}
 	}
-}
-
-//Flytta detta och blobsen till particle klassen right? 
-void DX::RenderParticles()
-{
-	this->gDeviceContext->VSSetShader(this->gVSParticle, nullptr, 0);
-	this->gDeviceContext->GSSetShader(this->gGSParticle, nullptr, 0);
-	this->gDeviceContext->PSSetShader(this->gPSParticle, nullptr, 0);
-	//fasiuhafsdhiof fortsätt här
 }
 
 void DX::CreateShaders()

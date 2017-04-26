@@ -3,7 +3,10 @@
 #include "includes.h"
 #include "Player.h"
 #include "Camera.h"
+
+//partiklar
 #include "ParticleClass.h"
+#include "ParticleShader.h"
 
 /*
 #################################################################################################################################
@@ -38,6 +41,8 @@ public:
 	void updateCameraConstantBuffer();
 	void resetConstantBuffer();
 
+	void initiateParticles(HWND hwnd);
+
 private:
 	ID3D11Device* gDevice = nullptr;
 	ID3D11DeviceContext* gDeviceContext = nullptr;
@@ -66,12 +71,16 @@ private:
 	Camera* camera;
 	Player* player;
 
-	//Particles
-	ParticleClass* particleClass;
+	//PARTICLESSSSS
+	ParticleClass* mParticleSystem;
+	ParticleShader* mParticleShader;
 
 	ID3D11VertexShader* gVSParticle = nullptr;
 	ID3D11GeometryShader* gGSParticle = nullptr;
 	ID3D11PixelShader* gPSParticle = nullptr;
+
+	//time
+	time_t frameTime;
 
 	// New code
 	int* vertexCountOBJ = nullptr;

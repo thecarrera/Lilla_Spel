@@ -84,6 +84,9 @@
     <ClInclude Include="Particle.h">
       <Filter>Header Files\Particle Effects</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleShader.h">
+      <Filter>Header Files\Particle Effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">
@@ -112,6 +115,9 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleShader.cpp">
+      <Filter>Source Files\Particle Effects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

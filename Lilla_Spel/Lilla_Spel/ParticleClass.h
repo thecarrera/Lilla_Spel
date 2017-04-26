@@ -11,10 +11,6 @@ class ParticleClass
 private:
 	Particle* particles;	//array med partikalrna 
 
-	//devices
-	ID3D11Device* gDevice;
-	ID3D11DeviceContext* gDeviceContext;
-
 	//partikel spawner satta saker
 	float centerPoint;
 	float radius;
@@ -32,13 +28,13 @@ private:
 	//info om verticerna
 	int mVertexCount;
 	int mIndexCount;
-	VertexType* mVertices;
+	VertexType* mVertices; //array med vertiser
 
 	//buffers
 	ID3D11Buffer* mVertexBuffer;
 
 	//random grejer som gör så partiklar kan spawna härifrån
-	ParticleType* m_particleList;
+	ParticleType* m_particleList; //array med partiklar
 
 	float m_particleDeviationX, m_particleDeviationY, m_particleDeviationZ;
 	float m_particleVelocity, m_particleVelocityVariation;
@@ -46,23 +42,23 @@ private:
 	int m_maxParticles;
 
 public:
-	ParticleClass(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext);
-	ParticleClass(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext, const ParticleClass& particleClass);
+	ParticleClass();
+	ParticleClass(const ParticleClass& particleClass);
 	~ParticleClass();
 
-	bool initialize(WCHAR* textureFileName);
+	void initialize(ID3D11Device* gDevice);
 	void kill();
-	bool frameUpdate(float frameTime); // ska vi ha frame time?
-	void render();
+	void frameUpdate(float frameTime, ID3D11DeviceContext* gDeviceContext); // ska vi ha frame time?
+	void render(ID3D11DeviceContext* gDeviceContext);
 	void initiateParticles();
 	void shutdownParticleSystem();
-	void initializeBuffers();
+	void initializeBuffers(ID3D11Device* gDevice);
 	void shutdownBuffers();
 	void emitParticles(float frameTime);
 	void updateParticles(float frameTime);
 	void killParticles();
-	void updateBuffers();
-	void renderBuffers();
+	void updateBuffers(ID3D11DeviceContext* gDeviceContext);
+	void renderBuffers(ID3D11DeviceContext* gDeviceContext);
 
 	int getmIndexCount();
 

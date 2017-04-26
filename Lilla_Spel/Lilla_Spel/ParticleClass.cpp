@@ -1,17 +1,14 @@
 #include "ParticleClass.h"
 
-ParticleClass::ParticleClass(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext)
+ParticleClass::ParticleClass()
 {
-	particles = new Particle[50];
+	particles = new Particle[5000];
 
-	this->gDevice = gDevice;
-	this->gDeviceContext = gDeviceContext;
 }
 
-ParticleClass::ParticleClass(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext, const ParticleClass& particleClass)
+ParticleClass::ParticleClass(const ParticleClass& particleClass)
 {
-	this->gDevice = gDevice;
-	this->gDeviceContext = gDeviceContext;
+
 }
 
 ParticleClass::~ParticleClass()
@@ -19,18 +16,13 @@ ParticleClass::~ParticleClass()
 
 }
 
-bool ParticleClass::initialize(WCHAR* textureFileName)
+void ParticleClass::initialize(ID3D11Device* gDevice)
 {
-	bool result = true;
-
 	//partiklesystem initialize
 	initiateParticles();
 
 	//partikel buffer
-	initializeBuffers();
-	
-	//lyckades med allt
-	return true;
+	initializeBuffers(gDevice);
 }
 
 void ParticleClass::kill()
@@ -42,10 +34,8 @@ void ParticleClass::kill()
 	shutdownParticleSystem();
 }
 
-bool ParticleClass::frameUpdate(float frameTime)
+void ParticleClass::frameUpdate(float frameTime, ID3D11DeviceContext* gDeviceContext)
 {
-	bool result = true;
-
 	//bort med gamla partiklar
 	killParticles();
 
@@ -56,15 +46,13 @@ bool ParticleClass::frameUpdate(float frameTime)
 	updateParticles(frameTime);
 
 	//måste uppdatera buffern om uppdaterar positionen
-	updateBuffers();
-
-	return true;
+	updateBuffers(gDeviceContext);
 }
 
-void ParticleClass::render()
+void ParticleClass::render(ID3D11DeviceContext* gDeviceContext) //gdeivvdces
 {
 	//vertex & index buffern ska uppdateras, vi gör det härifrån
-	renderBuffers();
+	renderBuffers(gDeviceContext);
 }
 
 void ParticleClass::initiateParticles()
@@ -102,13 +90,13 @@ void ParticleClass::shutdownParticleSystem()
 	}
 }
 
-void ParticleClass::initializeBuffers()
+void ParticleClass::initializeBuffers(ID3D11Device* gDevice)
 {
 	unsigned long* indices;
 	int i;
 	HRESULT result;
 
-	this->mVertexCount = this->m_maxParticles * 12; //För vi ska ha 4 trianglar
+	this->mVertexCount = this->m_maxParticles * 6; //För vi ska ha 4 trianglar så 12
 
 	this->mVertices = new VertexType[this->mVertexCount];
 
@@ -173,7 +161,7 @@ void ParticleClass::emitParticles(float frameTime)
 		bool found = false;
 		while (!found)
 		{
-			if ((this->m_particleList[index].active == false) || (this->m_particleList[index].PositionZ < posZ))
+			if ((this->m_particleList[index].active == false) || (this->m_particleList[index].PositionZ < posZ)) //kanske ta bort den andra
 			{
 				found = true;
 			}
@@ -214,7 +202,7 @@ void ParticleClass::emitParticles(float frameTime)
 void ParticleClass::updateParticles(float frameTime)
 {
 
-	//för att flytta dem
+	//för att flytta dem, bara i Y led
 	for (int i = 0; i < this->amountOfParticlers; i++)
 	{
 		this->m_particleList[i].PositionY = this->m_particleList[i].PositionY - (this->m_particleList[i].velocity * frameTime * 0.001f);
@@ -246,7 +234,7 @@ void ParticleClass::killParticles()
 	}
 }
 
-void ParticleClass::updateBuffers()
+void ParticleClass::updateBuffers(ID3D11DeviceContext* gDeviceContext)
 {
 	int index = 0;
 
@@ -259,31 +247,42 @@ void ParticleClass::updateBuffers()
 		// Bottom left.
 		this->mVertices[index].position = DirectX::XMFLOAT3(this->m_particleList[i].PositionX - m_particleSize, this->m_particleList[i].PositionY - this->m_particleSize, this->m_particleList[i].PositionZ);
 		this->mVertices[index].color = DirectX::XMFLOAT4(this->m_particleList[i].red, this->m_particleList[i].green, this->m_particleList[i].blue, 1.0f);
+		this->mVertices[index].FILL = DirectX::XMFLOAT2(0, 0);
 		index++;
 
 		// Top left.
 		this->mVertices[index].position = DirectX::XMFLOAT3(this->m_particleList[i].PositionX - m_particleSize, this->m_particleList[i].PositionY + m_particleSize, this->m_particleList[i].PositionZ);
 		this->mVertices[index].color = DirectX::XMFLOAT4(this->m_particleList[i].red, this->m_particleList[i].green, this->m_particleList[i].blue, 1.0f);
+		this->mVertices[index].FILL = DirectX::XMFLOAT2(0, 0);
+
 		index++;
 
 		// Bottom right.
 		this->mVertices[index].position = DirectX::XMFLOAT3(this->m_particleList[i].PositionX + m_particleSize, this->m_particleList[i].PositionY - m_particleSize, this->m_particleList[i].PositionZ);
 		this->mVertices[index].color = DirectX::XMFLOAT4(this->m_particleList[i].red, this->m_particleList[i].green, this->m_particleList[i].blue, 1.0f);
+		this->mVertices[index].FILL = DirectX::XMFLOAT2(0, 0);
+
 		index++;
 
 		// Bottom right.
 		this->mVertices[index].position = DirectX::XMFLOAT3(this->m_particleList[i].PositionX + m_particleSize, this->m_particleList[i].PositionY - m_particleSize, this->m_particleList[i].PositionZ);
 		this->mVertices[index].color = DirectX::XMFLOAT4(this->m_particleList[i].red, this->m_particleList[i].green, this->m_particleList[i].blue, 1.0f);
+		this->mVertices[index].FILL = DirectX::XMFLOAT2(0, 0);
+
 		index++;
 
 		// Top left.
 		this->mVertices[index].position = DirectX::XMFLOAT3(this->m_particleList[i].PositionX - m_particleSize, this->m_particleList[i].PositionY + m_particleSize, this->m_particleList[i].PositionZ);
 		this->mVertices[index].color = DirectX::XMFLOAT4(this->m_particleList[i].red, this->m_particleList[i].green, this->m_particleList[i].blue, 1.0f);
+		this->mVertices[index].FILL = DirectX::XMFLOAT2(0, 0);
+
 		index++;
 
 		// Top right.
 		this->mVertices[index].position = DirectX::XMFLOAT3(this->m_particleList[i].PositionX + m_particleSize, this->m_particleList[i].PositionY + m_particleSize, this->m_particleList[i].PositionZ);
 		this->mVertices[index].color = DirectX::XMFLOAT4(this->m_particleList[i].red, this->m_particleList[i].green, this->m_particleList[i].blue, 1.0f);
+		this->mVertices[index].FILL = DirectX::XMFLOAT2(0, 0);
+
 		index++;
 	}
 
@@ -291,28 +290,32 @@ void ParticleClass::updateBuffers()
 	VertexType* verticesPtr;
 
 	//locka vertexbuffern
-	HRESULT hr = this->gDeviceContext->Map(this->mVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	HRESULT hr = gDeviceContext->Map(this->mVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(hr))
 	{
 		//Fail
 	}
 	
-	verticesPtr = (VertexType*)mappedResource.pData;
+	//verticesPtr = (VertexType*)mappedResource.pData;
 
-	memcpy(verticesPtr, (void*)this->mVertices, (sizeof(VertexType) * this->mVertexCount));
+	memcpy(&mappedResource.pData, &this->mVertices, sizeof(this->mVertices)); //Krashar inte nu, men är det rätt?, kan även välja &this->mVertices[0]
 
-	this->gDeviceContext->Unmap(this->mVertexBuffer, 0);
+	// verticesPtr, (void*)
+
+	gDeviceContext->Unmap(this->mVertexBuffer, 0);
 }
 
-void ParticleClass::renderBuffers()
+void ParticleClass::renderBuffers(ID3D11DeviceContext* gDeviceContext)
 {
-	unsigned int stride = 0; //måste vara unsigned
+	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); //elr 4 //Redan satt?
 
-	stride = sizeof(VertexType);
+	unsigned int stride = sizeof(this->mVertices);
 
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->mVertexBuffer, &stride, 0);
-	
-	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); //elr 4
+	//this->gDeviceContext->VSSetConstantBuffers(0, 1, &this->mVertexBuffer); //fast ska använda den här under egentligen
+
+	gDeviceContext->IASetVertexBuffers(0, 1, &this->mVertexBuffer, &stride, 0);
+
+	fortfarande error här
 }
 
 

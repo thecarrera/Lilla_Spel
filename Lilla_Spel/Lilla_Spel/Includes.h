@@ -16,6 +16,8 @@
 
 #include "TriangleData.h"
 
+//clock
+#include <ctime>
 
 
 #pragma comment (lib, "d3d11.lib")
@@ -52,4 +54,5 @@ struct VertexType
 {
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT4 color;
+	DirectX::XMFLOAT2 FILL; //ta bort om funkar utan
 };
