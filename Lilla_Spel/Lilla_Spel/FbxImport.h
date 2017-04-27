@@ -205,10 +205,9 @@ public:
 	{
 		int sum = 0;
 
-		for (int i = 0; i < data[0].meshCount; i++)
-		{
-			sum += data[0].meshes[i].vertexCount;
-		}
+
+		sum += data[0].meshes[0].vertexCount;
+
 		return sum;
 	}
 	int getSumVertices()
@@ -217,9 +216,9 @@ public:
 
 		for (int i = 0; i < fileCount; i++)
 		{
-			for (int j = 0; j < data[i].meshCount; j++)
+			for (int j = 1; j < data[i].meshCount; j++)
 			{
-				sum += data[i].meshes[i].vertexCount;
+				sum += data[i].meshes[j].vertexCount;
 			}
 		}
 		return sum;

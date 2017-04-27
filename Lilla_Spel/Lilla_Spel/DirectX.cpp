@@ -49,7 +49,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBXImport.Import("test.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBXImport.Import("Leve.gay", this->gDevice, this->gVertexBufferArray);
 
 	col = Collision(this->FBXImport.getMeshes(), FBXImport.getMeshCount());
 
@@ -194,7 +194,7 @@ void DX::Render(bool isPlayer)
 
 	if (isPlayer == false)
 	{
-		for (int i = 1; i < this->gVertexBuffer2_size-1; i++) {
+		for (int i = 1; i < this->gVertexBuffer2_size; i++) {
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
 			this->gDeviceContext->Draw(this->FBXImport.getSumVertices(), 0);
 		}
