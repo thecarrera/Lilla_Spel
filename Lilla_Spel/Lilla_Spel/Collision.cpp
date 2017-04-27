@@ -1,18 +1,97 @@
 #include "Collision.h"
 
+Collision::Collision() {
 
+}
 
-Collision::Collision()
+Collision::Collision(FBXImport::Mesh* &meshes, int meshCount)
 {
+
+		/*
+		Far:
+		Top left : 2,
+		Bot left : 0,
+		Bot right : 1,
+		Top right : 5,
+
+		Near:
+		Top left : 8,
+		Bot left : 14,
+		Top right : 11,
+		Bot right : 17,
+		*/
+
+
+	bbCount = 0;
+
+	for (int i = 0; i < meshCount; i++)
+	{
+		if (meshes[i].customAttribute > 0)
+		{
+			bbCount = 2;
+		}
+
+		m_BoundingBox = new BBox[bbCount];
+	}
+
+	XMFLOAT3 cornerArray[8];
+
+	for (int i = 0; i < meshCount; i++)
+	{
+		if (meshes[i].customAttribute > 0)
+		{
+		
+				// Top left Near
+				cornerArray[0].x = meshes[i].vertices[8].position[0];
+				cornerArray[0].y = meshes[i].vertices[8].position[1];
+				cornerArray[0].z = meshes[i].vertices[8].position[2];
+
+				// Top right Near
+				cornerArray[1].x = meshes[i].vertices[11].position[0];
+				cornerArray[1].y = meshes[i].vertices[11].position[1];
+				cornerArray[1].z = meshes[i].vertices[11].position[2];
+				
+				// Bot right near
+				cornerArray[2].x = meshes[i].vertices[17].position[0];
+				cornerArray[2].y = meshes[i].vertices[17].position[1];
+				cornerArray[2].z = meshes[i].vertices[17].position[2];
+				// Bot left near
+				cornerArray[3].x = meshes[i].vertices[14].position[0];
+				cornerArray[3].y = meshes[i].vertices[14].position[1];
+				cornerArray[3].z = meshes[i].vertices[14].position[2];
+
+				// top left far
+				cornerArray[4].x = meshes[i].vertices[2].position[0];
+				cornerArray[4].y = meshes[i].vertices[2].position[1];
+				cornerArray[4].z = meshes[i].vertices[2].position[2];
+				// top right far
+				cornerArray[5].x = meshes[i].vertices[5].position[0];
+				cornerArray[5].y = meshes[i].vertices[5].position[1];
+				cornerArray[5].z = meshes[i].vertices[5].position[2];
+				// bot right far
+				cornerArray[6].x = meshes[i].vertices[1].position[0];
+				cornerArray[6].y = meshes[i].vertices[1].position[1];
+				cornerArray[6].z = meshes[i].vertices[1].position[2];
+				// bot left far
+				cornerArray[7].x = meshes[i].vertices[0].position[0];
+				cornerArray[7].y = meshes[i].vertices[0].position[1];
+				cornerArray[7].z = meshes[i].vertices[0].position[2];
+			
+				m_BoundingBox[i].createBoundingBoxFromCorners(cornerArray);
+				m_BoundingBox[i].setCollisionType(meshes[i].customAttribute);
+
+
+		}
+	}
+
 	// Test variable, this is the center of the cube
 	XMFLOAT3 center = { -29.76096f, 0.0f, -2.32647f };
 
 	XMFLOAT3 extent = { 1.0f, 1.0f, 1.0f };
 
-	m_BoundingBox = new BBox[1];
 
-	m_BoundingBox[0].setBoundingBox(BoundingBox(center, extent));
-	m_BoundingBox[0].setCollisionType(4);
+	m_BoundingBox[1].setBoundingBox(BoundingBox(center, extent));
+	m_BoundingBox[1].setCollisionType(4);
 
 	center = { -0.058672f, 2.26698f, 0.451068f };
 
@@ -29,7 +108,7 @@ CollisionData Collision::calculateCollisionData(XMMATRIX playerWorldMatrix, bool
 	
 	updatePlayerBB(playerWorldMatrix);
 
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < bbCount; i++)
 	{
 		// Check if player is burried and check if he is colliding with either "belowCollider" or "above and below collider"
 		if (isDigging && (m_BoundingBox[i].collisionBelow || m_BoundingBox[i].collisionBoth))
@@ -109,7 +188,7 @@ InteractiveCollision::InteractiveCollision()
 
 	// Hardcoded for now
 	m_pressurePlate = new PressurePlate[1];
-	m_pressurePlate[0] = PressurePlate(2000);
+	m_pressurePlate[0] = PressurePlate(3000);
 
 	m_lever = new Lever[1];
 	m_lever[0] = Lever();

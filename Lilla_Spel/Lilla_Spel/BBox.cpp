@@ -31,3 +31,9 @@ BoundingBox& BBox::getBoundingBox()
 {
 	return m_BoundingBox;
 }
+
+void BBox::createBoundingBoxFromCorners(XMFLOAT3 * corners)
+{
+
+	this->m_BoundingBox.CreateFromPoints(m_BoundingBox, 8, corners, sizeof(XMFLOAT3));
+}

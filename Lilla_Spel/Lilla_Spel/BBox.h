@@ -26,4 +26,6 @@ public:
 	// Returns the BoundingBox
 	BoundingBox& getBoundingBox();
 
+	void createBoundingBoxFromCorners(XMFLOAT3* corners);
+
 };

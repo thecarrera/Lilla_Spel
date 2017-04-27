@@ -1,12 +1,14 @@
 #pragma once
 
+#include "Includes.h"
+
 #include <iostream>
 #include <string>
 #include <fstream>
 
 class FBXImport
 {
-private:
+public:
 	struct Vertex {
 		float position[3];
 		float uv[2];
@@ -63,13 +65,33 @@ private:
 private:
 	FBXData* data;
 	int fileCount = 0;
+	int totalSumMeshes = 0;
 
 private:
 	void BindDataToBuffer(ID3D11Device* gDevice, ID3D11Buffer** &gVertexBufferArray, FBXData &FBX)
 	{
 		HRESULT hr;
 
+		//if (gVertexBufferArray != nullptr)
+		//{
+		//	ID3D11Buffer** tempBuffer = new ID3D11Buffer*[this->totalSumMeshes + FBX.meshCount];
+		//	tempBuffer = { nullptr };
+		//
+		//	for (int i = 0; i < this->totalSumMeshes; i++)
+		//	{
+		//		tempBuffer[i] = gVertexBufferArray[i];
+		//	}
+
+		//	gVertexBufferArray = tempBuffer;
+
+		//	this->totalSumMeshes += FBX.meshCount;
+		//}
+		//else 
+		//{
 		gVertexBufferArray = new ID3D11Buffer*[FBX.meshCount];
+
+		this->totalSumMeshes += FBX.meshCount;
+		//}
 
 		for (int i = 0; i < FBX.meshCount; i++)
 		{
@@ -89,8 +111,6 @@ private:
 				exit(-1);
 			}
 		}
-
-		getchar();
 	}
 
 	void loadModel(std::string fileDir, ID3D11Device* gDevice, ID3D11Buffer**& gVertexBufferArray, int count)
@@ -132,9 +152,9 @@ private:
 				is.read((char*)data[count].meshes[i].vertices, data[count].meshes[i].vertSize);
 
 				std::cout << data[0].meshes[i].vertices[0].position[0] << std::endl;
-				
 
-				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int)); 
+
+				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int));
 
 			}
 			is.close();
@@ -144,11 +164,10 @@ private:
 			this->BindDataToBuffer(gDevice, gVertexBufferArray, data[count]);
 
 			std::cout << data[0].meshes[0].vertices[0].position[0] << std::endl;
-			getchar();
 		}
 	};
 
-	void addFile() 
+	void addFile()
 	{
 		fileCount++;
 		FBXData* temp = new FBXData[fileCount];
@@ -159,14 +178,13 @@ private:
 		}
 		else
 		{
-			for (int i = 0; i < fileCount; i++) 
+			for (int i = 0; i < fileCount; i++)
 			{
 				temp[i] = data[i];
 			}
 			data = temp;
-		}	
+		}
 	};
-
 
 public:
 	FBXImport() {};
@@ -176,11 +194,11 @@ public:
 		}
 	};
 
-	void Import(std::string fileDir, ID3D11Device* gDevice, ID3D11Buffer**& gVertexBufferArray) 
+	void Import(std::string fileDir, ID3D11Device* gDevice, ID3D11Buffer**& gVertexBufferArray)
 	{
 		this->addFile();
 
-		loadModel(fileDir, gDevice, gVertexBufferArray, fileCount - 1);
+		this->loadModel(fileDir, gDevice, gVertexBufferArray, fileCount - 1);
 	};
 
 	int getPlayerSumVertices()
@@ -193,12 +211,11 @@ public:
 		}
 		return sum;
 	}
-
-	int getSumVertices() 
+	int getSumVertices()
 	{
 		int sum = 0;
 
-		for (int i = 1; i < fileCount; i++)
+		for (int i = 0; i < fileCount; i++)
 		{
 			for (int j = 0; j < data[i].meshCount; j++)
 			{
@@ -207,4 +224,25 @@ public:
 		}
 		return sum;
 	}
+	int getMeshBoundingBox(int position)
+	{
+		return data[0].meshes[position].customAttribute;
+	}
+
+	int getTotalMeshes()
+	{
+		return this->totalSumMeshes;
+	};
+
+Mesh*& getMeshes()
+{
+	return data[0].meshes;
+}
+
+// Returns the number of meshes
+int getMeshCount()
+{
+	return data[0].meshCount;
+}
 };
+

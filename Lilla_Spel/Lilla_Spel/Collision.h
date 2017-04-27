@@ -2,7 +2,7 @@
 #include "BBox.h"
 #include "PressurePlate.h"
 #include "Lever.h"
-
+#include "FbxImport.h"
 
 //Todo:
 // 1. Make bounding box appear ingame - done
@@ -50,10 +50,11 @@ class Collision
 private:
 	BBox* m_BoundingBox;
 	BBox m_PlayerBox;
-
+	int bbCount;
 	CollisionData collisionData;
 public:
 	Collision();
+	Collision(FBXImport::Mesh*& meshes, int meshCount);
 	~Collision();
 
 

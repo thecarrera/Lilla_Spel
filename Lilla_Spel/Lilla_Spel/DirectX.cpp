@@ -49,7 +49,9 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBXImport.loadModel("file.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBXImport.Import("test.gay", this->gDevice, this->gVertexBufferArray);
+
+	col = Collision(this->FBXImport.getMeshes(), FBXImport.getMeshCount());
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
@@ -66,8 +68,8 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->CreateShaders();
 
-	Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
-		this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
+	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
+		//this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
 }
 void DX::Update()
@@ -165,7 +167,7 @@ void DX::SetViewport()
 }
 void DX::Render(bool isPlayer) 
 {	
-	UINT32 vertexSize = sizeof(float) * 5;
+	UINT32 vertexSize = sizeof(float) * 8;
 	UINT32 offset = 0;
 
 	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
@@ -182,17 +184,19 @@ void DX::Render(bool isPlayer)
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
 	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
+	this->gVertexBuffer2_size = FBXImport.getMeshCount();
+
 	if (isPlayer == true)
 	{
 		this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
-		this->gDeviceContext->Draw(this->vertexCountOBJ[0], 0);
+		this->gDeviceContext->Draw(this->FBXImport.getPlayerSumVertices() , 0);
 	}
 
 	if (isPlayer == false)
 	{
-		for (int i = 1; i < this->gVertexBuffer2_size; i++) {
+		for (int i = 1; i < this->gVertexBuffer2_size-1; i++) {
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-			this->gDeviceContext->Draw(this->vertexCountOBJ[i], 0);
+			this->gDeviceContext->Draw(this->FBXImport.getSumVertices(), 0);
 		}
 	}
 }

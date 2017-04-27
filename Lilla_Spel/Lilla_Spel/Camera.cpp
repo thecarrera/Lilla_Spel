@@ -12,8 +12,8 @@ Camera::~Camera()
 
 void Camera::createCamera()
 {
-	this->cameraPos = { 0, 50, -25 };	// y 50% större än z ger bra-ish
-	this->lookAt = { 0, 0, 1 };		// lookAT vill vi ska vara på origo, där spelaren är
+	this->cameraPos = { 0, 50, -20 };	// y 50% större än z ger bra-ish
+	this->lookAt = { 0, 0, 0 };		// lookAT vill vi ska vara på origo, där spelaren är
 	this->upVec = { 0, 1, 0 };
 
 	DirectX::XMVECTOR cameraPosVec = DirectX::XMLoadFloat3(&this->cameraPos);
