@@ -39,6 +39,10 @@ void DX::Clean()
 	SAFE_RELEASE(this->samplerState);
 
 	SAFE_RELEASE(this->gTextureRTV);
+
+
+	//NEW PARTICLES!______________________________________________________
+	this->newParticle.release();
 }
 
 void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
@@ -53,7 +57,9 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	//this->linker.LoadModel("Ogre.obj", this->gDevice, this->gVertexBuffer, this->shaderBuffer);
 
 	//PARTICLE!!!!!
-	this->initiateParticles(*wndHandle);
+	//this->initiateParticles(*wndHandle);
+
+
 
 
 	this->player = new Player();
@@ -74,42 +80,51 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->CreateShaders();
 
+
+
+	//NEW PARTICLES!______________________________________________________
+	this->newParticle = NewParticle();
+	this->newParticle.make(this->gDevice, this->gDeviceContext);
+
+
+
+
 	Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray, //vertexbuffarray array med verticernas arrayer
 		this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 	
 	
 }
-
-void DX::initiateParticles(HWND hwnd)
-{
-	this->mParticleSystem = 0;
-	this->mParticleShader = 0;
-
-	//PARTIKEL SHADERN!!!
-	//creatar partikel shader objektet
-	this->mParticleShader = new ParticleShader();
-
-	//initializar particle shader objektet
-	this->mParticleShader->initialize(this->gDevice, hwnd);
-
-	//PARTIKEL SYSTEMET!!!
-	this->mParticleSystem = new ParticleClass();
-
-	this->mParticleSystem->initialize(this->gDevice);
-}
+//
+//void DX::initiateParticles(HWND hwnd)
+//{
+//	this->mParticleSystem = 0;
+//	this->mParticleShader = 0;
+//
+//	//PARTIKEL SHADERN!!!
+//	//creatar partikel shader objektet
+//	this->mParticleShader = new ParticleShader();
+//
+//	//initializar particle shader objektet
+//	this->mParticleShader->initialize(this->gDevice, hwnd);
+//
+//	//PARTIKEL SYSTEMET!!!
+//	this->mParticleSystem = new ParticleClass();
+//
+//	this->mParticleSystem->initialize(this->gDevice);
+//}
 
 //Flytta detta och blobsen till particle klassen right? 
-void DX::RenderParticles()
-{
-	this->mParticleSystem->render(this->gDeviceContext);
+//void DX::RenderParticles()
+//{
+//	this->mParticleSystem->render(this->gDeviceContext);
+//
+//	this->mParticleShader->render(this->gDeviceContext, this->mParticleSystem->getmIndexCount(),
+//		this->camera->getCameraMatrices().worldM, this->camera->getCameraMatrices().viewM,
+//		this->camera->getCameraMatrices().projM);
+//	//MATRISERNA KAN VARA FEL
+//
 
-	this->mParticleShader->render(this->gDeviceContext, this->mParticleSystem->getmIndexCount(),
-		this->camera->getCameraMatrices().worldM, this->camera->getCameraMatrices().viewM,
-		this->camera->getCameraMatrices().projM);
-	//MATRISERNA KAN VARA FEL
-
-
-}
+//}
 
 //SHUTDOWN KAN VARA BRA ATT LÄGGA IN MED
 
@@ -118,7 +133,7 @@ void DX::Update()
 	//this->player->updateConstantBuffer(this->gCBuffer);
 	
 	//PARTICLE!!!!
-	this->mParticleSystem->frameUpdate(this->frameTime, this->gDeviceContext);
+	//this->mParticleSystem->frameUpdate(this->frameTime, this->gDeviceContext);
 
 	
 	player->move(this->camera);
@@ -138,6 +153,16 @@ void DX::Update()
 
 	this->resetConstantBuffer();
 	this->Render(false);
+
+
+
+
+	//NEW PARTICLES!______________________________________________________
+	this->newParticle.update(this->gDeviceContext, this->camera);
+
+
+
+
 
 	//en till render?
 
@@ -243,6 +268,13 @@ void DX::Render(bool isPlayer)
 
 
 
+	//NEW PARTICLES!______________________________________________________
+	this->newParticle.renderParticles(this->gDeviceContext);
+
+
+
+
+
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
 	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
@@ -255,7 +287,7 @@ void DX::Render(bool isPlayer)
 
 	if (isPlayer == false)
 	{
-		this->RenderParticles();
+		//this->RenderParticles();
 
 		for (int i = 1; i < this->gVertexBuffer2_size; i++) {
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset); //första parametern 0 egentligen, 1 pga en partikel vertex buffern innan?
@@ -349,71 +381,71 @@ void DX::CreateShaders()
 
 	SAFE_RELEASE(pFS);
 
-	//Particle Vertex
-	ID3DBlob* VSPBlob = nullptr;
-	hr = D3DCompileFromFile(
-		L"VSParticle.hlsl",
-		nullptr,
-		nullptr,
-		"main",
-		"vs_5_0",
-		0,
-		0,
-		&VSPBlob,
-		&error);
+	////Particle Vertex
+	//ID3DBlob* VSPBlob = nullptr;
+	//hr = D3DCompileFromFile(
+	//	L"VSParticle.hlsl",
+	//	nullptr,
+	//	nullptr,
+	//	"main",
+	//	"vs_5_0",
+	//	0,
+	//	0,
+	//	&VSPBlob,
+	//	&error);
 
-	hr = this->gDevice->CreateVertexShader(VSPBlob->GetBufferPointer(), VSPBlob->GetBufferSize(), nullptr, &this->gVSParticle);
+	//hr = this->gDevice->CreateVertexShader(VSPBlob->GetBufferPointer(), VSPBlob->GetBufferSize(), nullptr, &this->gVSParticle);
 
-	if (error)
-	{
-		OutputDebugStringA((char*)error->GetBufferPointer());
-	}
+	//if (error)
+	//{
+	//	OutputDebugStringA((char*)error->GetBufferPointer());
+	//}
 
-	SAFE_RELEASE(VSPBlob);
+	//SAFE_RELEASE(VSPBlob);
 
-	//Particle Geometry
-	ID3DBlob* GSPBlob = nullptr;
-	hr = D3DCompileFromFile(
-		L"GSParticle.hlsl",
-		nullptr,
-		nullptr,
-		"main",
-		"gs_5_0",
-		0,
-		0,
-		&GSPBlob,
-		&error);
+	////Particle Geometry
+	//ID3DBlob* GSPBlob = nullptr;
+	//hr = D3DCompileFromFile(
+	//	L"GSParticle.hlsl",
+	//	nullptr,
+	//	nullptr,
+	//	"main",
+	//	"gs_5_0",
+	//	0,
+	//	0,
+	//	&GSPBlob,
+	//	&error);
 
-	hr = this->gDevice->CreateGeometryShader(GSPBlob->GetBufferPointer(), GSPBlob->GetBufferSize(), nullptr, &this->gGSParticle);
+	//hr = this->gDevice->CreateGeometryShader(GSPBlob->GetBufferPointer(), GSPBlob->GetBufferSize(), nullptr, &this->gGSParticle);
 
-	if (error)
-	{
-		OutputDebugStringA((char*)error->GetBufferPointer());
-	}
+	//if (error)
+	//{
+	//	OutputDebugStringA((char*)error->GetBufferPointer());
+	//}
 
-	SAFE_RELEASE(GSPBlob);
+	//SAFE_RELEASE(GSPBlob);
 
-	//Particle Geometry
-	ID3DBlob* PSPBlob = nullptr;
-	hr = D3DCompileFromFile(
-		L"PSParticle.hlsl",
-		nullptr,
-		nullptr,
-		"main",
-		"ps_5_0",
-		0,
-		0,
-		&PSPBlob,
-		&error);
+	////Particle Geometry
+	//ID3DBlob* PSPBlob = nullptr;
+	//hr = D3DCompileFromFile(
+	//	L"PSParticle.hlsl",
+	//	nullptr,
+	//	nullptr,
+	//	"main",
+	//	"ps_5_0",
+	//	0,
+	//	0,
+	//	&PSPBlob,
+	//	&error);
 
-	hr = this->gDevice->CreatePixelShader(PSPBlob->GetBufferPointer(), PSPBlob->GetBufferSize(), nullptr, &this->gPSParticle);
+	//hr = this->gDevice->CreatePixelShader(PSPBlob->GetBufferPointer(), PSPBlob->GetBufferSize(), nullptr, &this->gPSParticle);
 
-	if (error)
-	{
-		OutputDebugStringA((char*)error->GetBufferPointer());
-	}
+	//if (error)
+	//{
+	//	OutputDebugStringA((char*)error->GetBufferPointer());
+	//}
 
-	SAFE_RELEASE(PSPBlob);
+	//SAFE_RELEASE(PSPBlob);
 
 
 

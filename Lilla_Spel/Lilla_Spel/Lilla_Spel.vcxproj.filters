@@ -43,6 +43,9 @@
     <Filter Include="Source Files\Shaders\Particle Shaders">
       <UniqueIdentifier>{c1420093-3373-42bd-8372-af6c7a81c1d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders\New Particle Shaders">
+      <UniqueIdentifier>{f5f75347-b777-42e5-b448-c7f165e532cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Includes.h">
@@ -87,6 +90,9 @@
     <ClInclude Include="ParticleShader.h">
       <Filter>Header Files\Particle Effects</Filter>
     </ClInclude>
+    <ClInclude Include="NewParticle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">
@@ -119,6 +125,9 @@
     <ClCompile Include="ParticleShader.cpp">
       <Filter>Source Files\Particle Effects</Filter>
     </ClCompile>
+    <ClCompile Include="NewParticle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl">
@@ -138,6 +147,15 @@
     </FxCompile>
     <FxCompile Include="PSParticle.hlsl">
       <Filter>Source Files\Shaders\Particle Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="NewParticleVertexShader.hlsl">
+      <Filter>Source Files\Shaders\New Particle Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="NewParticleGeometryShader.hlsl">
+      <Filter>Source Files\Shaders\New Particle Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="NewParticlePixelShader.hlsl">
+      <Filter>Source Files\Shaders\New Particle Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
