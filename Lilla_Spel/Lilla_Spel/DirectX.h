@@ -20,6 +20,7 @@ public:
 	~DX();
 
 	void OfflineCreation(HMODULE hModule, HWND* wndHandle);
+	void createMenu();
 	void Clean();
 
 	void CreateDirect3DContext(HWND* wndHandle);
@@ -30,7 +31,7 @@ public:
 	void clearRender();
 
 	void CreateShaders();
-	void createGCBuffer();
+	void createCBuffer();
 	void DepthBuffer();
 
 	void updatePlayerConstantBuffer();
@@ -39,6 +40,10 @@ public:
 
 	void flushGame();
 	void menuControls();
+	void startMenuLoop();
+	void renderMenu();
+
+	float degreeToRadians(float x) { return x*(XM_PI / 180); };
 
 private:
 	ID3D11Device* gDevice = nullptr;
@@ -46,9 +51,13 @@ private:
 	IDXGISwapChain* gSwapChain = nullptr;
 	ID3D11RenderTargetView* gBackBufferRTV = nullptr;
 
+
 	ID3D11InputLayout* gVertexLayout = nullptr;
-	ID3D11Buffer* gVertexBuffer = nullptr;
 	ID3D11VertexShader* gVertexShader = nullptr;
+	ID3D11Buffer* gMenuVertexArray = nullptr;
+
+	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
+	int gVertexBufferArray_size;
 
 	ID3D11GeometryShader* gGeometryShader = nullptr;
 
@@ -68,11 +77,10 @@ private:
 	// New code
 	//int* vertexCountOBJ = nullptr;
 	//float* objCoords;	//denna?
-	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
-	int gVertexBuffer2_size;
 
 public:
 	FBXImport FBX;
+	bool isStartMenu = false;
 
 private:
 	Camera* camera;
@@ -82,7 +90,10 @@ private:
 	DirectX::XMVECTOR lookAT;
 	DirectX::XMVECTOR upVec;
 	DirectX::XMVECTOR mRight;
+
+
 private:
+	objMatrices menuMats;
 	bool menuMsg = false;
 	time_t tButtonPress;
 	time_t lTimePress;

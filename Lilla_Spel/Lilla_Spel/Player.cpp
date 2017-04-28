@@ -19,7 +19,7 @@ void Player::move(Camera* &camera, bool &menuMsg, time_t &tButtonPress, time_t &
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
 	{
 		tButtonPress = GetCurrentTime();
-		if (tButtonPress - lTimePress >= 1500)
+		if (tButtonPress - lTimePress >= 900)
 		{
 			lTimePress = GetCurrentTime();
 			menuMsg = true;

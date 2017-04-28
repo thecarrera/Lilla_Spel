@@ -11,8 +11,8 @@ Camera::~Camera()
 
 void Camera::createCamera()
 {
-	this->cameraPos = { 0, 50, -25 };	// y 50% större än z ger bra-ish
-	this->lookAt = { 0, 0, 1 };		// lookAT vill vi ska vara på origo, där spelaren är
+	this->cameraPos = { 0, 50, -25};	// y 50% större än z ger bra-ish
+	this->lookAt = { 0, -1, 1 };		// lookAT vill vi ska vara på origo, där spelaren är
 	this->upVec = { 0, 1, 0 };
 
 	DirectX::XMVECTOR cameraPosVec = DirectX::XMLoadFloat3(&this->cameraPos);
@@ -26,17 +26,17 @@ void Camera::createCamera()
 	DirectX::XMStoreFloat3(&this->mRight, mRightVec);
 
 	this->FOV = { 0.45f * DirectX::XM_PI };
-	this->ARO = (float)WIDTH / (float)HEIGHT;
+	this->ARO = (float)WIDTH / (float)HEIGHT; 
 	this->nPlane = 0.1f;
 	this->fPlane = 200.0f;
 	 
 	DirectX::XMMATRIX worldM =
 	{ 1.0f, 0, 0, 0,
-		0, 1.0f, 0, 0,
+		0,1.0f, 0, 0,
 		0, 0, 1.0f, 0,
 		0, 0, 0, 1 };
 
-	DirectX::XMMATRIX viewM = DirectX::XMMatrixLookAtLH(cameraPosVec, lookAtVec, upVecVec);
+	DirectX::XMMATRIX viewM = DirectX::XMMatrixLookToLH(cameraPosVec, lookAtVec, upVecVec);
 	DirectX::XMMATRIX projM = DirectX::XMMatrixPerspectiveFovLH(FOV, ARO, nPlane, fPlane);
 
 	this->cameraMatrices = { DirectX::XMMatrixTranspose(worldM), DirectX::XMMatrixTranspose(viewM), DirectX::XMMatrixTranspose(projM) };
@@ -57,6 +57,10 @@ void Camera::updateCamera()
 }
 objMatrices Camera::getCameraMatrices()const
 {
+	/*std::cout << *cameraMatrices.projM.r->m128_f32 << ", " << *cameraMatrices.projM.r->m128_i16 << ", " << *cameraMatrices.projM.r->m128_i32 << std::endl;
+	std::cout << *cameraMatrices.projM.r->m128_i64 << ", " << *cameraMatrices.projM.r->m128_i8 << ", " << *cameraMatrices.projM.r->m128_u16 << std::endl;
+	std::cout << *cameraMatrices.projM.r->m128_u32 << ", " << *cameraMatrices.projM.r->m128_u64 << ", " << *cameraMatrices.projM.r->m128_u8 << std::endl << std::endl;
+*/
 	return this->cameraMatrices;
 }
 void Camera::setCameraMatrices(objMatrices cameraMatrices)
@@ -71,4 +75,15 @@ void Camera::move(DirectX::XMMATRIX temp)
 void Camera::setCameraPos(DirectX::XMFLOAT3 cameraPos)
 {
 	this->cameraPos = cameraPos;
+}
+
+DirectX::XMVECTOR Camera::getLookAt()
+{
+	DirectX::XMVECTOR vec = DirectX::XMLoadFloat3(&this->lookAt);
+	return vec;
+}
+DirectX::XMVECTOR Camera::getUpVec()
+{
+	DirectX::XMVECTOR vec = DirectX::XMLoadFloat3(&this->upVec);
+	return vec;
 }

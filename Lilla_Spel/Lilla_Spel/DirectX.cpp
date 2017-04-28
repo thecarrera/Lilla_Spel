@@ -24,7 +24,6 @@ void DX::Clean()
 	SAFE_RELEASE(this->gBackBufferRTV);
 
 	SAFE_RELEASE(this->gVertexLayout);
-	SAFE_RELEASE(this->gVertexBuffer);
 	SAFE_RELEASE(this->gVertexShader);
 
 	SAFE_RELEASE(this->gGeometryShader);
@@ -52,17 +51,20 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import("cube.gay", this->gDevice, this->gVertexBufferArray);
+	this->createMenu();
+	
+	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
 	//this->FBX.Import("cube.gay", this->gDevice, this->gVertexBufferArray);
+	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
-	{ 5.0f, 0, 0, 0,
-		0, 5.0f, 0, 0,
-		0, 0, 5.0f, 0,
+	{ 0.1f, 0, 0, 0,
+		0, 0.1f, 0, 0,
+		0, 0, -0.1f, 0,
 		0, 0, 0, 1 };
 
-	this->createGCBuffer(); //kamera
+	this->createCBuffer(); //kamera
 
 	this->camera = new Camera();
 
@@ -73,6 +75,292 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
+}
+void DX::createMenu()
+{
+	struct Vertex
+	{
+		float pos[3];
+		float uv[2];
+		float normal[3];
+	};
+
+	Vertex verticies[66] = {
+
+		//Background
+		-15.0f, 0.0f, 15.0f,			//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+
+		15.0f, 0.0f, -15.0f,			//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+
+		-15.0f, 0.0f, -15.0f,			//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+
+		-15.0f, 0.0f, 15.0f,				//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+
+		15.0f, 0.0f, 15.0f,				//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+
+		15.0f, 0.0f, -15.0f,			//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+
+		//Button one
+		//inner ring
+		-12.0f, 5.0f, -6.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		-11.0f, 5.0f, -5.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		-12.0f, 5.0f, -14.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 0.1f,	//Normal
+		
+		-12.0f, 5.0f, -14.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		-11.0f, 5.0f, -5.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		-11.0f, 5.0f, -15.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 0.1f,	//Normal
+		
+		-11.0f, 5.0f, -5.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		9.0f, 5.0f, -15.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		-11.0f, 5.0f, -15.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		9.0f, 5.0f, -15.0f,	//Position
+		0.0f, 0.0f,			//uv			
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		-11.0f, 5.0f, -5.0f,	//Position
+		0.0f, 0.0f,			//uv			
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		9.0f, 5.0f, -5.0f,	//Position
+		0.0f, 0.0f,			//uv			
+		0.0f, 1.0f, 0.1f,	//Normal
+		
+		9.0f, 5.0f, -15.0f,	//Position
+		0.0f, 0.0f,			//uv			
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		9.0f, 5.0f, -5.0f,	//Position
+		0.0f, 0.0f,			//uv			
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		10.0f, 5.0f, -6.0f,	//Position
+		0.0f, 0.0f,			//uv			
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		9.0f, 5.0f, -15.0f,	//Position
+		0.0f, 0.0f,			//uv			
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		10.0f, 5.0f, -6.0f,	//Position
+		0.0f, 0.0f,			//uv			
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		10.0f, 5.0f, -14.0f,	//Position
+		0.0f, 0.0f,			//uv			
+		0.0f, 1.0f, 0.1f,	//Normal
+
+		//Outer ring
+		-13.5f, 1.0f, -5.3f,	//Position
+		0.0f, 0.0f,			//uv
+		-1.0f, 1.0f, 1.0f,	//Normal
+
+		-12.4f, 1.0f, -4.2f,	//Position
+		0.0f, 0.0f,			//uv
+		-1.0f, 1.0f, 1.0f,	//Normal
+
+		-12.0f, 5.0f, -6.0f,	//Position
+		0.0f, 0.0f,			//uv
+		-1.0f, 1.0f, 1.0f,	//Normal
+
+		-12.0f, 5.0f, -6.0f,	//Position
+		0.0f, 0.0f,			//uv
+		-1.0f, 1.0f, 1.0f,	//Normal
+
+		-12.4f, 1.0f, -4.2f,	//Position
+		0.0f, 0.0f,			//uv
+		-1.0f, 1.0f, 1.0f,	//Normal
+
+		-11.0f, 5.0f, -5.0f,	//Position
+		0.0f, 0.0f,			//uv
+		-1.0f, 1.0f, 1.0f,	//Normal
+
+		-11.0f, 5.0f, -5.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 1.0f,	//Normal
+
+		-12.4f, 1.0f, -4.2f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 1.0f,	//Normal
+
+		9.0f, 5.0f, -5.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 1.0f,	//Normal
+
+		-12.4f, 1.0f, -4.2f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 1.0f,	//Normal
+
+		10.2f, 1.0f, -4.2f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 1.0f,	//Normal
+
+		9.0f, 5.0f, -5.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, 1.0f,	//Normal
+		//################################################
+		9.0f, 5.0f, -5.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, -1.0f,	//Normal
+
+		10.2f, 1.0f, -4.2f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, -1.0f,	//Normal
+
+		10.2f, 1.0f, -0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 1.0f, -1.0f,	//NormalADWA
+		
+
+		//Button two
+		//Inner ring
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+		
+		//Outer ring
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+		0.0f, 0.0f, 0.0f,	//Position
+		0.0f, 0.0f,			//uv
+		0.0f, 0.0f, 1.0f,	//Normal
+
+	};
+
+//Vertex verticies[6]
+//{
+//	-0.5f, 0.0f, -0.5f,	//Position
+//	0.0f, 0.0f,			//uv
+//	0.0f, 1.0f, 0.0f,	//Normal
+//
+//	-0.5f, 0.0f, 0.5f,	//Position
+//	0.0f, 0.0f,			//uv
+//	0.0f, 1.0f, 0.0f,	//Normal
+//
+//	0.5f, 0.0f, 0.5f,	//Position
+//	0.0f, 0.0f,			//uv
+//	0.0f, 1.0f, 0.0f,	//Normal
+//
+//	-0.5f, 0.0f, -0.5f,	//Position
+//	0.0f, 0.0f,			//uv
+//	0.0f, 1.0f, 0.0f,	//Normal
+//
+//	0.5f, 0.0f, 0.5f,	//Position
+//	0.0f, 0.0f,			//uv
+//	0.0f, 1.0f, 0.0f,	//Normal
+//
+//	0.5f, 0.0f, -0.5f,	//Position
+//	0.0f, 0.0f,			//uv
+//	0.0f, 1.0f, 0.0f,	//Normal
+//};
+
+	HRESULT hr;
+
+	D3D11_BUFFER_DESC bufferDesc;
+	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(Vertex) * 36;// fill
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(data));
+	data.pSysMem = &verticies;//fill;
+	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gMenuVertexArray);
+
+	if (FAILED(hr))
+	{
+		exit(-1);
+	}
 }
 void DX::Update()
 {
@@ -98,6 +386,7 @@ void DX::Update()
 	{
 		this->clearRender();
 		this->menuControls();
+		this->renderMenu();
 	}
 	this->gSwapChain->Present(1, 0);
 }
@@ -185,30 +474,33 @@ void DX::Render(bool isPlayer)
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
 	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
+	this->gVertexBufferArray_size = FBX.getTotalMeshes();
+
 	if (isPlayer == true)
 	{
-		int test = FBX.getPlayerSumVertices();
-
 		this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
 		this->gDeviceContext->Draw(FBX.getPlayerSumVertices() , 0);
 	}
 
 	if (isPlayer == false)
 	{
-		for (int i = 1; i < this->gVertexBuffer2_size; i++) {
-			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-			this->gDeviceContext->Draw(FBX.getSumVertices(), 0);
+		for (int i = 1; i < this->gVertexBufferArray_size; i++) {
+			if (FBX.getMeshBoundingBox(i) == 0)
+			{
+				this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+				this->gDeviceContext->Draw(FBX.getSumVertices(), 0);
+			}
 		}
 	}
 }
 void DX::clearRender()
 {
-	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
+	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.f };
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
-
+ 
 void DX::CreateShaders()
 {
 	HRESULT hr;
@@ -308,7 +600,7 @@ void DX::CreateShaders()
 
 	hr = this->gDevice->CreateSamplerState(&sampDesc, &this->samplerState);
 }
-void DX::createGCBuffer()
+void DX::createCBuffer()
 {
 	D3D11_BUFFER_DESC cBufferDesc;
 	cBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -408,22 +700,38 @@ void DX::resetConstantBuffer()
 
 void DX::flushGame() 
 {
-	this->player->flushGame();
-	this->camera->createCamera();
+	//this->player->flushGame();
+}
+void DX::startMenuLoop()
+{
+	this->menuControls();
+
 }
 void DX::menuControls()
 {
 	this->tButtonPress = GetCurrentTime();
 	
-	if (GetAsyncKeyState(VK_ESCAPE))//Esc
+	if (this->isStartMenu == false)
 	{
-		if (this->tButtonPress - this->lTimePress >= 1500)
+		if (GetAsyncKeyState(VK_ESCAPE))//Esc
 		{
-			this->lTimePress = GetCurrentTime();
-			this->flushGame();
-			this->menuMsg = false;
+			if (this->tButtonPress - this->lTimePress >= 900)
+			{
+				this->lTimePress = GetCurrentTime();
+				this->flushGame();
+				this->menuMsg = false;
+			}
 		}
 	}
+	else
+	{
+		if (GetAsyncKeyState(VK_ESCAPE))//Esc
+		{
+			PostQuitMessage(0);
+		}
+	}
+
+
 	if (GetAsyncKeyState(0x57)) //w
 	{
 		if (this->tButtonPress - this->lTimePress >= 300)
@@ -443,6 +751,41 @@ void DX::menuControls()
 			std::cout << "test" << std::endl;
 		}
 	}
+}
+void DX::renderMenu()
+{
+	objMatrices mat = this->camera->getCameraMatrices();
+
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+
+	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+	mat.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0, 0, 25.0f));
+	mat.viewM *= DirectX::XMMatrixRotationX(this->degreeToRadians(45.0f));
+
+	memcpy(dataPtr.pData, &mat, sizeof(mat));
+
+	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+
+	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 offset = 0;
+
+	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
+
+	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
+	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
+	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);  
+
+	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
+	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
+	this->gDeviceContext->Draw(6, 0);
+
 }
 //fixa med kamera
 
