@@ -42,8 +42,10 @@ public:
 	void menuControls();
 	void startMenuLoop();
 	void renderMenu();
+	void renderInGameMenu();
 
 	float degreeToRadians(float x) { return x*(XM_PI / 180); };
+	void printMatrices(objMatrices mat);
 
 private:
 	ID3D11Device* gDevice = nullptr;
@@ -68,6 +70,7 @@ private:
 	ID3D11Texture2D* gDepthStencil = nullptr;
 
 	ID3D11Buffer* gCBuffer = nullptr;
+	ID3D11Buffer* menuBuffer = nullptr;
 
 	ID3D11Buffer* shaderBuffer = nullptr;
 	ID3D11SamplerState* samplerState = nullptr;

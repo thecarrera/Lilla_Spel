@@ -8,7 +8,7 @@
 
 class FBXImport
 {
-private:
+public:
 	struct Vertex {
 		float position[3];
 		float uv[2];
@@ -66,7 +66,6 @@ private:
 	FBXData* data;
 	int fileCount = 0;
 	int totalSumMeshes = 0;
-	bool fileRead = false;
 
 private:
 	void BindDataToBuffer(ID3D11Device* gDevice, ID3D11Buffer** &gVertexBufferArray, FBXData &FBX)
@@ -123,11 +122,9 @@ private:
 		if (!is.is_open())
 		{
 			std::cout << "Could not find the file!" << std::endl;
-			this->fileRead = false;
 		}
 		else
 		{
-			this->fileRead = true;
 			is.read((char*)&data[count].meshCount, sizeof(int));
 
 
@@ -154,13 +151,10 @@ private:
 
 				is.read((char*)data[count].meshes[i].vertices, data[count].meshes[i].vertSize);
 
-				for (int j = 0; j < data[count].meshes[i].vertexCount; j++)
-				{
-					//std::cout << data[0].meshes[i].vertices[j].position[0] << ", " << data[0].meshes[i].vertices[j].position[1] << ", " << data[0].meshes[i].vertices[j].position[2] << std::endl;
-					//std::cout << data[0].meshes[i].vertices[j].uv[0] << ", " << data[0].meshes[i].vertices[j].uv[1] << std::endl;
-				}
+				std::cout << data[0].meshes[i].vertices[0].position[0] << std::endl;
 
-				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int)); 
+
+				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int));
 
 			}
 			is.close();
@@ -173,7 +167,7 @@ private:
 		}
 	};
 
-	void addFile() 
+	void addFile()
 	{
 		fileCount++;
 		FBXData* temp = new FBXData[fileCount];
@@ -184,12 +178,12 @@ private:
 		}
 		else
 		{
-			for (int i = 0; i < fileCount; i++) 
+			for (int i = 0; i < fileCount; i++)
 			{
 				temp[i] = data[i];
 			}
 			data = temp;
-		}	
+		}
 	};
 
 public:
@@ -200,7 +194,7 @@ public:
 		}
 	};
 
-	void Import(std::string fileDir, ID3D11Device* gDevice, ID3D11Buffer**& gVertexBufferArray) 
+	void Import(std::string fileDir, ID3D11Device* gDevice, ID3D11Buffer**& gVertexBufferArray)
 	{
 		this->addFile();
 
@@ -211,24 +205,20 @@ public:
 	{
 		int sum = 0;
 
-		if (this->fileRead == true)
-		{
-			sum += data[0].meshes[0].vertexCount;
-		}
+
+		sum += data[0].meshes[0].vertexCount;
 
 		return sum;
 	}
-	int getSumVertices() 
+	int getSumVertices()
 	{
 		int sum = 0;
-		if (this->fileRead == true)
+
+		for (int i = 0; i < fileCount; i++)
 		{
-			for (int i = 1; i < fileCount; i++)
+			for (int j = 1; j < data[i].meshCount; j++)
 			{
-				for (int j = 1; j < data[i].meshCount; j++)
-				{
-					sum += data[i].meshes[j].vertexCount;
-				}
+				sum += data[i].meshes[j].vertexCount;
 			}
 		}
 		return sum;
@@ -238,8 +228,20 @@ public:
 		return data[0].meshes[position].customAttribute;
 	}
 
-	int getTotalMeshes() 
+	int getTotalMeshes()
 	{
 		return this->totalSumMeshes;
 	};
+
+	Mesh*& getMeshes()
+	{
+		return data[0].meshes;
+	}
+
+	// Returns the number of meshes
+	int getMeshCount()
+	{
+		return data[0].meshCount;
+	}
 };
+

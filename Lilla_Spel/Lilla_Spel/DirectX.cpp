@@ -51,7 +51,6 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->createMenu();
 	
 	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
 	//this->FBX.Import("cube.gay", this->gDevice, this->gVertexBufferArray);
@@ -59,9 +58,9 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
-	{ 0.1f, 0, 0, 0,
-		0, 0.1f, 0, 0,
-		0, 0, -0.1f, 0,
+	{ 0.5f, 0, 0, 0,
+		0, 0.5f, 0, 0,
+		0, 0, 0.5f, 0,
 		0, 0, 0, 1 };
 
 	this->createCBuffer(); //kamera
@@ -72,6 +71,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->CreateShaders();
 
+	this->createMenu();
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
@@ -344,6 +344,33 @@ void DX::createMenu()
 //	0.0f, 1.0f, 0.0f,	//Normal
 //};
 
+	DirectX::XMVECTOR cameraPosVec = { 0, 50, 0 };
+	DirectX::XMVECTOR lookAtVec = {0, -1, 0.00000000000000000001f};
+	DirectX::XMVECTOR upVecVec = {0, 1, 0};
+
+	float nPlane = 0.1f;
+	float fPlane = 200.0f;
+	float factor = 0.1f;
+
+	DirectX::XMMATRIX worldM = DirectX::XMMatrixIdentity();
+
+	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookToLH(cameraPosVec, lookAtVec, upVecVec));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixOrthographicLH(800.0f * factor , 640.0f * factor, nPlane, fPlane));
+
+	this->menuMats.worldM = worldM;
+	this->menuMats.viewM = viewM;
+	this->menuMats.projM = projM;
+
+	this->printMatrices(this->menuMats);
+
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+
+	this->gDeviceContext->Map(this->menuBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+	memcpy(dataPtr.pData, &this->menuMats, sizeof(objMatrices));
+
+	this->gDeviceContext->Unmap(this->menuBuffer, 0);
+
 	HRESULT hr;
 
 	D3D11_BUFFER_DESC bufferDesc;
@@ -386,7 +413,7 @@ void DX::Update()
 	{
 		this->clearRender();
 		this->menuControls();
-		this->renderMenu();
+		this->renderInGameMenu();
 	}
 	this->gSwapChain->Present(1, 0);
 }
@@ -602,6 +629,25 @@ void DX::CreateShaders()
 }
 void DX::createCBuffer()
 {
+	D3D11_BUFFER_DESC mBufferDesc;
+	mBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	mBufferDesc.ByteWidth = sizeof(objMatrices);
+	mBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	mBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	mBufferDesc.MiscFlags = 0;
+	mBufferDesc.StructureByteStride = 0;
+
+	HRESULT hr = 0;
+	D3D11_SUBRESOURCE_DATA mdata;
+	mdata.pSysMem = &this->player->getMatrices();
+
+	hr = gDevice->CreateBuffer(&mBufferDesc, &mdata, &this->menuBuffer);
+
+	if (FAILED(hr))
+	{
+		exit(-1);
+	}
+
 	D3D11_BUFFER_DESC cBufferDesc;
 	cBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	cBufferDesc.ByteWidth = sizeof(objMatrices);
@@ -609,8 +655,8 @@ void DX::createCBuffer()
 	cBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cBufferDesc.MiscFlags = 0;
 	cBufferDesc.StructureByteStride = 0;
-
-	HRESULT hr = 0;
+	
+	hr = 0;
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = &this->player->getMatrices();
 
@@ -677,16 +723,16 @@ void DX::resetConstantBuffer()
 	objMatrices standardMatrices;
 
 	standardMatrices.worldM =
-	  { 1.0f,0,0,0,
-		0,1.0f,0,0,
-		0,0,1.0f,0,
+	  { .1f,0,0,0,
+		0,.1f,0,0,
+		0,0,.1f,0,
 		0,0,0,1 };
 
 	standardMatrices.viewM = this->camera->getCameraMatrices().viewM;
 
 	standardMatrices.projM = this->camera->getCameraMatrices().projM;
 
-	standardMatrices = { DirectX::XMMatrixTranspose(standardMatrices.worldM), standardMatrices.viewM, standardMatrices.projM };
+	standardMatrices = { standardMatrices.worldM, standardMatrices.viewM, standardMatrices.projM };
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 	//ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE));
@@ -704,7 +750,9 @@ void DX::flushGame()
 }
 void DX::startMenuLoop()
 {
+	this->clearRender();
 	this->menuControls();
+	this->renderMenu();
 
 }
 void DX::menuControls()
@@ -754,19 +802,9 @@ void DX::menuControls()
 }
 void DX::renderMenu()
 {
-	objMatrices mat = this->camera->getCameraMatrices();
-
-	D3D11_MAPPED_SUBRESOURCE dataPtr;
-
-	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
-
-	mat.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0, 0, 25.0f));
-	mat.viewM *= DirectX::XMMatrixRotationX(this->degreeToRadians(45.0f));
-
-	memcpy(dataPtr.pData, &mat, sizeof(mat));
-
-	this->gDeviceContext->Unmap(this->gCBuffer, 0);
-
+}
+void DX::renderInGameMenu()
+{
 	UINT32 vertexSize = sizeof(float) * 8;
 	UINT32 offset = 0;
 
@@ -780,14 +818,43 @@ void DX::renderMenu()
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
 	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);  
 
-	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
+	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->menuBuffer);
 	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
 	this->gDeviceContext->Draw(6, 0);
 
 }
-//fixa med kamera
+
+void DX::printMatrices(objMatrices mat)
+{
+	XMFLOAT4X4 w;
+	XMFLOAT4X4 v;
+	XMFLOAT4X4 p;
+
+	XMStoreFloat4x4(&w, mat.worldM);
+	XMStoreFloat4x4(&v, mat.viewM);
+	XMStoreFloat4x4(&p, mat.projM);
+
+	cout << "New World: " << endl;
+
+	cout << w._11 << ", " << w._12 << ", " << w._13 << ", " << w._14 <<  endl;
+	cout << w._21 << ", " << w._22 << ", " << w._23 << ", " << w._24 << endl;
+	cout << w._31 << ", " << w._32 << ", " << w._33 << ", " << w._34 << endl;
+	cout << w._41 << ", " << w._42 << ", " << w._43 << ", " << w._44 << endl;
+	cout << "New View: " << endl;
+	cout << v._11 << ", " << v._12 << ", " << v._13 << ", " << v._14 << endl;
+	cout << v._21 << ", " << v._22 << ", " << v._23 << ", " << v._24 << endl;
+	cout << v._31 << ", " << v._32 << ", " << v._33 << ", " << v._34 << endl;
+	cout << v._41 << ", " << v._42 << ", " << v._43 << ", " << v._44 << endl;
+	cout << "New Proj: " << endl;
+	cout << p._11 << ", " << p._12 << ", " << p._13 << ", " << p._14 << endl;
+	cout << p._21 << ", " << p._22 << ", " << p._23 << ", " << p._24 << endl;
+	cout << p._31 << ", " << p._32 << ", " << p._33 << ", " << p._34 << endl;
+	cout << p._41 << ", " << p._42 << ", " << p._43 << ", " << p._44 << endl << endl;;
+}
+
+
 
 
 

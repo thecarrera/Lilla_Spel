@@ -8,14 +8,14 @@ cbuffer CBUFFER : register(b0)
 struct GS_IN
 {
 	float4 Pos : SV_POSITION;
-	float3 uv : UV;
+	float2 uv : UV;
 	float3 Norm : NORMAL;
 };
 
 struct FS_OUT
 {
 	float4 Pos : SV_POSITION;
-	float3 uv : UV;
+	float2 uv : UV;
 	float3 normal : NORMAL;
 	float4 wPos : POSITION;
 };

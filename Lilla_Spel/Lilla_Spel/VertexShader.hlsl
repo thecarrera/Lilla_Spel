@@ -1,14 +1,14 @@
 struct VS_IN
 {
 	float3 Pos : SV_POSITION;
-	float3 uv : UV;
+	float2 uv : UV;
 	float3 Norm : NORMAL;
 };
 
 struct GS_OUT
 {
 	float4 Pos : SV_POSITION;
-	float3 uv : UV;
+	float2 uv : UV;
 	float3 Norm : NORMAL;
 };
 

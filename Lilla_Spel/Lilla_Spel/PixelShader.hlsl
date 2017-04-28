@@ -10,7 +10,7 @@ cbuffer CBUFFER : register(b0)
 struct FS_IN
 {
 	float4 Pos : SV_POSITION;
-	float3 uv : UV;
+	float2 uv : UV;
 	float3 Norm : NORMAL;
 	float4 wPos : POSITION;
 };
