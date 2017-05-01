@@ -68,6 +68,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->CreateShaders();
 
 	col = Collision(this->FBXImport.getMeshes(), FBXImport.getMeshCount());
+	interactiveCol = InteractiveCollision(this->FBXImport.getMeshes(), FBXImport.getMeshCount());
 }
 void DX::Update()
 {
@@ -407,7 +408,7 @@ void DX::resetConstantBuffer()
 
 void DX::clearRender()
 {
-	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
+	float clearColor[] = { 0.42, 0.5, 0.717 };
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);

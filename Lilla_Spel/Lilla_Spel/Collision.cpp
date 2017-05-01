@@ -81,6 +81,7 @@ Collision::Collision(FBXImport::Mesh* &meshes, int meshCount)
 			
 				m_BoundingBox[bbIndex].createBoundingBoxFromCorners(cornerArray);
 				m_BoundingBox[bbIndex].setCollisionType(meshes[i].customAttribute);
+				m_BoundingBox[bbIndex].setId(meshes[i].id);
 				bbIndex++;
 
 		}
@@ -203,15 +204,36 @@ void InteractiveCollision::test(CollisionData* collisionData)
 	}
 
 }
-
 InteractiveCollision::InteractiveCollision()
 {
+}
+
+InteractiveCollision::InteractiveCollision(FBXImport::Mesh* &meshes, int meshCount)
+{
+	int pressurePlateCount = 0;
+	int leverCount = 0;
+
+	for (int i = 0; i < meshCount; i++)
+	{
+		if (meshes->customAttribute == 4)
+		{
+			pressurePlateCount++;
+		}
+		else if (meshes->customAttribute == 5) {
+			leverCount++;
+		}
+	}
+
+	m_pressurePlate = new PressurePlate[1];
+	m_lever = new Lever[1];
+
+
 
 	// Hardcoded for now
-	m_pressurePlate = new PressurePlate[1];
+	//m_pressurePlate = new PressurePlate[1];
 	m_pressurePlate[0] = PressurePlate(3000);
 
-	m_lever = new Lever[1];
+	//m_lever = new Lever[1];
 	m_lever[0] = Lever();
 }
 

@@ -15,5 +15,7 @@ public:
 	virtual ~Lever();
 
 	void activateLever();
+
+	bool getLeverOnOffState() const;
 };
 

@@ -27,6 +27,11 @@ int BBox::getCollisionType() const
 	return this->m_CollisionType;
 }
 
+void BBox::setId(int id)
+{
+	this->m_id = id;
+}
+
 BoundingOrientedBox& BBox::getBoundingBox()
 {
 	return m_BoundingBox;

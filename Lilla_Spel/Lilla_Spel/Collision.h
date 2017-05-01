@@ -91,6 +91,8 @@ public:
 
 	void test(CollisionData *collisionData);
 
+
 	InteractiveCollision();
+	InteractiveCollision(FBXImport::Mesh* &meshes, int meshCount);
 	~InteractiveCollision();
 };

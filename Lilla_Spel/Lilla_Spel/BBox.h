@@ -8,6 +8,7 @@ class BBox
 {
 private:
 	int m_CollisionType;
+	int m_id;
 	BoundingOrientedBox m_BoundingBox;
 public:
 	BBox();
@@ -20,8 +21,12 @@ public:
 
 	// Sets the collision type
 	void setCollisionType(int type);
+
 	// Gets the collision type of the bounding box
 	int getCollisionType() const;
+
+	// Sets the id
+	void setId(int id);
 
 	// Returns the BoundingBox
 	BoundingOrientedBox& getBoundingBox();

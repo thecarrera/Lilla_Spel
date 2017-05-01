@@ -35,3 +35,8 @@ void Lever::activateLever()
 
 	m_activatedTimeEnd = GetCurrentTime();
 }
+
+bool Lever::getLeverOnOffState() const
+{
+	return leverActivated;
+}

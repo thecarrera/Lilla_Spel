@@ -30,17 +30,19 @@ void Player::move(Camera* &camera, CollisionData* collisionData )
 		{
 		case 0:
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f));
+			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f)));
 			break;
 		case 1:
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
+			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f)));
 			break;
 		case 2:
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f));
-			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f)));
+			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f)));
 			break;
 		case 3:
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f));
-			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f)));
+			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f)));
 			break;
 		}
 		return;
@@ -51,28 +53,28 @@ void Player::move(Camera* &camera, CollisionData* collisionData )
 	{
 		lastKeyPressed = 0;
 		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
-		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -0.0f, -0.2f)));
+		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f)));
 	}
 
 	if (GetAsyncKeyState(0x53))	//s
 	{
 		lastKeyPressed = 1;
-		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, -0.0f, -0.2f));	
-		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -0.0f, 0.2f)));
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, 0.0f, -0.2f));	
+		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f)));
 	}
 
 	if (GetAsyncKeyState(0x41))	//a
 	{
 		lastKeyPressed = 2;
-		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f));
-		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f)));
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f));
+		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f)));
   }
 
 	if (GetAsyncKeyState(0x44))	//d
 	{
 		lastKeyPressed = 3;
-		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f));
-		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f)));
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
+		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f)));
 	}
 
 	
