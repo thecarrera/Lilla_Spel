@@ -27,7 +27,7 @@ public:
 	Player();
 	virtual ~Player();
 	
-	void move(Camera* &camera, CollisionData collision);
+	void move(Camera* &camera, CollisionData* collision);
 	void initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj);
 	void setMatrices(objMatrices all);
 	objMatrices getMatrices()const;

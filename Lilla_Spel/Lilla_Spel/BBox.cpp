@@ -12,7 +12,7 @@ BBox::~BBox()
 }
 
 
-void BBox::setBoundingBox(BoundingBox bbox)
+void BBox::setBoundingBox(BoundingOrientedBox bbox)
 {
 	this->m_BoundingBox = bbox;
 }
@@ -27,7 +27,7 @@ int BBox::getCollisionType() const
 	return this->m_CollisionType;
 }
 
-BoundingBox& BBox::getBoundingBox()
+BoundingOrientedBox& BBox::getBoundingBox()
 {
 	return m_BoundingBox;
 }

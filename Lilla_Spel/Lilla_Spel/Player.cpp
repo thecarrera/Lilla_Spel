@@ -16,16 +16,16 @@ Player::~Player()
 
 }
 
-void Player::move(Camera* &camera, CollisionData collisionData )
+void Player::move(Camera* &camera, CollisionData* collisionData )
 {
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
 	{
 		PostQuitMessage(0);
 	}
-
+	
 
 	// If collision is detected, determine which key was last pressed and do an opposite movement action
-	if (collisionData.collision) {
+	if (collisionData[0].collision) {
 		switch (lastKeyPressed)
 		{
 		case 0:
@@ -51,12 +51,14 @@ void Player::move(Camera* &camera, CollisionData collisionData )
 	{
 		lastKeyPressed = 0;
 		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
+		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -0.0f, -0.2f)));
 	}
 
 	if (GetAsyncKeyState(0x53))	//s
 	{
 		lastKeyPressed = 1;
 		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, -0.0f, -0.2f));	
+		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -0.0f, 0.2f)));
 	}
 
 	if (GetAsyncKeyState(0x41))	//a

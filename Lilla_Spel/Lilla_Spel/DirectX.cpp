@@ -49,9 +49,8 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBXImport.Import("Leve.gay", this->gDevice, this->gVertexBufferArray);
 
-	col = Collision(this->FBXImport.getMeshes(), FBXImport.getMeshCount());
+	this->FBXImport.Import("test.gay", this->gDevice, this->gVertexBufferArray);
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
@@ -68,9 +67,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->CreateShaders();
 
-	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
-		//this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
-
+	col = Collision(this->FBXImport.getMeshes(), FBXImport.getMeshCount());
 }
 void DX::Update()
 {

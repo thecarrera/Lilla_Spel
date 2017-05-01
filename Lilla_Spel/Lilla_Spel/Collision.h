@@ -21,6 +21,13 @@
 // 4 - Pressure plate
 // 5 - Lever
 
+
+enum CollisionEnum
+{
+	eCollider = 0,
+	eTrigger = 1
+};
+
 // Defines
 /*****************************************************************************************/
 #define isCollidingWithPlayer getBoundingBox().Intersects(m_PlayerBox.getBoundingBox())
@@ -51,15 +58,15 @@ private:
 	BBox* m_BoundingBox;
 	BBox m_PlayerBox;
 	int bbCount;
-	CollisionData collisionData;
+	CollisionData cData[2];
 public:
 	Collision();
 	Collision(FBXImport::Mesh*& meshes, int meshCount);
 	~Collision();
 
 
-	CollisionData calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging);
-	CollisionData& getCollisionData();
+	CollisionData* calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging);
+	CollisionData* getCollisionData();
 	void updatePlayerBB(XMMATRIX& playerWorldMatrix);
 };
 
@@ -82,7 +89,7 @@ private:
 
 public:
 
-	void test(CollisionData collisionData);
+	void test(CollisionData *collisionData);
 
 	InteractiveCollision();
 	~InteractiveCollision();

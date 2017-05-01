@@ -28,14 +28,16 @@ Collision::Collision(FBXImport::Mesh* &meshes, int meshCount)
 	{
 		if (meshes[i].customAttribute > 0)
 		{
-			bbCount = 2;
+			bbCount++;
 		}
 
-		m_BoundingBox = new BBox[bbCount];
 	}
+
+	m_BoundingBox = new BBox[bbCount];
 
 	XMFLOAT3 cornerArray[8];
 
+	int bbIndex = 0;
 	for (int i = 0; i < meshCount; i++)
 	{
 		if (meshes[i].customAttribute > 0)
@@ -77,25 +79,24 @@ Collision::Collision(FBXImport::Mesh* &meshes, int meshCount)
 				cornerArray[7].y = meshes[i].vertices[0].position[1];
 				cornerArray[7].z = meshes[i].vertices[0].position[2];
 			
-				m_BoundingBox[i].createBoundingBoxFromCorners(cornerArray);
-				m_BoundingBox[i].setCollisionType(meshes[i].customAttribute);
-
+				m_BoundingBox[bbIndex].createBoundingBoxFromCorners(cornerArray);
+				m_BoundingBox[bbIndex].setCollisionType(meshes[i].customAttribute);
+				bbIndex++;
 
 		}
 	}
 
-	// Test variable, this is the center of the cube
-	XMFLOAT3 center = { -29.76096f, 0.0f, -2.32647f };
 
 	XMFLOAT3 extent = { 1.0f, 1.0f, 1.0f };
 
 
-	m_BoundingBox[1].setBoundingBox(BoundingBox(center, extent));
-	m_BoundingBox[1].setCollisionType(4);
+	/*m_BoundingBox[1].setBoundingBox(BoundingBox(center, extent));
+	m_BoundingBox[1].setCollisionType(4);*/
 
-	center = { -0.058672f, 2.26698f, 0.451068f };
+	XMFLOAT3 center = { -0.058672f, 2.26698f, 0.451068f };
+	XMFLOAT4 orientation = { 0, 0, 0, 1 };
 
-	m_PlayerBox.setBoundingBox(BoundingBox(center, extent));
+	m_PlayerBox.setBoundingBox(BoundingOrientedBox(center, extent, orientation));
 }
 
 
@@ -103,8 +104,11 @@ Collision::~Collision()
 {
 }
 
-CollisionData Collision::calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging)
+CollisionData* Collision::calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging)
 {
+	int colCount = 0;
+	int triggerCount = 0;
+	
 	
 	updatePlayerBB(playerWorldMatrix);
 
@@ -112,44 +116,61 @@ CollisionData Collision::calculateCollisionData(XMMATRIX playerWorldMatrix, bool
 	{
 		// Check if player is burried and check if he is colliding with either "belowCollider" or "above and below collider"
 		if (isDigging && (m_BoundingBox[i].collisionBelow || m_BoundingBox[i].collisionBoth))
-			 m_BoundingBox[i].isCollidingWithPlayer ? collisionData.collision = true : collisionData.collision = false;
+			if (m_BoundingBox[i].isCollidingWithPlayer) {
+				cData[eCollider].collision = true;
+				colCount++;
+			}
+			else {
+				cData[eCollider].collision = false;
+			}
 		
 		// If player is not burried, but still colliding, check if its a pressure plate, lever or above collision
 		else if (!isDigging && m_BoundingBox[i].isCollidingWithPlayer)
 		{
 			if (m_BoundingBox[i].collisionPressurePlate) {
-				collisionData.collision = false;
+				cData[eTrigger].collision = false;
 				// Pressure plate type has id 4
-				collisionData.collisionType = 4;
+				cData[eTrigger].collisionType = 4;
+				triggerCount++;
 			}
 			else if (m_BoundingBox[i].collisionLever) {
-				collisionData.collision = false;
-				collisionData.collisionType = 5;
+				cData[eTrigger].collision = false;
+				cData[eTrigger].collisionType = 5;
+				triggerCount++;
 			}
 			else if(m_BoundingBox[i].collisionAbove){
-				collisionData.collision = true;
+				cData[eCollider].collision = true;
+				colCount++;
 			}
 			else if (m_BoundingBox[i].collisionBoth) {
-				collisionData.collision = true;
+				cData[eCollider].collision = true;
+				colCount++;
 			}
 			else {
-				collisionData.collision = false;
-				collisionData.collisionType = -1;
+				cData[eCollider].collision = false;
+				cData[eCollider].collisionType = -1;
+				cData[eTrigger].collisionType = -1;
 			}
 		}
 		else
 		{
-			collisionData.collision = false;
-			collisionData.collisionType = -1;
+			if (colCount == 0) {
+				cData[eCollider].collision = false;
+				cData[eCollider].collisionType = -1;
+			}
+			if (triggerCount == 0) {
+				cData[eTrigger].collision = false;
+				cData[eTrigger].collisionType = -1;
+			}
 		}
 	}
 
-	return collisionData;
+	return cData;
 }
 
-CollisionData& Collision::getCollisionData()
+CollisionData* Collision::getCollisionData()
 {
-	return this->collisionData;
+	return this->cData;
 }
 
 void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
@@ -165,16 +186,16 @@ void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
 /*****************************************************************************************/
 /*****************************************************************************************/
 
-void InteractiveCollision::test(CollisionData collisionData)
+void InteractiveCollision::test(CollisionData* collisionData)
 {
 
 	// Check for the pressure plate collision
-	if (collisionData.collisionType == 4) {
-		m_pressurePlate[0].activatePressurePlate();
+	if (collisionData[eTrigger].collisionType == 4) {
+		m_pressurePlate[eCollider].activatePressurePlate();
 		//cout << "Activating pressure plate!" << endl;
 	}
-	else if (collisionData.collisionType == 5 && GetAsyncKeyState(0x45)) {
-		m_lever[0].activateLever();
+	else if (collisionData[eTrigger].collisionType == 5 && GetAsyncKeyState(0x45)) {
+		m_lever[eCollider].activateLever();
 	}
 
 	if (m_pressurePlate[0].getPressurePlateData().active && !m_pressurePlate[0].getPressurePlateData().ticking) {

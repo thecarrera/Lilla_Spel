@@ -12,7 +12,7 @@ Camera::~Camera()
 
 void Camera::createCamera()
 {
-	this->cameraPos = { 0, 20, -50 };	// y 50% större än z ger bra-ish
+	this->cameraPos = { 0, 20, -15 };	// y 50% större än z ger bra-ish
 	this->lookAt = { 0, 0, 0 };		// lookAT vill vi ska vara på origo, där spelaren är
 	this->upVec = { 0, 1, 0 };
 
