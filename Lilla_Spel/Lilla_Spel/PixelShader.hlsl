@@ -1,4 +1,4 @@
-Texture2D txDiffuse : register(t0);
+Texture2D txDiffuse;
 SamplerState sampAni;
 
 cbuffer CBUFFER : register(b0)
@@ -25,9 +25,10 @@ float spec = dot(r, -input.wPos.xyz);
 
 float2 uv = input.uv;
 
+uv.x = 1 - uv.x;
 uv.y = 1 - uv.y;
 
-float3 s = /*txDiffuse.Sample(sampAni, uv).xyz*/ float3(1.0f, 0.0f, 1.0f) * cos /*+ pow(spec,2.f) * 0.2f*/;
+float3 s = txDiffuse.Sample(sampAni, uv).xyz + float3(0.1f, 0.1f, 0.15f) * cos /*+ pow(spec,2.f) * 0.1f*/;
 
 clamp(s, 0, 1);
 

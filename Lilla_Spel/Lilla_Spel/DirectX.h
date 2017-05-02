@@ -43,6 +43,7 @@ public:
 	void startMenuLoop();
 	void renderMenu();
 	void renderInGameMenu();
+	void Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, ID3D11ShaderResourceView** &RTV);
 
 	float degreeToRadians(float x) { return x*(XM_PI / 180); };
 	void printMatrices(objMatrices mat);
@@ -76,6 +77,7 @@ private:
 	ID3D11SamplerState* samplerState = nullptr;
 
 	ID3D11ShaderResourceView* gTextureRTV = nullptr;
+	ID3D11ShaderResourceView** gMenuRTV = nullptr;
 
 	Camera* camera;
 	Player* player;

@@ -31,7 +31,7 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream <FS_OUT> OutputStream
 	{
 		output.Pos = mul(mul(mul(input[i].Pos, worldM), viewM), projM);
 		output.wPos = mul(input[i].Pos, worldM);
-		output.uv = input[i].uv;
+		output.uv = float3(input[i].uv, 0.0f);
 		output.normal = input[i].Norm;
 
 		OutputStream.Append(output);

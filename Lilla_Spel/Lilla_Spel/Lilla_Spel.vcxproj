@@ -123,6 +123,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="DirectX.h" />
+    <ClInclude Include="FbxImport.h" />
     <ClInclude Include="Includes.h" />
     <ClInclude Include="InputFileReader.hpp" />
     <ClInclude Include="Lever.h" />
@@ -171,6 +172,7 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">FS_main</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">FS_main</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FS_main</EntryPointName>
+      <DeploymentContent>true</DeploymentContent>
     </FxCompile>
     <FxCompile Include="VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>

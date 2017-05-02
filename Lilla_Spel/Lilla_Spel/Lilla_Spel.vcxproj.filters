@@ -105,6 +105,9 @@
     <ClInclude Include="Linker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FbxImport.h">
+      <Filter>Header Files\Overhead Handler\Libraries</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">

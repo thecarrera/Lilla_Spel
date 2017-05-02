@@ -8,6 +8,10 @@ Camera::~Camera()
 {
 
 }
+void Camera::flushGame()
+{
+	this->createCamera();
+}
 
 void Camera::createCamera()
 {

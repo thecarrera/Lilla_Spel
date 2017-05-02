@@ -11,6 +11,12 @@
 
 DX::DX()
 {
+	this->gMenuRTV = new ID3D11ShaderResourceView*[3];
+
+	for (int i = 0; i < 3; i++)
+	{
+		this->gMenuRTV[i] = nullptr;
+	}
 }
 DX::~DX()
 {
@@ -39,7 +45,7 @@ void DX::Clean()
 	SAFE_RELEASE(this->shaderBuffer);
 	SAFE_RELEASE(this->samplerState);
 
-	SAFE_RELEASE(this->gTextureRTV);
+	SAFE_DELETE(this->gTextureRTV);
 
 	SAFE_DELETE(this->gVertexBufferArray);
 	
@@ -72,6 +78,8 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->CreateShaders();
 
 	this->createMenu();
+
+	this->Texture(this->gDevice, this->gDeviceContext, this->gMenuRTV);
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
@@ -94,11 +102,11 @@ void DX::createMenu()
 		0.0f, 1.0f, 0.0f,				//Normal
 
 		40.0f, 0.0f, -32.0f,			//Position
-		0.0f, 0.0f,						//uv
+		1.0f, 1.0f,						//uv
 		0.0f, 1.0f, 0.0f,				//Normal
 
 		-40.0f, 0.0f, -32.0f,			//Position
-		0.0f, 0.0f,						//uv
+		0.0f, 1.0f,						//uv
 		0.0f, 1.0f, 0.0f,				//Normal
 
 		-40.0f, 0.0f, 32.0f,				//Position
@@ -106,11 +114,11 @@ void DX::createMenu()
 		0.0f, 1.0f, 0.0f,				//Normal
 
 		40.0f, 0.0f, 32.0f,				//Position
-		0.0f, 0.0f,						//uv
+		1.0f, 0.0f,						//uv
 		0.0f, 1.0f, 0.0f,				//Normal
 
 		40.0f, 0.0f, -32.0f,			//Position
-		0.0f, 0.0f,						//uv
+		1.0f, 1.0f,						//uv
 		0.0f, 1.0f, 0.0f,				//Normal
 	};
 
@@ -131,7 +139,9 @@ void DX::createMenu()
 	this->menuMats.viewM = viewM;
 	this->menuMats.projM = projM;
 
-	this->printMatrices(this->menuMats);
+	//this->menuMats.worldM *= XMMatrixRotationX(this->degreeToRadians(-90));
+
+	//this->printMatrices(this->menuMats);
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 
@@ -528,7 +538,10 @@ void DX::resetConstantBuffer()
 
 void DX::flushGame() 
 {
-	//this->player->flushGame();
+	this->createMenu();
+	this->camera->flushGame();
+	this->player->setMatrices(camera->getCameraMatrices());
+	this->player->flushGame();
 }
 void DX::startMenuLoop()
 {
@@ -547,7 +560,7 @@ void DX::menuControls()
 		{
 			if (GetAsyncKeyState(VK_ESCAPE))//Esc
 			{
-				PostQuitMessage(-1);
+				PostQuitMessage(0);
 			}
 		}
 	}
@@ -557,6 +570,7 @@ void DX::menuControls()
 		{
 			if (this->tButtonPress - this->lTimePress >= 900)
 			{
+				this->lTimePress = GetCurrentTime();
 				this->flushGame();
 				this->menuMsg = false;
 				this->isStartMenu = true;
@@ -585,12 +599,11 @@ void DX::menuControls()
 		}
 	}
 	
-	if (GetAsyncKeyState(VK_RETURN))
+	if (this->tButtonPress - this->lTimePress >= 900)
 	{
-		if (this->tButtonPress - this->lTimePress >= 100)
+		if (GetAsyncKeyState(VK_RETURN))//Esc
 		{
 			this->lTimePress = GetCurrentTime();
-			this->flushGame();
 			this->menuMsg = false;
 			this->isStartMenu = false;
 		}
@@ -608,7 +621,7 @@ void DX::renderMenu()
 	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
 	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
 	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
-	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[0]);
 	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->menuBuffer);
@@ -617,11 +630,13 @@ void DX::renderMenu()
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
 	this->gDeviceContext->Draw(6, 0);
 
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[1]);
+
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[1], &vertexSize, &offset);
-	this->gDeviceContext->Draw(30, 0);
+	this->gDeviceContext->Draw(36, 0);
 
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[2], &vertexSize, &offset);
-	this->gDeviceContext->Draw(30, 0);
+	this->gDeviceContext->Draw(36, 0);
 }
 void DX::renderInGameMenu()
 {
@@ -635,7 +650,7 @@ void DX::renderInGameMenu()
 	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
 	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
 	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
-	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[0]);
 	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);  
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->menuBuffer);
@@ -644,11 +659,59 @@ void DX::renderInGameMenu()
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
 	this->gDeviceContext->Draw(6, 0);
 
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[2]);
+
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[3], &vertexSize, &offset);
-	this->gDeviceContext->Draw(30, 0);
+	this->gDeviceContext->Draw(36, 0);
 
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
-	this->gDeviceContext->Draw(30, 0);
+	this->gDeviceContext->Draw(36, 0);
+}
+void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, ID3D11ShaderResourceView** &RTV)
+{
+	HRESULT hr;
+
+	wchar_t fileName[256];
+	char temp1[256] = "Menu_BG_art.jpg";
+	char temp2[256] = "Buttons_startMenu.jpg";
+	char temp3[256] = "Buttons_Pause_BG.jpg";
+
+	for (int i = 0; i < sizeof(temp1); i++)
+	{
+		fileName[i] = temp1[i];
+	}
+
+	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, fileName, NULL, &RTV[0], NULL);
+
+	if (FAILED(hr))
+	{
+		return exit(-1);
+	}
+
+	for (int i = 0; i < sizeof(temp1); i++)
+	{
+		fileName[i] = temp2[i];
+	}
+
+	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, fileName, NULL, &RTV[1], NULL);
+
+	if (FAILED(hr))
+	{
+		return exit(-1);
+	}
+
+	for (int i = 0; i < sizeof(temp1); i++)
+	{
+		fileName[i] = temp3[i];
+	}
+
+	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, fileName, NULL, &RTV[2], NULL);
+
+	if (FAILED(hr))
+	{
+		return exit(-1);
+	}
+
 }
 
 void DX::printMatrices(objMatrices mat)
