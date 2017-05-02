@@ -10,19 +10,21 @@ Player::Player()
 	this->burrowCD = 3000;
 	this->timeWhenBurrowed = 0;
 }
-
 Player::~Player()
 {
-
 }
 
-void Player::move(Camera* &camera, CollisionData collisionData )
+void Player::move(Camera* &camera, CollisionData collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress)
 {
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
 	{
-		PostQuitMessage(0);
+		tButtonPress = GetCurrentTime();
+		if (tButtonPress - lTimePress >= 900)
+		{
+			lTimePress = GetCurrentTime();
+			menuMsg = true;
+		}
 	}
-
 
 	// If collision is detected, determine which key was last pressed and do an opposite movement action
 	if (collisionData.collision) {
@@ -135,17 +137,27 @@ void Player::initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, D
 	this->matrices.viewM = view;
 	this->matrices.projM = proj;
 }
-
 void Player::setMatrices(objMatrices all)
 {
 	this->matrices.worldM = all.worldM;
 	this->matrices.viewM = all.viewM;
 	this->matrices.projM = all.projM;
 }
-
 objMatrices Player::getMatrices()const
 {
 	return this->matrices;
+}
+
+void Player::flushGame()
+{
+	this->flyingUp = false;
+	this->velocity.x = 0;
+	this->velocity.y = 0;
+	this->velocity.z = 0;
+	this->digging = false;
+	this->burrowCD = 3000;
+	this->timeWhenBurrowed = 0;
+}
 }
 
 bool Player::getIsDigging() const

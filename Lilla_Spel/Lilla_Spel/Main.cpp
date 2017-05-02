@@ -32,7 +32,14 @@ int WINAPI wWinMain(HMODULE hModule, HMODULE hPrevModule, LPWSTR lpCmdLine, int 
 			}
 			else
 			{
-				Dx.Update();
+				if (Dx.isStartMenu == true)
+				{
+					Dx.startMenuLoop();
+				}
+				else
+				{
+					Dx.Update();
+				}
 			}
 		}
 		DestroyWindow(wndHandle);

@@ -24,10 +24,10 @@ void DX::Clean()
 	SAFE_RELEASE(this->gBackBufferRTV);
 
 	SAFE_RELEASE(this->gVertexLayout);
-	SAFE_RELEASE(this->gVertexBuffer);
 	SAFE_RELEASE(this->gVertexShader);
 
 	SAFE_RELEASE(this->gGeometryShader);
+
 	SAFE_RELEASE(this->gFragmentShader);
 
 	SAFE_RELEASE(this->depthState);
@@ -35,10 +35,12 @@ void DX::Clean()
 	SAFE_RELEASE(this->gDepthStencil);
 
 	SAFE_RELEASE(this->gCBuffer);
+
 	SAFE_RELEASE(this->shaderBuffer);
 	SAFE_RELEASE(this->samplerState);
 
 	SAFE_RELEASE(this->gTextureRTV);
+
 	SAFE_DELETE(this->gVertexBufferArray);
 	
 }
@@ -49,7 +51,8 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBXImport.Import("Leve.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
+	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	col = Collision(this->FBXImport.getMeshes(), FBXImport.getMeshCount());
 
@@ -60,7 +63,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 		0, 0, 1.0f, 0,
 		0, 0, 0, 1 };
 
-	this->createGCBuffer(); //kamera
+	this->createCBuffer(); //kamera
 
 	this->camera = new Camera();
 
@@ -68,35 +71,124 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->CreateShaders();
 
+	this->createMenu();
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
-		//this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
+	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
+}
+void DX::createMenu()
+{
+	struct Vertex
+	{
+		float pos[3];
+		float uv[2];
+		float normal[3];
+	};
+
+	Vertex verticies[66] = 
+	{
+
+		//Background
+		-40.0f, 0.0f, 32.0f,			//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+
+		40.0f, 0.0f, -32.0f,			//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+
+		-40.0f, 0.0f, -32.0f,			//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+
+		-40.0f, 0.0f, 32.0f,				//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+
+		40.0f, 0.0f, 32.0f,				//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+
+		40.0f, 0.0f, -32.0f,			//Position
+		0.0f, 0.0f,						//uv
+		0.0f, 1.0f, 0.0f,				//Normal
+	};
+
+	DirectX::XMVECTOR cameraPosVec = { 0, 50, 0 };
+	DirectX::XMVECTOR lookAtVec = {0, -1, -0.00000000000000000001f};
+	DirectX::XMVECTOR upVecVec = {0, 1, 0};
+
+	float nPlane = 0.1f;
+	float fPlane = 200.0f;
+	float factor = 0.1f;
+
+	DirectX::XMMATRIX worldM = DirectX::XMMatrixIdentity();
+
+	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookToLH(cameraPosVec, lookAtVec, upVecVec));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixOrthographicLH(800.0f * factor , 640.0f * factor, nPlane, fPlane));
+
+	this->menuMats.worldM = worldM;
+	this->menuMats.viewM = viewM;
+	this->menuMats.projM = projM;
+
+	this->printMatrices(this->menuMats);
+
+	D3D11_MAPPED_SUBRESOURCE dataPtr;
+
+	this->gDeviceContext->Map(this->menuBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+	memcpy(dataPtr.pData, &this->menuMats, sizeof(objMatrices));
+
+	this->gDeviceContext->Unmap(this->menuBuffer, 0);
+
+	HRESULT hr;
+
+	D3D11_BUFFER_DESC bufferDesc;
+	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(Vertex) * 36;// fill
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(data));
+	data.pSysMem = &verticies;//fill;
+	hr = gDevice->CreateBuffer(&bufferDesc, &data, &gMenuVertexArray);
+
+	if (FAILED(hr))
+	{
+		exit(-1);
+	}
 }
 void DX::Update()
 {
-	/*if(col.TestCollision(player->getMatrices().worldM)){
-		cout << "Collision!!" << endl;
-	}*/
+	if (this->menuMsg == false)
+	{
+		//this->player->updateConstantBuffer(this->gCBuffer);
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->menuMsg, this->tButtonPress, this->lTimePress);
+		/*if(col.TestCollision(player->getMatrices().worldM)){
+			cout << "Collision!!" << endl;
+		}*/
 
-	//this->player->updateConstantBuffer(this->gCBuffer);
-	player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()));
+		this->clearRender();
+		interactiveCol.test(col.getCollisionData());
 
-	interactiveCol.test(col.getCollisionData());
+		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
-	this->clearRender();
+		this->Render(true);
 
-	this->updatePlayerConstantBuffer(); //annars ser inte rör
+		//updateraKamera
 
-	this->Render(true);
+		this->resetConstantBuffer();
+		this->Render(false);
 
-	//updateraKamera
-
-	this->resetConstantBuffer();
-	this->Render(false);
-
-	//this->updateCameraConstantBuffer();
-	//en till render?
-
+		this->updateCameraConstantBuffer();
+	}
+	else
+	{
+		this->clearRender();
+		this->menuControls();
+		this->renderInGameMenu();
+	}
 	this->gSwapChain->Present(1, 0);
 }
 
@@ -180,27 +272,36 @@ void DX::Render(bool isPlayer)
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
 	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
 
-
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
 	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
-	this->gVertexBuffer2_size = FBXImport.getMeshCount();
+	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	if (isPlayer == true)
 	{
-		this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
-		this->gDeviceContext->Draw(this->FBXImport.getPlayerSumVertices() , 0);
+		this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
+		this->gDeviceContext->Draw(FBX.getPlayerSumVertices() , 0);
 	}
 
 	if (isPlayer == false)
 	{
-		for (int i = 1; i < this->gVertexBuffer2_size; i++) {
-			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-			this->gDeviceContext->Draw(this->FBXImport.getSumVertices(), 0);
+		for (int i = 6; i < this->gVertexBufferArray_size; i++) {
+			if (FBX.getMeshBoundingBox(i) == 0)
+			{
+				this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+				this->gDeviceContext->Draw(FBX.getSumVertices(), 0);
+			}
 		}
 	}
 }
+void DX::clearRender()
+{
+	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.f };
 
+	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
+	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+ 
 void DX::CreateShaders()
 {
 	HRESULT hr;
@@ -229,7 +330,8 @@ void DX::CreateShaders()
 
 	D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
 		{ "SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 } 
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 
@@ -299,8 +401,27 @@ void DX::CreateShaders()
 
 	hr = this->gDevice->CreateSamplerState(&sampDesc, &this->samplerState);
 }
-void DX::createGCBuffer()
+void DX::createCBuffer()
 {
+	D3D11_BUFFER_DESC mBufferDesc;
+	mBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	mBufferDesc.ByteWidth = sizeof(objMatrices);
+	mBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	mBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	mBufferDesc.MiscFlags = 0;
+	mBufferDesc.StructureByteStride = 0;
+
+	HRESULT hr = 0;
+	D3D11_SUBRESOURCE_DATA mdata;
+	mdata.pSysMem = &this->player->getMatrices();
+
+	hr = gDevice->CreateBuffer(&mBufferDesc, &mdata, &this->menuBuffer);
+
+	if (FAILED(hr))
+	{
+		exit(-1);
+	}
+
 	D3D11_BUFFER_DESC cBufferDesc;
 	cBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	cBufferDesc.ByteWidth = sizeof(objMatrices);
@@ -308,8 +429,8 @@ void DX::createGCBuffer()
 	cBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cBufferDesc.MiscFlags = 0;
 	cBufferDesc.StructureByteStride = 0;
-
-	HRESULT hr = 0;
+	
+	hr = 0;
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = &this->player->getMatrices();
 
@@ -364,9 +485,6 @@ void DX::updatePlayerConstantBuffer() //med player matriser
 
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 }
-
-//fixa med kamera
-
 void DX::updateCameraConstantBuffer()
 {
 	objMatrices cameraMatrices = this->camera->getCameraMatrices();
@@ -376,12 +494,12 @@ void DX::updateCameraConstantBuffer()
 	//Låser buffern för GPU:n och hämtar den till CPU
 	this->gDeviceContext->Map(this->gCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 	// Copy camera matrix to buffer
+
 	memcpy(dataPtr.pData, &cameraMatrices, sizeof(cameraMatrices));
 
 	//Ger GPU:n tillgång till datan igen
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 }
-
 void DX::resetConstantBuffer()
 {
 	objMatrices standardMatrices;
@@ -396,7 +514,7 @@ void DX::resetConstantBuffer()
 
 	standardMatrices.projM = this->camera->getCameraMatrices().projM;
 
-	standardMatrices = { DirectX::XMMatrixTranspose(standardMatrices.worldM), standardMatrices.viewM, standardMatrices.projM };
+	standardMatrices = { standardMatrices.worldM, standardMatrices.viewM, standardMatrices.projM };
 
 	D3D11_MAPPED_SUBRESOURCE dataPtr;
 	//ZeroMemory(&dataPtr, sizeof(D3D11_MAPPED_SUBRESOURCE));
@@ -408,10 +526,155 @@ void DX::resetConstantBuffer()
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 }
 
-void DX::clearRender()
+void DX::flushGame() 
 {
-	float clearColor[] = { 0.3f, 0.0f, 0.5f, 1.f };
+	//this->player->flushGame();
+}
+void DX::startMenuLoop()
+{
+	this->clearRender();
+	this->menuControls();
+	this->renderMenu();
+	this->gSwapChain->Present(1,0);
+}
+void DX::menuControls()
+{
+	this->tButtonPress = GetCurrentTime();
 
-	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
-	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	if (this->isStartMenu == true)
+	{
+		if (this->tButtonPress - this->lTimePress >= 900)
+		{
+			if (GetAsyncKeyState(VK_ESCAPE))//Esc
+			{
+				PostQuitMessage(-1);
+			}
+		}
+	}
+	else
+	{
+		if (GetAsyncKeyState(VK_ESCAPE))//Esc
+		{
+			if (this->tButtonPress - this->lTimePress >= 900)
+			{
+				this->flushGame();
+				this->menuMsg = false;
+				this->isStartMenu = true;
+			}
+		}
+	}
+
+
+	if (GetAsyncKeyState(0x57)) //w
+	{
+		if (this->tButtonPress - this->lTimePress >= 300)
+		{
+			this->lTimePress = GetCurrentTime();
+
+			std::cout << "test" << std::endl;
+		}
+	}
+
+	if (GetAsyncKeyState(0x53))	//s
+	{
+		if (this->tButtonPress - this->lTimePress >= 300)
+		{
+			this->lTimePress = GetCurrentTime();
+
+			std::cout << "test" << std::endl;
+		}
+	}
+	
+	if (GetAsyncKeyState(VK_RETURN))
+	{
+		if (this->tButtonPress - this->lTimePress >= 100)
+		{
+			this->lTimePress = GetCurrentTime();
+			this->flushGame();
+			this->menuMsg = false;
+			this->isStartMenu = false;
+		}
+	}
+}
+void DX::renderMenu()
+{
+	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 offset = 0;
+
+	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
+
+	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
+	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
+	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
+
+	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->menuBuffer);
+	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
+	this->gDeviceContext->Draw(6, 0);
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[1], &vertexSize, &offset);
+	this->gDeviceContext->Draw(30, 0);
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[2], &vertexSize, &offset);
+	this->gDeviceContext->Draw(30, 0);
+}
+void DX::renderInGameMenu()
+{
+	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 offset = 0;
+
+	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
+
+	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
+	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
+	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);  
+
+	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->menuBuffer);
+	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
+	this->gDeviceContext->Draw(6, 0);
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[3], &vertexSize, &offset);
+	this->gDeviceContext->Draw(30, 0);
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
+	this->gDeviceContext->Draw(30, 0);
+}
+
+void DX::printMatrices(objMatrices mat)
+{
+	XMFLOAT4X4 w;
+	XMFLOAT4X4 v;
+	XMFLOAT4X4 p;
+
+	XMStoreFloat4x4(&w, mat.worldM);
+	XMStoreFloat4x4(&v, mat.viewM);
+	XMStoreFloat4x4(&p, mat.projM);
+
+	cout << "New World: " << endl;
+
+	cout << w._11 << ", " << w._12 << ", " << w._13 << ", " << w._14 <<  endl;
+	cout << w._21 << ", " << w._22 << ", " << w._23 << ", " << w._24 << endl;
+	cout << w._31 << ", " << w._32 << ", " << w._33 << ", " << w._34 << endl;
+	cout << w._41 << ", " << w._42 << ", " << w._43 << ", " << w._44 << endl;
+	cout << "New View: " << endl;
+	cout << v._11 << ", " << v._12 << ", " << v._13 << ", " << v._14 << endl;
+	cout << v._21 << ", " << v._22 << ", " << v._23 << ", " << v._24 << endl;
+	cout << v._31 << ", " << v._32 << ", " << v._33 << ", " << v._34 << endl;
+	cout << v._41 << ", " << v._42 << ", " << v._43 << ", " << v._44 << endl;
+	cout << "New Proj: " << endl;
+	cout << p._11 << ", " << p._12 << ", " << p._13 << ", " << p._14 << endl;
+	cout << p._21 << ", " << p._22 << ", " << p._23 << ", " << p._24 << endl;
+	cout << p._31 << ", " << p._32 << ", " << p._33 << ", " << p._34 << endl;
+	cout << p._41 << ", " << p._42 << ", " << p._43 << ", " << p._44 << endl << endl;;
 }
