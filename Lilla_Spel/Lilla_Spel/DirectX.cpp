@@ -528,12 +528,12 @@ void DX::startMenuLoop()
 void DX::menuControls()
 {
 	this->tButtonPress = GetCurrentTime();
-	
+
 	if (this->isStartMenu == true)
 	{
-		if (GetAsyncKeyState(VK_ESCAPE))//Esc
+		if (this->tButtonPress - this->lTimePress >= 900)
 		{
-			if (this->tButtonPress - this->lTimePress >= 900)
+			if (GetAsyncKeyState(VK_ESCAPE))//Esc
 			{
 				PostQuitMessage(-1);
 			}
@@ -543,9 +543,12 @@ void DX::menuControls()
 	{
 		if (GetAsyncKeyState(VK_ESCAPE))//Esc
 		{
-			this->flushGame();
-			this->menuMsg = false;
-			this->isStartMenu = true;
+			if (this->tButtonPress - this->lTimePress >= 900)
+			{
+				this->flushGame();
+				this->menuMsg = false;
+				this->isStartMenu = true;
+			}
 		}
 	}
 
