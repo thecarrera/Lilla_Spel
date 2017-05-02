@@ -86,7 +86,6 @@ private:
 	int* vertexCountOBJ = nullptr;
 	int gVertexBuffer2_size;
 	float* objCoords;	//denna?
-	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
 
 public:
 	FBXImport FBX;

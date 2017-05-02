@@ -54,7 +54,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
-	col = Collision(this->FBXImport.getMeshes(), FBXImport.getMeshCount());
+	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
@@ -164,7 +164,7 @@ void DX::Update()
 	if (this->menuMsg == false)
 	{
 		//this->player->updateConstantBuffer(this->gCBuffer);
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->menuMsg, this->tButtonPress, this->lTimePress);
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress);
 		/*if(col.TestCollision(player->getMatrices().worldM)){
 			cout << "Collision!!" << endl;
 		}*/

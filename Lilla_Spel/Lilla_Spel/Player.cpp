@@ -158,7 +158,6 @@ void Player::flushGame()
 	this->burrowCD = 3000;
 	this->timeWhenBurrowed = 0;
 }
-}
 
 bool Player::getIsDigging() const
 {
