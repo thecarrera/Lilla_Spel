@@ -1,10 +1,9 @@
 Texture2D txDiffuse : register(t0);
 SamplerState sampAni;
+
 cbuffer CBUFFER : register(b0)
 {
-	float3 Kd;
-	float3 Ka;
-	float3 Ks;
+	float3 lightPos;
 }
 
 struct FS_IN

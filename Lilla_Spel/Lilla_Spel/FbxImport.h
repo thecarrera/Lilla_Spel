@@ -206,7 +206,7 @@ public:
 		int sum = 0;
 
 
-		sum += data[0].meshes[0].vertexCount;
+		sum += data[0].meshes[3].vertexCount;
 
 		return sum;
 	}
@@ -216,7 +216,7 @@ public:
 
 		for (int i = 0; i < fileCount; i++)
 		{
-			for (int j = 1; j < data[i].meshCount; j++)
+			for (int j = 4; j < data[i].meshCount; j++)
 			{
 				sum += data[i].meshes[j].vertexCount;
 			}

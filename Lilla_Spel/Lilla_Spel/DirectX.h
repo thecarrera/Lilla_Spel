@@ -83,7 +83,7 @@ private:
 
 public:
 	FBXImport FBX;
-	bool isStartMenu = false;
+	bool isStartMenu = true;
 
 private:
 	Camera* camera;
