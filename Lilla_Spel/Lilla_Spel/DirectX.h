@@ -44,6 +44,8 @@ public:
 	void renderMenu();
 	void renderInGameMenu();
 
+
+
 	float degreeToRadians(float x) { return x*(XM_PI / 180); };
 	void printMatrices(objMatrices mat);
 
@@ -60,6 +62,10 @@ private:
 
 	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
 	int gVertexBufferArray_size;
+
+	//WaterBuffer
+	ID3D11Buffer** WaterBufferArray = nullptr;
+	int WaterBufferArray_Size;
 
 	ID3D11GeometryShader* gGeometryShader = nullptr;
 
@@ -89,6 +95,7 @@ private:
 
 public:
 	FBXImport FBX;
+	FBXImport WaterFBX;
 	bool isStartMenu = true;
 
 	objMatrices TEMP;

@@ -51,7 +51,9 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
+
+
+	this->FBX.Import("wate.gay", this->gDevice, this->gVertexBufferArray);
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
@@ -71,7 +73,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->CreateShaders();
 
-	this->createMenu();
+	//this->createMenu();
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
@@ -185,9 +187,9 @@ void DX::Update()
 	}
 	else
 	{
-		this->clearRender();
+		/*this->clearRender();
 		this->menuControls();
-		this->renderInGameMenu();
+		this->renderInGameMenu();*/
 	}
 	this->gSwapChain->Present(1, 0);
 }
@@ -277,21 +279,26 @@ void DX::Render(bool isPlayer)
 
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
-	if (isPlayer == true)
-	{
-		this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
-		this->gDeviceContext->Draw(FBX.getPlayerSumVertices() , 0);
-	}
+	//if (isPlayer == true)
+	//{
+	//	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
+	//	this->gDeviceContext->Draw(FBX.getPlayerSumVertices() , 0);
+	//}
 
-	if (isPlayer == false)
-	{
-		for (int i = 6; i < this->gVertexBufferArray_size; i++) {
+	/*if (isPlayer == false)
+	{*/
+		for (int i = 0; i < this->gVertexBufferArray_size; i++) {
 			if (FBX.getMeshBoundingBox(i) == 0)
 			{
 				this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-				this->gDeviceContext->Draw(FBX.getSumVertices(), 0);
+				this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 			}
-		}
+			/*for (int w = 0; w < this->WaterBufferArray_Size; w++)
+			{
+				this->gDeviceContext->IASetVertexBuffers(0, 1, &this->WaterBufferArray[w], &vertexSize, &offset);
+				this->gDeviceContext->Draw(FBX.getMeshVertexCount(w), 0);
+			}*/
+		//}
 	}
 }
 void DX::clearRender()
@@ -678,3 +685,5 @@ void DX::printMatrices(objMatrices mat)
 	cout << p._31 << ", " << p._32 << ", " << p._33 << ", " << p._34 << endl;
 	cout << p._41 << ", " << p._42 << ", " << p._43 << ", " << p._44 << endl << endl;;
 }
+
+
