@@ -66,6 +66,7 @@ private:
 	//WaterBuffer
 	ID3D11Buffer** WaterBufferArray = nullptr;
 	int WaterBufferArray_Size;
+	ID3D11Buffer* wConstbuff = nullptr;
 
 	ID3D11GeometryShader* gGeometryShader = nullptr;
 
@@ -95,7 +96,7 @@ private:
 
 public:
 	FBXImport FBX;
-	FBXImport WaterFBX;
+	//FBXImport WaterFBX;
 	bool isStartMenu = true;
 
 	objMatrices TEMP;

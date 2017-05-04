@@ -58,6 +58,9 @@
     <Filter Include="Source Files\Sub Resources\Movement">
       <UniqueIdentifier>{7017c8ca-50a5-46e7-8ce7-3d71340b6f53}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Sub Resources\Environment">
+      <UniqueIdentifier>{09c4a96d-8c7f-4425-9cdf-e899365e8101}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Importers.h">
@@ -105,6 +108,9 @@
     <ClInclude Include="Linker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Water.h">
+      <Filter>Header Files\Sub Resources\Environment</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">
@@ -146,6 +152,9 @@
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="GeometryShader.hlsl">
+      <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Watershader.hlsl">
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
