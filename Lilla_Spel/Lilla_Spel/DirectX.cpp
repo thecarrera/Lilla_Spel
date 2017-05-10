@@ -57,7 +57,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import("axis.gay", this->gDevice, this->gVertexBufferArray);
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
@@ -177,16 +177,13 @@ void DX::Update()
 	{
 		//this->player->updateConstantBuffer(this->gCBuffer);
 		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress);
-		/*if(col.TestCollision(player->getMatrices().worldM)){
-			cout << "Collision!!" << endl;
-		}*/
 
-	//this->player->updateConstantBuffer(this->gCBuffer);
-	player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()));
+		//this->player->updateConstantBuffer(this->gCBuffer);
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()),this->menuMsg, this->tButtonPress, this->lTimePress);
 
-	interactiveCol.test(col.getCollisionData(), col);
+		interactiveCol.test(col.getCollisionData(), col);
 
-	this->clearRender();
+		this->clearRender();
 
 		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
