@@ -72,26 +72,25 @@ private:
 	{
 		HRESULT hr;
 
-		//if (gVertexBufferArray != nullptr)
-		//{
-		//	ID3D11Buffer** tempBuffer = new ID3D11Buffer*[this->totalSumMeshes + FBX.meshCount];
-		//	tempBuffer = { nullptr };
-		//
-		//	for (int i = 0; i < this->totalSumMeshes; i++)
-		//	{
-		//		tempBuffer[i] = gVertexBufferArray[i];
-		//	}
+		if (gVertexBufferArray != nullptr)
+		{
+			ID3D11Buffer** tempBuffer = new ID3D11Buffer*[this->totalSumMeshes + FBX.meshCount];
+		
+			for (int i = 0; i < this->totalSumMeshes; i++)
+			{
+				tempBuffer[i] = gVertexBufferArray[i];
+			}
 
-		//	gVertexBufferArray = tempBuffer;
+			gVertexBufferArray = tempBuffer;
 
-		//	this->totalSumMeshes += FBX.meshCount;
-		//}
-		//else 
-		//{
+			this->totalSumMeshes += FBX.meshCount;
+		}
+		else 
+		{
 		gVertexBufferArray = new ID3D11Buffer*[FBX.meshCount];
 
 		this->totalSumMeshes += FBX.meshCount;
-		//}
+		}
 
 		for (int i = 0; i < FBX.meshCount; i++)
 		{

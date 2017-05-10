@@ -13,11 +13,13 @@
 //#include <wincodec.h>
 //#include <wrl.h>
 #include "WICTextureLoader.h"
-
+#include <fmod.hpp>
+#include <fmod_errors.h>
+ 
 #include "TriangleData.h"
 #include "Collision.h"
 #include "FbxImport.h"
-
+#include "Sound.h"
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")

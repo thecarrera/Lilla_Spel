@@ -4,6 +4,8 @@
 #include "Camera.h"
 #include "Player.h"
 
+
+
 /*
 #################################################################################################################################
 #																																#
@@ -53,8 +55,7 @@ private:
 	ID3D11DeviceContext* gDeviceContext = nullptr;
 	IDXGISwapChain* gSwapChain = nullptr;
 	ID3D11RenderTargetView* gBackBufferRTV = nullptr;
-
-
+ 
 	ID3D11InputLayout* gVertexLayout = nullptr;
 	ID3D11VertexShader* gVertexShader = nullptr;
 	ID3D11Buffer* gMenuVertexArray = nullptr;
@@ -92,6 +93,8 @@ private:
 public:
 	FBXImport FBX;
 	bool isStartMenu = true;
+
+	SoundManager SM;
 
 	objMatrices TEMP;
 

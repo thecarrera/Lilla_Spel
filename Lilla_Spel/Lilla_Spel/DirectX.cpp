@@ -58,6 +58,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->SetViewport();
 
 	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
@@ -80,6 +81,9 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->createMenu();
 
 	this->Texture(this->gDevice, this->gDeviceContext, this->gMenuRTV);
+
+	this->SM.createFMOD();
+	this->SM.addReverb(1);
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
@@ -171,6 +175,7 @@ void DX::createMenu()
 }
 void DX::Update()
 {
+	SM.update();
 	if (this->menuMsg == false)
 	{
 		//this->player->updateConstantBuffer(this->gCBuffer);

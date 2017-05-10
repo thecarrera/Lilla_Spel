@@ -17,7 +17,7 @@ struct FS_IN
 float4 FS_main(FS_IN input) : SV_Target
 {
 float3 lightPos = { 0.0f, 50.0f, -30.0f };
-float3 lightDir = normalize(lightPos - input.wPos.xyz);
+float3 lightDir = normalize(lightPos - input.wPos.xyz); 
 float3 r = reflect(lightDir, input.Norm.xyz);
 float cos = dot(lightDir, input.Norm.xyz);
 
