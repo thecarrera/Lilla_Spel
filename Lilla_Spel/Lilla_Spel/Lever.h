@@ -18,6 +18,9 @@ public:
 	void activateLever();
 
 	void setId(int id);
+
+	int getId();
+
 	// Gets the state of the lever, if its activated or not
 	// Return type bool
 	bool getLeverOnOffState() const;

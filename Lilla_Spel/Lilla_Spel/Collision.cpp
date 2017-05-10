@@ -316,8 +316,8 @@ InteractiveCollision::InteractiveCollision(FBXImport::Mesh* &meshes, int meshCou
 {
 	populateIndexArray(meshes, meshCount);
 
-	int pressurePlateCount = 0;
-	int leverCount = 0;
+	pressurePlateCount = 0;
+	leverCount = 0;
 
 	for (int i = 0; i < meshCount; i++)
 	{
@@ -379,4 +379,20 @@ void InteractiveCollision::populateIndexArray(FBXImport::Mesh* &meshes, int mesh
 	}
 
 	index_by_id = new int[idCount];
+}
+
+
+// Might not be needed...
+void InteractiveCollision::updateIndexArray()
+{
+	for (int i = 0; i < pressurePlateCount; i++)
+	{
+		index_by_id[m_pressurePlate[i].getId()] = i;
+	}
+
+	for (int i = 0; i < pressurePlateCount; i++)
+	{
+		index_by_id[m_lever[i].getId()] = i;
+	}
+
 }

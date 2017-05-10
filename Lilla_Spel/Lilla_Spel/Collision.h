@@ -116,6 +116,9 @@ private:
 	PressurePlate* m_pressurePlate;
 
 	int* index_by_id = nullptr;
+
+	int pressurePlateCount = 0;
+	int leverCount = 0;
 public:
 
 	void test(CollisionData *collisionData, Collision& col);
@@ -123,6 +126,9 @@ public:
 	int getIndexById(int id);
 
 	void populateIndexArray(FBXImport::Mesh* &meshes, int meshCount);
+	
+	// Might not be needed..
+	void updateIndexArray();
 
 	InteractiveCollision();
 	InteractiveCollision(FBXImport::Mesh* &meshes, int meshCount);

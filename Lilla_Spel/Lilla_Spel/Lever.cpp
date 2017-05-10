@@ -41,6 +41,11 @@ void Lever::setId(int id)
 	this->m_id = id;
 }
 
+int Lever::getId()
+{
+	return this->m_id;
+}
+
 bool Lever::getLeverOnOffState() const
 {
 	return leverActivated;
