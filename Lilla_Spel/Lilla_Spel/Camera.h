@@ -31,5 +31,11 @@ public:
 
 	void setCameraPos(DirectX::XMFLOAT3 cameraPos);
 
+	DirectX::XMVECTOR getLookAt();
+	DirectX::XMVECTOR getUpVec();
+
+	void flushGame();
+
+
 	void setView(XMMATRIX view);
 };

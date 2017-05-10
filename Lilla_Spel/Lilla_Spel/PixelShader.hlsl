@@ -1,23 +1,22 @@
-Texture2D txDiffuse : register(t0);
+Texture2D txDiffuse;
 SamplerState sampAni;
+
 cbuffer CBUFFER : register(b0)
 {
-	float3 Kd;
-	float3 Ka;
-	float3 Ks;
+	float3 lightPos;
 }
 
 struct FS_IN
 {
 	float4 Pos : SV_POSITION;
-	float3 uv : UV;
+	float2 uv : UV;
 	float3 Norm : NORMAL;
 	float4 wPos : POSITION;
 };
 
 float4 FS_main(FS_IN input) : SV_Target
 {
-float3 lightPos = { 1.0f, 50.0f, -10.0f };
+float3 lightPos = { 0.0f, 50.0f, -30.0f };
 float3 lightDir = normalize(lightPos - input.wPos.xyz);
 float3 r = reflect(lightDir, input.Norm.xyz);
 float cos = dot(lightDir, input.Norm.xyz);
@@ -26,9 +25,10 @@ float spec = dot(r, -input.wPos.xyz);
 
 float2 uv = input.uv;
 
+uv.x = 1 - uv.x;
 uv.y = 1 - uv.y;
 
-float3 s = /*txDiffuse.Sample(sampAni, uv).xyz*/ float3(1.0f, 1.0f, 1.0f) * cos; // + pow(spec,2.f) * 0.3f;
+float3 s = txDiffuse.Sample(sampAni, uv).xyz + float3(0.1f, 0.1f, 0.15f) * cos /*+ pow(spec,2.f) * 0.1f*/;
 
 clamp(s, 0, 1);
 

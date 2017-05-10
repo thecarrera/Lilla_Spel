@@ -1,5 +1,4 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#pragma once
 
 #include "Includes.h"
 #include "Camera.h"
@@ -29,45 +28,18 @@ private:
 	bool canPressD = true;
 public:
 	Player();
-	virtual ~Player();
+	~Player();
 	
-	void move(Camera* &camera, CollisionData* collision);
+	void move(Camera* &camera, CollisionData* collision, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress);
 	void initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj);
 	void setMatrices(objMatrices all);
 	objMatrices getMatrices()const;
 
 	bool getIsDigging() const;
+
+
+	void flushGame();
 };
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#endif
