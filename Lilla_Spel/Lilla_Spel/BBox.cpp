@@ -12,7 +12,7 @@ BBox::~BBox()
 }
 
 
-void BBox::setBoundingBox(BoundingOrientedBox bbox)
+void BBox::setBoundingBox(BoundingBox bbox)
 {
 	this->m_BoundingBox = bbox;
 }
@@ -32,7 +32,22 @@ void BBox::setId(int id)
 	this->m_id = id;
 }
 
-BoundingOrientedBox& BBox::getBoundingBox()
+int BBox::getId() const
+{
+	return m_id;
+}
+
+void BBox::setOriginalColType(int colType)
+{
+	this->m_originalColType = colType;
+}
+
+int BBox::getOriginalColType() const
+{
+	return m_originalColType;
+}
+
+BoundingBox& BBox::getBoundingBox()
 {
 	return m_BoundingBox;
 }

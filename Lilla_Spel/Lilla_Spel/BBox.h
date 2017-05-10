@@ -9,7 +9,8 @@ class BBox
 private:
 	int m_CollisionType;
 	int m_id;
-	BoundingOrientedBox m_BoundingBox;
+	int m_originalColType;
+	BoundingBox m_BoundingBox;
 public:
 	BBox();
 	virtual ~BBox();
@@ -17,7 +18,7 @@ public:
 	
 	// This sets the boundingbox for the object
 	// Parameters A BoundingBox bbox 
-	void setBoundingBox(BoundingOrientedBox bbox);
+	void setBoundingBox(BoundingBox bbox);
 
 	// Sets the collision type
 	void setCollisionType(int type);
@@ -28,8 +29,14 @@ public:
 	// Sets the id
 	void setId(int id);
 
+	int getId() const;
+
+	void setOriginalColType(int colType);
+
+	int getOriginalColType() const;
+
 	// Returns the BoundingBox
-	BoundingOrientedBox& getBoundingBox();
+	BoundingBox& getBoundingBox();
 
 	void createBoundingBoxFromCorners(XMFLOAT3* corners);
 

@@ -188,6 +188,11 @@ private:
 		}
 	};
 
+	int returnMeshVertex(int i)
+	{
+		return this->data[0].meshes[i].vertexCount;
+	}
+
 public:
 	FBXImport() {};
 	~FBXImport() {
@@ -244,6 +249,11 @@ Mesh*& getMeshes()
 int getMeshCount()
 {
 	return data[0].meshCount;
+}
+
+int getMeshVertexCount(int i)
+{
+	return this->returnMeshVertex(i);
 }
 };
 

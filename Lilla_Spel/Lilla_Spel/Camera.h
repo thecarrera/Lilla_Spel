@@ -30,4 +30,6 @@ public:
 	void move(DirectX::XMMATRIX temp);
 
 	void setCameraPos(DirectX::XMFLOAT3 cameraPos);
+
+	void setView(XMMATRIX view);
 };

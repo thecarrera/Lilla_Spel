@@ -9,10 +9,14 @@ class Player
 private:
 	objMatrices matrices;
 
+	XMMATRIX lastWorld;
+	XMMATRIX lastCam;
+
 	bool flyingUp;
 	DirectX::XMFLOAT3 velocity;
 
 	bool digging;
+	bool camDown;
 
 	time_t currentTime;
 	time_t timeWhenBurrowed;

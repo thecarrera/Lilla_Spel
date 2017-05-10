@@ -50,7 +50,9 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->SetViewport();
 
 
-	this->FBXImport.Import("test.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBXImport.Import("axis.gay", this->gDevice, this->gVertexBufferArray);
+
+
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
@@ -79,7 +81,7 @@ void DX::Update()
 	//this->player->updateConstantBuffer(this->gCBuffer);
 	player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()));
 
-	interactiveCol.test(col.getCollisionData());
+	interactiveCol.test(col.getCollisionData(), col);
 
 	this->clearRender();
 
@@ -192,9 +194,13 @@ void DX::Render(bool isPlayer)
 
 	if (isPlayer == false)
 	{
-		for (int i = 1; i < this->gVertexBuffer2_size; i++) {
+		for (int i = 1; i < FBXImport.getMeshCount(); i++) {
+			if (FBXImport.getMeshes()[i].customAttribute == 0)
+			{
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-			this->gDeviceContext->Draw(this->FBXImport.getSumVertices(), 0);
+			this->gDeviceContext->Draw(this->FBXImport.getMeshVertexCount(i), 0);
+
+			}
 		}
 	}
 }
