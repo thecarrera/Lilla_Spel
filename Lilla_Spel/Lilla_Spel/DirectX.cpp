@@ -60,7 +60,6 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->FBX.Import("axis.gay", this->gDevice, this->gVertexBufferArray);
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
-	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
 
 
 
@@ -80,6 +79,10 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	this->CreateShaders();
 
 	this->createMenu();
+
+	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
+
+	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
 
 	this->Texture(this->gDevice, this->gDeviceContext, this->gMenuRTV);
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
