@@ -1,4 +1,8 @@
 #include "Collision.h"
+#include <mutex>
+
+once_flag flag;
+
 
 Collision::Collision() {
 
@@ -26,16 +30,18 @@ Collision::Collision(FBXImport::Mesh* &meshes, int meshCount)
 
 	for (int i = 0; i < meshCount; i++)
 	{
-		if (meshes[i].customAttribute > 0)
+			if (meshes[i].customAttribute > 0)
 		{
-			bbCount = 2;
+			bbCount++;
 		}
 
-		m_BoundingBox = new BBox[bbCount];
 	}
+
+	m_BoundingBox = new BBox[bbCount];
 
 	XMFLOAT3 cornerArray[8];
 
+	int bbIndex = 0;
 	for (int i = 0; i < meshCount; i++)
 	{
 		if (meshes[i].customAttribute > 0)
@@ -76,24 +82,34 @@ Collision::Collision(FBXImport::Mesh* &meshes, int meshCount)
 				cornerArray[7].x = meshes[i].vertices[0].position[0];
 				cornerArray[7].y = meshes[i].vertices[0].position[1];
 				cornerArray[7].z = meshes[i].vertices[0].position[2];
-			
-				m_BoundingBox[i].createBoundingBoxFromCorners(cornerArray);
-				m_BoundingBox[i].setCollisionType(meshes[i].customAttribute);
+				
+				if (meshes[i].id == 3)
+				{
+					int z = 0;
+					int x = 5;
+				}
 
+				m_BoundingBox[bbIndex].createBoundingBoxFromCorners(cornerArray);
+				m_BoundingBox[bbIndex].setCollisionType(meshes[i].customAttribute);
+				m_BoundingBox[bbIndex].setOriginalColType(meshes[i].customAttribute);
+				m_BoundingBox[bbIndex].setId(meshes[i].id);
+
+
+				cout << "id: " << m_BoundingBox[bbIndex].getId() << " Coltype: " << m_BoundingBox[bbIndex].getCollisionType() << endl;
+				bbIndex++;
 
 		}
 	}
 
-	// Test variable, this is the center of the cube
-	XMFLOAT3 center = { -29.76096f, 0.0f, -2.32647f };
 
-	XMFLOAT3 extent = { 1.0f, 1.0f, 1.0f };
+	XMFLOAT3 extent = { 0.5f, 0.5f, 0.5f };
 
 
-	m_BoundingBox[1].setBoundingBox(BoundingBox(center, extent));
-	m_BoundingBox[1].setCollisionType(4);
+	/*m_BoundingBox[1].setBoundingBox(BoundingBox(center, extent));
+	m_BoundingBox[1].setCollisionType(4);*/
 
-	center = { -0.058672f, 2.26698f, 0.451068f };
+	XMFLOAT3 center = { 0.0, 0.0f, 0.0f };
+	
 
 	m_PlayerBox.setBoundingBox(BoundingBox(center, extent));
 }
@@ -103,53 +119,137 @@ Collision::~Collision()
 {
 }
 
-CollisionData Collision::calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging)
+CollisionData* Collision::calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging)
 {
+	int colCount = 0;
+	int triggerCount = 0;
+	
 	
 	updatePlayerBB(playerWorldMatrix);
 
 	for (int i = 0; i < bbCount; i++)
 	{
 		// Check if player is burried and check if he is colliding with either "belowCollider" or "above and below collider"
-		if (isDigging && (m_BoundingBox[i].collisionBelow || m_BoundingBox[i].collisionBoth))
-			 m_BoundingBox[i].isCollidingWithPlayer ? collisionData.collision = true : collisionData.collision = false;
-		
+		if (isDigging && (m_BoundingBox[i].collisionBelow || m_BoundingBox[i].collisionBoth)) {
+			if (m_BoundingBox[i].isCollidingWithPlayer) {
+				cData[eCollider].collision = true;
+				colCount++;
+			}
+		}
+
+		if (isDigging && m_BoundingBox[i].collisionAbove)
+		{
+			if (m_BoundingBox[i].isCollidingWithPlayer) {
+				cout << "Collision. i is: " << i << endl;
+				cData[eCollider].collisionType = 1;
+				colCount++;
+			}
+		}
 		// If player is not burried, but still colliding, check if its a pressure plate, lever or above collision
 		else if (!isDigging && m_BoundingBox[i].isCollidingWithPlayer)
 		{
 			if (m_BoundingBox[i].collisionPressurePlate) {
-				collisionData.collision = false;
+				cData[eTrigger].collision = false;
 				// Pressure plate type has id 4
-				collisionData.collisionType = 4;
+				cData[eTrigger].collisionType = 4;
+				cData[eTrigger].id = m_BoundingBox[i].getId();
+				triggerCount++;
 			}
 			else if (m_BoundingBox[i].collisionLever) {
-				collisionData.collision = false;
-				collisionData.collisionType = 5;
+				cData[eTrigger].collision = false;
+				cData[eTrigger].collisionType = 5;
+				cData[eTrigger].id = m_BoundingBox[i].getId();
+				triggerCount++;
 			}
 			else if(m_BoundingBox[i].collisionAbove){
-				collisionData.collision = true;
+				cData[eCollider].collision = true;
+				colCount++;
 			}
 			else if (m_BoundingBox[i].collisionBoth) {
-				collisionData.collision = true;
+				cData[eCollider].collision = true;
+				colCount++;
 			}
 			else {
-				collisionData.collision = false;
-				collisionData.collisionType = -1;
+				cData[eCollider].collision = false;
+				cData[eCollider].collisionType = -1;
+				cData[eTrigger].collisionType = -1;
+				cData[eTrigger].id = -1;
 			}
 		}
 		else
 		{
-			collisionData.collision = false;
-			collisionData.collisionType = -1;
+			if (colCount == 0) {
+				cData[eCollider].collision = false;
+				cData[eCollider].collisionType = -1;
+			}
+			if (triggerCount == 0) {
+				cData[eTrigger].collision = false;
+				cData[eTrigger].collisionType = -1;
+				cData[eTrigger].id = -1;
+			}
 		}
 	}
 
-	return collisionData;
+	return cData;
 }
 
-CollisionData& Collision::getCollisionData()
+CollisionData* Collision::getCollisionData()
 {
-	return this->collisionData;
+	return this->cData;
+}
+
+void Collision::removeBoundingBox(int id)
+{
+	cout << "Removing bounding box " << id  << endl;
+
+	for (int i = 0; i < bbCount; i++)
+	{
+		cout << "id: " << " index: " << i << " " << m_BoundingBox[i].getId() << " Coltype: " << m_BoundingBox[i].getCollisionType() << endl;
+	}
+
+
+	BBox* tmp = new BBox[bbCount - 1];
+	int tmpIndex = 0;
+	for (int i = 0; i < bbCount; i++)
+	{
+		if (m_BoundingBox[i].getId() != id)
+		{
+			tmp[tmpIndex] = m_BoundingBox[i];
+			tmpIndex++;
+		}
+	}
+	bbCount--;
+	delete[] m_BoundingBox;
+
+	m_BoundingBox = tmp;
+}
+
+void Collision::disableBoundingBox(int id)
+{
+	for (int i = 0; i < bbCount; i++)
+	{
+		if (m_BoundingBox[i].getId() == id)
+		{
+			m_BoundingBox[i].setOriginalColType(m_BoundingBox[i].getCollisionType());
+			m_BoundingBox[i].setCollisionType(0);
+		}
+	}
+}
+
+void Collision::enableBoundingBox(int id)
+{
+	for (int i = 0; i < bbCount; i++)
+	{
+		if (m_BoundingBox[i].getId() == id)
+		{
+			m_BoundingBox[i].setCollisionType(m_BoundingBox[i].getOriginalColType());
+		}
+	}
+}
+
+BBox *& Collision::getBBoxArray()
+{
+	return m_BoundingBox;
 }
 
 void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
@@ -165,35 +265,134 @@ void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
 /*****************************************************************************************/
 /*****************************************************************************************/
 
-void InteractiveCollision::test(CollisionData collisionData)
+void InteractiveCollision::test(CollisionData* collisionData, Collision& col)
 {
 
 	// Check for the pressure plate collision
-	if (collisionData.collisionType == 4) {
-		m_pressurePlate[0].activatePressurePlate();
-		//cout << "Activating pressure plate!" << endl;
+	if (collisionData[eTrigger].id == 2) {
+		m_pressurePlate[__id__(2)].togglePressurePlate();
+		//cout << "pressure plate with id " << m_pressurePlate[__id__(2)].getId() << endl;
 	}
-	else if (collisionData.collisionType == 5 && GetAsyncKeyState(0x45)) {
-		m_lever[0].activateLever();
-	}
-
-	if (m_pressurePlate[0].getPressurePlateData().active && !m_pressurePlate[0].getPressurePlateData().ticking) {
-		//cout << "plate is active" << endl;
+	else if (E && __id == 0) {
+			m_lever[__id__(0)].activateLever();
 	}
 
+
+	if (m_lever[__id__(0)].getLeverOnOffState())
+	{
+		// turn off boundingbox based on id 
+		call_once(flag, [&]() { col.removeBoundingBox(1); }
+		);		
+	}
+
+	if (m_pressurePlate[__id__(2)].getPressurePlateData().toggled)
+	{
+		//cout << "pressureplate toggled" << endl;
+		col.disableBoundingBox(3);
+	}
+	else
+	{
+		col.enableBoundingBox(3);
+	}
+
+	//if (m_pressurePlate[__id__(2)].getPressurePlateData().active && !m_pressurePlate[__id__(2)].getPressurePlateData().ticking) {
+	//	col.disableBoundingBox(3);
+	//}
+	//else {
+	//	//col.enableBoundingBox(3);
+	//}
+
+}
+int InteractiveCollision::getIndexById(int id)
+{
+	return index_by_id[id];
 }
 
 InteractiveCollision::InteractiveCollision()
 {
+}
 
+InteractiveCollision::InteractiveCollision(FBXImport::Mesh* &meshes, int meshCount)
+{
+	populateIndexArray(meshes, meshCount);
+
+	pressurePlateCount = 0;
+	leverCount = 0;
+
+	for (int i = 0; i < meshCount; i++)
+	{
+		if (meshes[i].customAttribute == 4)
+		{
+			pressurePlateCount++;
+		}
+		else if (meshes[i].customAttribute == 5) {
+			leverCount++;
+		}
+	}
+
+	m_pressurePlate = new PressurePlate[pressurePlateCount];
+	m_lever = new Lever[leverCount];
+
+
+	int ppCount = 0;
 	// Hardcoded for now
-	m_pressurePlate = new PressurePlate[1];
-	m_pressurePlate[0] = PressurePlate(3000);
+	for (int i = 0; i < meshCount; i++)
+	{
+		if (meshes[i].customAttribute == 4)
+		{
+			m_pressurePlate[ppCount] = PressurePlate(3000);
+			m_pressurePlate[ppCount].setId(meshes[i].id);
+			index_by_id[meshes[i].id] = ppCount;
+			ppCount++;
+		}
 
-	m_lever = new Lever[1];
-	m_lever[0] = Lever();
+	}
+
+	int lCount = 0;
+	// Hardcoded for now
+	for (int i = 0; i < meshCount; i++)
+	{
+		if (meshes[i].customAttribute == 5)
+		{
+			m_lever[lCount] = Lever();
+			m_lever[lCount].setId(meshes[i].id);
+			index_by_id[meshes[i].id] = lCount;
+			lCount++;
+		}
+
+	}
 }
 
 InteractiveCollision::~InteractiveCollision()
 {
+}
+void InteractiveCollision::populateIndexArray(FBXImport::Mesh* &meshes, int meshCount)
+{
+	// Fill index id array
+	int idCount = 0;
+	for (int i = 0; i < meshCount; i++)
+	{
+		if (meshes[i].id > -1)
+		{
+			idCount++;
+		}
+	}
+
+	index_by_id = new int[idCount];
+}
+
+
+// Might not be needed...
+void InteractiveCollision::updateIndexArray()
+{
+	for (int i = 0; i < pressurePlateCount; i++)
+	{
+		index_by_id[m_pressurePlate[i].getId()] = i;
+	}
+
+	for (int i = 0; i < pressurePlateCount; i++)
+	{
+		index_by_id[m_lever[i].getId()] = i;
+	}
+
 }

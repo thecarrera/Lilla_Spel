@@ -17,7 +17,7 @@ Lever::~Lever()
 
 void Lever::activateLever()
 {
-
+	
 	if (m_activatedTimeEnd - m_activatedTime > m_activationDelay ) {
 		
 		m_activatedTime = GetCurrentTime();
@@ -34,4 +34,19 @@ void Lever::activateLever()
 	}
 
 	m_activatedTimeEnd = GetCurrentTime();
+}
+
+void Lever::setId(int id)
+{
+	this->m_id = id;
+}
+
+int Lever::getId()
+{
+	return this->m_id;
+}
+
+bool Lever::getLeverOnOffState() const
+{
+	return leverActivated;
 }

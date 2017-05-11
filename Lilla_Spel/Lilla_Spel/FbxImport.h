@@ -30,6 +30,7 @@ public:
 		// 4 - Pressure Plate Bounding Box
 		// 5 - Lever Bounding Box
 		int customAttribute = 0;
+		int id;
 
 		~Mesh() {
 			if (vertexCount != 0) {
@@ -112,7 +113,7 @@ private:
 		}
 	}
 
-	void loadModel(std::string fileDir, ID3D11Device* gDevice, ID3D11Buffer**& gVertexBufferArray, int count)
+	void loadModel(std::string fileDir, ID3D11Device* gDevice, ID3D11Buffer**& gBuffer, int count)
 	{
 		std::ifstream is(fileDir, std::ios::binary);
 		//char* dump;
@@ -154,13 +155,14 @@ private:
 
 
 				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int));
+				is.read((char*)&data[count].meshes[i].id, sizeof(int));
 
 			}
 			is.close();
 
 			std::cout << data[count].meshes[0].texturePath << std::endl;
 
-			this->BindDataToBuffer(gDevice, gVertexBufferArray, data[count]);
+			this->BindDataToBuffer(gDevice, gBuffer, data[count]);
 
 			std::cout << data[0].meshes[0].vertices[0].position[0] << std::endl;
 		}
@@ -184,6 +186,11 @@ private:
 			data = temp;
 		}
 	};
+
+	int returnMeshVertex(int i)
+	{
+		return this->data[0].meshes[i].vertexCount;
+	}
 
 public:
 	FBXImport() {};
@@ -237,9 +244,14 @@ public:
 		return data[0].meshes;
 	}
 
-	// Returns the number of meshes
-	int getMeshCount()
-	{
-		return data[0].meshCount;
-	}
+// Returns the number of meshes
+int getMeshCount()
+{
+	return data[0].meshCount;
+}
+
+int getMeshVertexCount(int i)
+{
+	return this->returnMeshVertex(i);
+}
 };

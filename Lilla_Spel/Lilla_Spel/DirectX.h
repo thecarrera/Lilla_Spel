@@ -80,8 +80,8 @@ private:
 	ID3D11ShaderResourceView* gTextureRTV = nullptr;
 	ID3D11ShaderResourceView** gMenuRTV = nullptr;
 
-	Camera* camera;
-	Player* player;
+	Camera* camera = nullptr;
+	Player* player = nullptr;
 	Collision col;
 	InteractiveCollision interactiveCol;
 

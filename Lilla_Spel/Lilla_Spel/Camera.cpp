@@ -15,7 +15,7 @@ void Camera::flushGame()
 
 void Camera::createCamera()
 {
-	this->cameraPos = { 0, 20, -50 };	// y 50% större än z ger bra-ish
+	this->cameraPos = { 0, 25, -20 };	// y 50% större än z ger bra-ish
 	this->lookAt = { 0, -1, 1 };		// lookAT vill vi ska vara på origo, där spelaren är
 	this->upVec = { 0, 1, 0 };
 
@@ -75,4 +75,9 @@ void Camera::move(DirectX::XMMATRIX temp)
 void Camera::setCameraPos(DirectX::XMFLOAT3 cameraPos)
 {
 	this->cameraPos = cameraPos;
+}
+
+void Camera::setView(XMMATRIX view)
+{
+	this->cameraMatrices.viewM = view;
 }

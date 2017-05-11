@@ -8,10 +8,14 @@ class Player
 private:
 	objMatrices matrices;
 
+	XMMATRIX lastWorld;
+	XMMATRIX lastCam;
+
 	bool flyingUp;
 	DirectX::XMFLOAT3 velocity;
 
 	bool digging;
+	bool camDown;
 
 	time_t currentTime;
 	time_t timeWhenBurrowed;
@@ -26,7 +30,7 @@ public:
 	Player();
 	~Player();
 	
-	void move(Camera* &camera, CollisionData collision, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress);
+	void move(Camera* &camera, CollisionData* collision, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress);
 	void initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj);
 	void setMatrices(objMatrices all);
 	objMatrices getMatrices()const;

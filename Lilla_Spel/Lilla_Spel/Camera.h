@@ -36,4 +36,6 @@ public:
 
 	void flushGame();
 
+
+	void setView(XMMATRIX view);
 };

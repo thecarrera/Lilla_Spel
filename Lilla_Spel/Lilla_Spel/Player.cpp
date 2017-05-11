@@ -14,7 +14,8 @@ Player::~Player()
 {
 }
 
-void Player::move(Camera* &camera, CollisionData collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress)
+void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress)
+
 {
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
 	{
@@ -27,54 +28,44 @@ void Player::move(Camera* &camera, CollisionData collisionData, bool &menuMsg, t
 	}
 
 	// If collision is detected, determine which key was last pressed and do an opposite movement action
-	if (collisionData.collision) {
-		switch (lastKeyPressed)
-		{
-		case 0:
-			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f));
-			break;
-		case 1:
-			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
-			break;
-		case 2:
-			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f));
-			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f)));
-			break;
-		case 3:
-			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f));
-			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f)));
-			break;
-		}
+	if (collisionData[0].collision) {
+		matrices.worldM = lastWorld;
+		camera->setView(lastCam);
 		return;
 	}
+	else {
+		lastWorld = matrices.worldM;
+		lastCam = camera->getCameraMatrices().viewM;
+		// Check which key is pressed and store last key press as int. wsad = 0123
+		if (GetAsyncKeyState(0x57)) //w
+		{
+			lastKeyPressed = 0;
+			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
+			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f)));
+		}
 
-	// Check which key is pressed and store last key press as int. wsad = 0123
-	if (GetAsyncKeyState(0x57)) //w
-	{
-		lastKeyPressed = 0;
-		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
+		if (GetAsyncKeyState(0x53))	//s
+		{
+			lastKeyPressed = 1;
+			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, 0.0f, -0.2f));	
+			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f)));
+		}
+
+		if (GetAsyncKeyState(0x41))	//a
+		{
+			lastKeyPressed = 2;
+			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f));
+			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f)));
+	  }
+
+		if (GetAsyncKeyState(0x44))	//d
+		{
+			lastKeyPressed = 3;
+			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
+			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f)));
+		}
+
 	}
-
-	if (GetAsyncKeyState(0x53))	//s
-	{
-		lastKeyPressed = 1;
-		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, -0.0f, -0.2f));	
-	}
-
-	if (GetAsyncKeyState(0x41))	//a
-	{
-		lastKeyPressed = 2;
-		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f));
-		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f)));
-  }
-
-	if (GetAsyncKeyState(0x44))	//d
-	{
-		lastKeyPressed = 3;
-		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, -0.0f, 0.0f));
-		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, -0.0f, 0.0f)));
-	}
-
 	
 	if (GetAsyncKeyState(0x51)) //q
 	{
@@ -84,23 +75,16 @@ void Player::move(Camera* &camera, CollisionData collisionData, bool &menuMsg, t
 			{
 				this->timeWhenBurrowed = GetCurrentTime();
 
-				if (this->digging == true)
+				if (this->digging == true && collisionData[0].collisionType != 1)
 				{
 					this->digging = false;
+					camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -5.0f, 0.0f)));
 				}
 				else
 				{
 					this->digging = true;
-				}
-
-				if (this->digging == true)
-				{
-					camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 0.0f)));		
-				}
-
-				if (this->digging == false)
-				{
-					camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -5.0f, 0.0f)));
+					if (collisionData[0].collisionType != 1)
+						camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 0.0f)));
 				}
 			}
 		}

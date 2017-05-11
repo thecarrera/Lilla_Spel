@@ -4,6 +4,7 @@
 #include "Lever.h"
 #include "FbxImport.h"
 
+
 //Todo:
 // 1. Make bounding box appear ingame - done
 // 2. Check collision against bb - done
@@ -20,6 +21,13 @@
 // 3 - Both 
 // 4 - Pressure plate
 // 5 - Lever
+
+
+enum CollisionEnum
+{
+	eCollider = 0,
+	eTrigger = 1
+};
 
 // Defines
 /*****************************************************************************************/
@@ -38,28 +46,49 @@ struct CollisionData
 {
 	bool collision;
 	int collisionType;
-
+	int id;
 	CollisionData() {
 		collision = false;
 		collisionType = -1;
+		id = -1;
 	}
 };
 
 class Collision
 {
 private:
+	// Array with BBox objects for the collisions
 	BBox* m_BoundingBox;
+	// BBox object for the player
 	BBox m_PlayerBox;
+	// Number of bounding boxes in the scene
 	int bbCount;
-	CollisionData collisionData;
+	// Collisiondata that hold info about collisions that happens
+	CollisionData cData[2];
 public:
 	Collision();
+
+	// Constructor for initializing bounding boxes
+	// Parameters FBXImport::Mesh*& meshes, int meshCount
 	Collision(FBXImport::Mesh*& meshes, int meshCount);
 	~Collision();
 
+	// This calculates collisions with bounding boxes and stores it in cData. 
+	// cData is an array of 2 where 0 is for collider data and 1 is for trigger data
+	CollisionData* calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging);
 
-	CollisionData calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging);
-	CollisionData& getCollisionData();
+	// Returns the cData variable to access the collision data
+	CollisionData* getCollisionData();
+
+	// Removes a bounding box by id
+	void removeBoundingBox(int id);
+
+	void disableBoundingBox(int id);
+	void enableBoundingBox(int id);
+
+	BBox*& getBBoxArray();
+
+	// Updates the player bounding box with the player world matrix
 	void updatePlayerBB(XMMATRIX& playerWorldMatrix);
 };
 
@@ -74,16 +103,34 @@ public:
 
 
 // This class is used for pressure plates and levers. 
+
+#define __id__(x) getIndexById(x)
+#define E GetAsyncKeyState(0x45)
+#define __id collisionData[eTrigger].id
+
+
 class InteractiveCollision
 {
 private:
 	Lever* m_lever;
 	PressurePlate* m_pressurePlate;
 
+	int* index_by_id = nullptr;
+
+	int pressurePlateCount = 0;
+	int leverCount = 0;
 public:
 
-	void test(CollisionData collisionData);
+	void test(CollisionData *collisionData, Collision& col);
+
+	int getIndexById(int id);
+
+	void populateIndexArray(FBXImport::Mesh* &meshes, int meshCount);
+	
+	// Might not be needed..
+	void updateIndexArray();
 
 	InteractiveCollision();
+	InteractiveCollision(FBXImport::Mesh* &meshes, int meshCount);
 	~InteractiveCollision();
 };
