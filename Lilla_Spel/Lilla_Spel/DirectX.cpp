@@ -61,9 +61,6 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
-
-
-
 	this->player = new Player();
 	DirectX::XMMATRIX world =
 	{ 1.0f, 0, 0, 0,
@@ -310,7 +307,7 @@ void DX::Render(bool isPlayer)
 			if (FBX.getMeshBoundingBox(i) == 0)
 			{
 				this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-				this->gDeviceContext->Draw(FBX.getSumVertices(), 0);
+				this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 			}
 		}
 	}
