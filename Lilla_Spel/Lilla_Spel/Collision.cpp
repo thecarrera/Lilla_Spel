@@ -30,7 +30,7 @@ Collision::Collision(FBXImport::Mesh* &meshes, int meshCount)
 
 	for (int i = 0; i < meshCount; i++)
 	{
-			if (meshes[i].customAttribute > 0)
+			if (meshes[i].customAttribute > 0)   
 		{
 			bbCount++;
 		}

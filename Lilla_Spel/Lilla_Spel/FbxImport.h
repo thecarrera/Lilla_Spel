@@ -30,7 +30,7 @@ public:
 		// 4 - Pressure Plate Bounding Box
 		// 5 - Lever Bounding Box
 		int customAttribute = 0;
-		int id;
+		int id = 0;
 
 		~Mesh() {
 			if (vertexCount != 0) {
@@ -153,9 +153,8 @@ private:
 
 				std::cout << data[0].meshes[i].vertices[0].position[0] << std::endl;
 
-
 				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int));
-				is.read((char*)&data[count].meshes[i].id, sizeof(int));
+				//is.read((char*)&data[count].meshes[i].id, sizeof(int));
 
 			}
 			is.close();
