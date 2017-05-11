@@ -154,7 +154,7 @@ private:
 				std::cout << data[0].meshes[i].vertices[0].position[0] << std::endl;
 
 				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int));
-				//is.read((char*)&data[count].meshes[i].id, sizeof(int));
+				is.read((char*)&data[count].meshes[i].id, sizeof(int));
 
 			}
 			is.close();

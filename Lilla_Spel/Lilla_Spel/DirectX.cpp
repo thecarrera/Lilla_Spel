@@ -83,7 +83,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
 
-	//interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
+	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
 
 	this->Texture(this->gDevice, this->gDeviceContext, this->gMenuRTV);
 
