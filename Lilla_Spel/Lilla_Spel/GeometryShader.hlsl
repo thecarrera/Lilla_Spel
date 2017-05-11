@@ -3,6 +3,14 @@ cbuffer CBUFFER : register(b0)
 	float4x4 worldM;
 	float4x4 viewM;
 	float4x4 projM;
+	float3   lightPosition;
+}
+cbuffer LBUFFER : register(b1)
+{
+	float4x4 lworldM;
+	float4x4 lviewM;
+	float4x4 lprojM;
+	float3   lPos;
 }
 
 struct GS_IN
@@ -18,6 +26,7 @@ struct FS_OUT
 	float2 uv : UV;
 	float3 normal : NORMAL;
 	float4 wPos : POSITION;
+	float4 lPos : TEXCOORD0;
 };
 
 [maxvertexcount(6)]
@@ -33,6 +42,7 @@ void GS_main(triangle GS_IN input[3], inout TriangleStream <FS_OUT> OutputStream
 		output.wPos = mul(input[i].Pos, worldM);
 		output.uv = float3(input[i].uv, 0.0f);
 		output.normal = input[i].Norm;
+		output.lPos = mul(lPos, worldM);
 
 		OutputStream.Append(output);
 	}

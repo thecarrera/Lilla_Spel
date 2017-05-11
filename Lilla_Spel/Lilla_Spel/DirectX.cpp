@@ -42,8 +42,9 @@ void DX::Clean()
 
 	SAFE_RELEASE(this->gCBuffer);
 
-	SAFE_RELEASE(this->shaderBuffer);
-	SAFE_RELEASE(this->samplerState);
+	SAFE_RELEASE(this->txSamplerState);
+	SAFE_RELEASE(this->sMaskSamplerState);
+	SAFE_RELEASE(this->ShadowSampler);
 
 	SAFE_DELETE(this->gTextureRTV);
 
@@ -57,11 +58,8 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import("axis.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
-
-
-
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
@@ -85,6 +83,9 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
 
 	this->Texture(this->gDevice, this->gDeviceContext, this->gMenuRTV);
+	
+	shadowMap->ShadowMapping(WIDTH, HEIGHT, this->ShadowmapTex, this->ShadowMask, this->ShadowDepthStencilView, this->ShadowShaderRecourceView, this->gDevice, this->gDeviceContext, this->ShadowMaskResourceView, this->GroundMaskRV);
+
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
@@ -184,18 +185,24 @@ void DX::Update()
 		//this->player->updateConstantBuffer(this->gCBuffer);
 		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()),this->menuMsg, this->tButtonPress, this->lTimePress);
 
-		interactiveCol.test(col.getCollisionData(), col);
+		//interactiveCol.test(col.getCollisionData(), col);
 
 		this->clearRender();
 
 		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
-		this->Render(true);
+		//Shadow sampling
+		this->Render(0, true); //Debug Comment; RenderPass 1, will take everything and the player to consideration during DepthMap Sampling
+
+		//Character Render pass
+		this->Render(1, true);
 
 		//updateraKamera
 
 		this->resetConstantBuffer();
-		this->Render(false);
+		
+		//Enviroment Render pass
+		this->Render(1, false);
 
 		this->updateCameraConstantBuffer();
 	}
@@ -273,39 +280,87 @@ void DX::SetViewport()
 
 	this->gDeviceContext->RSSetViewports(1, &vp);
 }
-void DX::Render(bool isPlayer) 
+void DX::Render(int pass, bool isPlayer) 
 {	
+
 	UINT32 vertexSize = sizeof(float) * 8;
 	UINT32 offset = 0;
+	if (pass == 0) {
+		/**
+		Pass 0: Vertex shader exclusive
+		**/
+		//ShadowMap
+		this->gDeviceContext->OMSetRenderTargets(0, &this->gBackBufferRTV, this->ShadowDepthStencilView);
+		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
+		this->gDeviceContext->VSSetShader(this->gShadowVertexShader, nullptr, 0);
+		this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+		this->gDeviceContext->PSSetShader(nullptr, nullptr, 0);
 
-	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		this->gDeviceContext->IASetInputLayout(this->gShadowLayout);
+		this->gDeviceContext->VSSetConstantBuffers(0, 1, &this->lcBuffer);
+		this->gDeviceContext->VSSetConstantBuffers(1, 1, &this->gCBuffer);
 
-	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
-	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
-	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
-	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
-	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
+		this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
-	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
+		D3D11_MAPPED_SUBRESOURCE dataPtr;
+		this->gDeviceContext->Map(this->lcBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
-	this->gVertexBufferArray_size = FBX.getTotalMeshes();
+		memcpy(dataPtr.pData, &this->lMatrix, sizeof(this->lMatrix));
 
-	if (isPlayer == true)
-	{
-		this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
-		this->gDeviceContext->Draw(FBX.getPlayerSumVertices() , 0);
-	}
+		this->gDeviceContext->Unmap(this->lcBuffer, 0);
 
-	if (isPlayer == false)
-	{
-		for (int i = 6; i < this->gVertexBufferArray_size; i++) {
-			if (FBX.getMeshBoundingBox(i) == 0)
+
+		for (int i = 5; i < this->gVertexBuffer2_size; i++)
+		{
+			if ((FBX.getMeshBoundingBox(i) == 0))
 			{
 				this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-				this->gDeviceContext->Draw(FBX.getSumVertices(), 0);
+				this->gDeviceContext->Draw(this->FBX.getMeshVertexCount(i), 0);
+			}
+		}
+
+	}
+	else if (pass == 1) {
+		this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
+
+		this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
+		this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
+		this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
+
+		this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
+		this->gDeviceContext->PSSetShaderResources(1, 1, &this->ShadowShaderRecourceView);
+		this->gDeviceContext->PSSetShaderResources(2, 1, &this->ShadowMaskResourceView);
+		this->gDeviceContext->PSSetShaderResources(3, 1, &this->GroundMaskRV);
+
+		this->gDeviceContext->PSSetSamplers(0,1, &this->txSamplerState);
+		this->gDeviceContext->PSSetSamplers(1, 1, &this->sMaskSamplerState);
+		this->gDeviceContext->PSSetSamplers(2, 1, &this->ShadowSampler);
+
+		this->gDeviceContext->VSSetConstantBuffers(0, 1, &this->gCBuffer);
+		this->gDeviceContext->VSSetConstantBuffers(1, 1, &this->lcBuffer);
+		this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
+		this->gDeviceContext->GSSetConstantBuffers(1, 1, &this->lcBuffer);
+		this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->lcBuffer);
+
+		this->gVertexBufferArray_size = FBX.getTotalMeshes();
+
+		if (isPlayer == true)
+		{
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
+			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
+		}
+
+		if (isPlayer == false)
+		{
+			for (int i = 6; i < this->gVertexBufferArray_size; i++) {
+				if (FBX.getMeshBoundingBox(i) == 0)
+				{
+					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+				}
 			}
 		}
 	}
@@ -324,7 +379,9 @@ void DX::CreateShaders()
 
 	ID3DBlob* error = nullptr;
 
-	//Vertex Shader
+	//#############################################################
+	//#						Vertex Shader						  #
+	//#############################################################
 	ID3DBlob* pVS = nullptr;
 	D3DCompileFromFile(
 		L"VertexShader.hlsl",
@@ -356,7 +413,68 @@ void DX::CreateShaders()
 
 	SAFE_RELEASE(pVS);
 
-	//Geometric Shader
+	//#############################################################
+	//#					Shadow Vertex Shader					  #
+	//#############################################################
+	ID3DBlob* VSShadow = nullptr;
+	D3DCompileFromFile(
+		L"VertexShaderShadow.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"vs_5_0",
+		0,
+		0,
+		&VSShadow,
+		&error
+	);
+
+	hr = this->gDevice->CreateVertexShader(VSShadow->GetBufferPointer(), VSShadow->GetBufferSize(), nullptr, &this->gShadowVertexShader);
+
+	if (error)
+	{
+		OutputDebugStringA((char*)error->GetBufferPointer());
+	}
+
+	D3D11_INPUT_ELEMENT_DESC shadowLayout[] =
+	{ "SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+
+	this->gDevice->CreateInputLayout(shadowLayout, 1, VSShadow->GetBufferPointer(), VSShadow->GetBufferSize(), &this->gShadowLayout);
+
+	SAFE_RELEASE(VSShadow);
+	SAFE_RELEASE(error);
+
+	//Sampler State
+	D3D11_SAMPLER_DESC sampDesc;
+	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+	hr = this->gDevice->CreateSamplerState(&sampDesc, &this->sMaskSamplerState);
+
+	//Shadow Sampler
+	D3D11_SAMPLER_DESC shadowSamplerDesc;
+	shadowSamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+	shadowSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+	shadowSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+	shadowSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+	shadowSamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	shadowSamplerDesc.MipLODBias = 1;
+	shadowSamplerDesc.MaxAnisotropy = 16;
+
+
+	hr = this->gDevice->CreateSamplerState(&shadowSamplerDesc, &this->ShadowSampler);
+
+	if (FAILED(hr))
+	{
+		getchar();
+	}
+
+	//#############################################################
+	//#						Geometry Shader						  #
+	//#############################################################
 	ID3DBlob* pGS = nullptr;
 
 	D3DCompileFromFile(
@@ -379,7 +497,9 @@ void DX::CreateShaders()
 
 	SAFE_RELEASE(pGS);
 
-	//Fragment Shader
+	//#############################################################
+	//#						Fragment Shader						  #
+	//#############################################################
 	ID3DBlob* pFS = nullptr;
 	D3DCompileFromFile(
 		L"PixelShader.hlsl",
@@ -403,19 +523,48 @@ void DX::CreateShaders()
 	SAFE_RELEASE(pFS);
 	SAFE_RELEASE(error);
 
-	//Sampler State
-	D3D11_SAMPLER_DESC sampDesc;
-	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampDesc.MipLODBias = 0;
-	sampDesc.MaxAnisotropy = PIXELSAMPLE;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = 0;
+	//#############################################################
+	//#					Menu Fragment Shader					  #
+	//#############################################################
+	ID3DBlob* pFS2 = nullptr;
+	D3DCompileFromFile(
+		L"MenuPixelShader.hlsl",
+		nullptr,
+		nullptr,
+		"FS_main",
+		"ps_5_0",
+		0,
+		0,
+		&pFS2,
+		&error
+	);
 
-	hr = this->gDevice->CreateSamplerState(&sampDesc, &this->samplerState);
+	hr = this->gDevice->CreatePixelShader(pFS2->GetBufferPointer(), pFS2->GetBufferSize(), nullptr, &this->gMenuFragmentShader);
+
+	if (error)
+	{
+		OutputDebugStringA((char*)error->GetBufferPointer());
+	}
+
+	SAFE_RELEASE(pFS);
+	SAFE_RELEASE(error);
+
+	//Sampler State
+	D3D11_SAMPLER_DESC sampDesc2;
+	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
+	sampDesc2.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc2.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc2.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc2.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	sampDesc2.MipLODBias = 0;
+	sampDesc2.MaxAnisotropy = PIXELSAMPLE;
+	sampDesc2.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc2.MinLOD = 0;
+	sampDesc2.MaxLOD = 0;
+
+	hr = this->gDevice->CreateSamplerState(&sampDesc2, &this->txSamplerState);
+
+
 }
 void DX::createCBuffer()
 {
@@ -451,6 +600,24 @@ void DX::createCBuffer()
 	data.pSysMem = &this->player->getMatrices();
 
 	hr = gDevice->CreateBuffer(&cBufferDesc, &data, &this->gCBuffer);
+
+	if (FAILED(hr))
+	{
+		exit(-1);
+	}
+	
+	D3D11_BUFFER_DESC lcbuff;
+	lcbuff.Usage = D3D11_USAGE_DYNAMIC;
+	lcbuff.ByteWidth = sizeof(objMatrices);
+	lcbuff.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lcbuff.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lcbuff.MiscFlags = 0;
+	lcbuff.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA ldat;
+	ldat.pSysMem = &this->lMatrix;
+
+	hr = gDevice->CreateBuffer(&lcbuff, &ldat, &this->lcBuffer);
+
 
 	if (FAILED(hr))
 	{
@@ -540,6 +707,23 @@ void DX::resetConstantBuffer()
 	memcpy(dataPtr.pData, &standardMatrices, sizeof(standardMatrices));
 
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+}
+void DX::createLightCaster()
+{
+	//light for Shadowmapping
+	DirectX::XMVECTOR lightPos = { -4.0f, 2.0f, -5.0f, 1.0f };
+	DirectX::XMVECTOR lookTo = { 0,0,1 };
+	DirectX::XMVECTOR upVec = { 0,1,0 };
+	float factor = 0.1f;
+	
+	DirectX::XMMATRIX worldM = DirectX::XMMatrixIdentity();
+
+	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookToLH(lightPos, lookTo, upVec));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixOrthographicLH(800.0f * factor, 640.0f * factor, 0.1f, 200.0f));
+
+	this->lMatrix.worldM = worldM;
+	this->lMatrix.viewM = viewM;
+	this->lMatrix.projM = projM;
 }
 
 void DX::flushGame() 
