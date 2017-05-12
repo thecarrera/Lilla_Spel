@@ -14,6 +14,7 @@
 //#include <wrl.h>
 #include "WICTextureLoader.h"
 
+#include "ShadowMapping.h"
 #include "TriangleData.h"
 #include "Collision.h"
 #include "FbxImport.h"
@@ -37,4 +38,5 @@ struct objMatrices
 	DirectX::XMMATRIX worldM;
 	DirectX::XMMATRIX viewM;
 	DirectX::XMMATRIX projM;
+	DirectX::XMFLOAT3 lightPos;
 };

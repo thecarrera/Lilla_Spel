@@ -22,7 +22,7 @@ struct SH_OUT
 	float4 Pos : SV_POSITION;
 };
 
-float4 main(VS_IN input) : SV_POSITION
+float4 VS_main(VS_IN input) : SV_POSITION
 {
 	float4 output;
 

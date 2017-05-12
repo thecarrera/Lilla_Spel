@@ -194,6 +194,8 @@ void DX::Update()
 		//Shadow sampling
 		this->Render(0, true); //Debug Comment; RenderPass 1, will take everything and the player to consideration during DepthMap Sampling
 
+		this->clearRender();
+
 		//Character Render pass
 		this->Render(1, true);
 
@@ -290,8 +292,7 @@ void DX::Render(int pass, bool isPlayer)
 		Pass 0: Vertex shader exclusive
 		**/
 		//ShadowMap
-		this->gDeviceContext->OMSetRenderTargets(0, &this->gBackBufferRTV, this->ShadowDepthStencilView);
-		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+		this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->ShadowDepthStencilView);
 
 		this->gDeviceContext->VSSetShader(this->gShadowVertexShader, nullptr, 0);
 		this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
@@ -322,6 +323,7 @@ void DX::Render(int pass, bool isPlayer)
 
 	}
 	else if (pass == 1) {
+		this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
 		this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
 
 		this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -330,12 +332,12 @@ void DX::Render(int pass, bool isPlayer)
 		this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
 		this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
 
-		this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
+		this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[0]);
 		this->gDeviceContext->PSSetShaderResources(1, 1, &this->ShadowShaderRecourceView);
 		this->gDeviceContext->PSSetShaderResources(2, 1, &this->ShadowMaskResourceView);
 		this->gDeviceContext->PSSetShaderResources(3, 1, &this->GroundMaskRV);
 
-		this->gDeviceContext->PSSetSamplers(0,1, &this->txSamplerState);
+		this->gDeviceContext->PSSetSamplers(0, 1, &this->txSamplerState);
 		this->gDeviceContext->PSSetSamplers(1, 1, &this->sMaskSamplerState);
 		this->gDeviceContext->PSSetSamplers(2, 1, &this->ShadowSampler);
 
@@ -367,10 +369,11 @@ void DX::Render(int pass, bool isPlayer)
 }
 void DX::clearRender()
 {
-	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.f };
+	float clearColor[] = { 0.0f, 1.0f, 0.0f, 1.f };
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
  
 void DX::CreateShaders()
@@ -421,7 +424,7 @@ void DX::CreateShaders()
 		L"VertexShaderShadow.hlsl",
 		nullptr,
 		nullptr,
-		"main",
+		"VS_main",
 		"vs_5_0",
 		0,
 		0,
@@ -804,18 +807,18 @@ void DX::renderMenu()
 	UINT32 vertexSize = sizeof(float) * 8;
 	UINT32 offset = 0;
 
+	this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
 	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
 
 	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
 	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
-	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->gMenuFragmentShader, nullptr, 0);
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[0]);
-	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
+	this->gDeviceContext->PSSetSamplers(0, 1, &this->txSamplerState);
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->menuBuffer);
-	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
 	this->gDeviceContext->Draw(6, 0);
@@ -833,18 +836,18 @@ void DX::renderInGameMenu()
 	UINT32 vertexSize = sizeof(float) * 8;
 	UINT32 offset = 0;
 
+	this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
 	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
 
 	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
 	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
-	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->gMenuFragmentShader, nullptr, 0);
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[0]);
-	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);  
+	this->gDeviceContext->PSSetSamplers(0, 1, &this->txSamplerState);  
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->menuBuffer);
-	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
 	this->gDeviceContext->Draw(6, 0);
