@@ -21,20 +21,20 @@ struct FS_IN
 float4 FS_main(FS_IN input) : SV_Target
 {
 	float3 lightPos = { 0.0f, 50.0f, -30.0f };
-float3 lightDir = normalize(lightPos - input.wPos.xyz);
-float3 r = reflect(lightDir, input.Norm.xyz);
-float cos = dot(lightDir, input.Norm.xyz);
+	float3 lightDir = normalize(lightPos - input.wPos.xyz);
+	float3 r = reflect(lightDir, input.Norm.xyz);
+	float cos = dot(lightDir, input.Norm.xyz);
 
-float spec = dot(r, -input.wPos.xyz);
+	float spec = dot(r, -input.wPos.xyz);
 
-float2 uv = input.uv;
+	float2 uv = input.uv;
 
-uv.x = 1 - uv.x;
-uv.y = 1 - uv.y;
+	uv.x = 1 - uv.x;
+	uv.y = 1 - uv.y;
 
-float3 s = txDiffuse.Sample(sampAni, uv).xyz + float3(0.1f, 0.1f, 0.15f) * cos /*+ pow(spec,2.f) * 0.1f*/;
+	float3 s = txDiffuse.Sample(sampAni, uv).xyz + float3(0.1f, 0.1f, 0.15f) * cos /*+ pow(spec,2.f) * 0.1f*/;
 
-clamp(s, 0, 1);
+	clamp(s, 0, 1);
 
-return float4(s, 1.f);
+	return float4(s, 1.f);
 }

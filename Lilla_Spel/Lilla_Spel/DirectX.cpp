@@ -58,7 +58,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import("axis.gay", this->gDevice, this->gVertexBufferArray);
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	this->player = new Player();
@@ -187,14 +187,14 @@ void DX::Update()
 
 		//interactiveCol.test(col.getCollisionData(), col);
 
-		this->clearRender();
+		//this->clearRender();
 
 		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
 		//Shadow sampling
 		this->Render(0, true); //Debug Comment; RenderPass 1, will take everything and the player to consideration during DepthMap Sampling
 
-		this->clearRender();
+	//	this->clearRender();
 
 		//Character Render pass
 		this->Render(1, true);
@@ -292,7 +292,8 @@ void DX::Render(int pass, bool isPlayer)
 		Pass 0: Vertex shader exclusive
 		**/
 		//ShadowMap
-		this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->ShadowDepthStencilView);
+		this->gDeviceContext->OMSetRenderTargets(0, nullptr, this->ShadowDepthStencilView);
+		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
 
 		this->gDeviceContext->VSSetShader(this->gShadowVertexShader, nullptr, 0);
 		this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
@@ -312,18 +313,22 @@ void DX::Render(int pass, bool isPlayer)
 		this->gDeviceContext->Unmap(this->lcBuffer, 0);
 
 
-		for (int i = 5; i < this->gVertexBuffer2_size; i++)
-		{
-			if ((FBX.getMeshBoundingBox(i) == 0))
+		this->gVertexBufferArray_size = FBX.getTotalMeshes();
+		
+		for (int i = 6; i < this->gVertexBufferArray_size; i++) {
+			if (FBX.getMeshBoundingBox(i) == 0)
 			{
 				this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-				this->gDeviceContext->Draw(this->FBX.getMeshVertexCount(i), 0);
+				this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 			}
 		}
+		
 
 	}
 	else if (pass == 1) {
 		this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
+		clearRender();
+
 		this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
 
 		this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -373,7 +378,6 @@ void DX::clearRender()
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
-	this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
  
 void DX::CreateShaders()
