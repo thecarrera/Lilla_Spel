@@ -14,7 +14,7 @@ Player::~Player()
 {
 }
 
-void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress)
+void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices &lMatrix)
 
 {
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
@@ -42,6 +42,8 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 			lastKeyPressed = 0;
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f)));
+
+			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f));
 		}
 
 		if (GetAsyncKeyState(0x53))	//s
@@ -49,6 +51,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 			lastKeyPressed = 1;
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, 0.0f, -0.2f));	
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f)));
+			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
 		}
 
 		if (GetAsyncKeyState(0x41))	//a
@@ -56,6 +59,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 			lastKeyPressed = 2;
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f)));
+			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
 	  }
 
 		if (GetAsyncKeyState(0x44))	//d
@@ -63,6 +67,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 			lastKeyPressed = 3;
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f)));
+			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, -0.0f));
 		}
 
 	}

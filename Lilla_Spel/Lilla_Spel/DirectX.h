@@ -111,6 +111,9 @@ public:
 	bool isStartMenu = true;
 
 	objMatrices TEMP;
+	objMatrices originalLightMatrix;
+
+	objMatrices test;
 
 private:
 	DirectX::XMVECTOR cameraPos;

@@ -183,9 +183,9 @@ void DX::Update()
 	if (this->menuMsg == false)
 	{
 		clearRender();
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress);
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test);
 
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()),this->menuMsg, this->tButtonPress, this->lTimePress);
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test);
 
 		//interactiveCol.test(col.getCollisionData(), col);
 
@@ -193,19 +193,22 @@ void DX::Update()
 		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
 		//Shadow sampling
+
+
+		// Character Render pass
 		this->Render(0, true); //Debug Comment; RenderPass 1, will take everything and the player to consideration during DepthMap Sampling
-
-
-		//Character Render pass
 		this->Render(1, true);
+
 
 		//updateraKamera
 
 		this->resetConstantBuffer();
 		
-		//Enviroment Render pass
+		// Enviroment Render pass
+		this->Render(0, false);
 		this->Render(1, false);
 
+		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
 		this->updateCameraConstantBuffer();
 	}
 	else
@@ -293,7 +296,7 @@ void DX::Render(int pass, bool isPlayer)
 		**/
 		//ShadowMap
 		this->gDeviceContext->OMSetRenderTargets(0, nullptr, this->ShadowDepthStencilView);
-		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
+		
 
 		this->gDeviceContext->VSSetShader(this->gShadowVertexShader, nullptr, 0);
 		this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
@@ -308,7 +311,12 @@ void DX::Render(int pass, bool isPlayer)
 		D3D11_MAPPED_SUBRESOURCE dataPtr;
 		this->gDeviceContext->Map(this->lcBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
-		lMatrix.worldM = player->getMatrices().worldM;
+		if (isPlayer) {
+			lMatrix.viewM = test.viewM;
+		}
+		else {
+			lMatrix.viewM = originalLightMatrix.viewM;
+		}
 
 		memcpy(dataPtr.pData, &this->lMatrix, sizeof(this->lMatrix));
 
@@ -317,11 +325,21 @@ void DX::Render(int pass, bool isPlayer)
 
 		this->gVertexBufferArray_size = FBX.getTotalMeshes();
 		
-		for (int i = 0; i < this->gVertexBufferArray_size; i++) {
-			if (FBX.getMeshBoundingBox(i) == 0)
-			{
-				this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-				this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+
+		if (isPlayer == true)
+		{
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
+			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
+		}
+
+		if (isPlayer == false)
+		{
+			for (int i = 1; i < this->gVertexBufferArray_size; i++) {
+				if (FBX.getMeshBoundingBox(i) == 0)
+				{
+					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+				}
 			}
 		}
 		
@@ -722,18 +740,22 @@ void DX::resetConstantBuffer()
 void DX::createLightCaster()
 {
 	//light for Shadowmapping
-	DirectX::XMVECTOR lightPos = { 0.0f, 20.0f, 2.0f, 1.0f };
+	DirectX::XMVECTOR lightPos = { 0.0f, 5.0f, 2.0f, 1.0f };
 	DirectX::XMVECTOR lookTo = { 0,0,0 };
 	DirectX::XMVECTOR upVec = { 0,1,0 };
 	
 	DirectX::XMMATRIX worldM = DirectX::XMMatrixIdentity();
 
 	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(lightPos, lookTo, upVec));
-	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.45, 800.0/640.0, 0.1f, 200.0f));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.9, 800.0/640.0, 0.1f, 200.0f));
 
 	this->lMatrix.worldM = worldM;
 	this->lMatrix.viewM = viewM;
 	this->lMatrix.projM = projM;
+
+	originalLightMatrix.worldM = lMatrix.worldM;
+	originalLightMatrix.viewM = lMatrix.viewM;
+	test.viewM = lMatrix.viewM;
 
 	printMatrices(lMatrix);
 }

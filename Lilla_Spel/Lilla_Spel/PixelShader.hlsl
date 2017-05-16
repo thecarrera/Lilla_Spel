@@ -35,7 +35,7 @@ float2 texOffset(int u, int v)
 
 float4 FS_main(FS_IN input) : SV_Target
 {
-	float  shadowBias = .0028f;
+	float  shadowBias = .002f;
 	float3 ambient = { 0.1f, 0.1f, 0.1f };
 	float4 lightPos = { 0.0f, 10.0f, 2.0f, 1.0f };
 
