@@ -86,6 +86,9 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	
 	shadowMap->ShadowMapping(WIDTH, HEIGHT, this->ShadowmapTex, this->ShadowMask, this->ShadowDepthStencilView, this->ShadowShaderRecourceView, this->gDevice, this->gDeviceContext, this->ShadowMaskResourceView, this->GroundMaskRV);
 
+	createLightCaster();
+
+
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
@@ -179,22 +182,19 @@ void DX::Update()
 {
 	if (this->menuMsg == false)
 	{
-		//this->player->updateConstantBuffer(this->gCBuffer);
+		clearRender();
 		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress);
 
-		//this->player->updateConstantBuffer(this->gCBuffer);
 		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()),this->menuMsg, this->tButtonPress, this->lTimePress);
 
 		//interactiveCol.test(col.getCollisionData(), col);
 
-		//this->clearRender();
 
 		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
 		//Shadow sampling
 		this->Render(0, true); //Debug Comment; RenderPass 1, will take everything and the player to consideration during DepthMap Sampling
 
-	//	this->clearRender();
 
 		//Character Render pass
 		this->Render(1, true);
@@ -308,6 +308,8 @@ void DX::Render(int pass, bool isPlayer)
 		D3D11_MAPPED_SUBRESOURCE dataPtr;
 		this->gDeviceContext->Map(this->lcBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 
+		lMatrix.worldM = player->getMatrices().worldM;
+
 		memcpy(dataPtr.pData, &this->lMatrix, sizeof(this->lMatrix));
 
 		this->gDeviceContext->Unmap(this->lcBuffer, 0);
@@ -315,7 +317,7 @@ void DX::Render(int pass, bool isPlayer)
 
 		this->gVertexBufferArray_size = FBX.getTotalMeshes();
 		
-		for (int i = 6; i < this->gVertexBufferArray_size; i++) {
+		for (int i = 0; i < this->gVertexBufferArray_size; i++) {
 			if (FBX.getMeshBoundingBox(i) == 0)
 			{
 				this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
@@ -327,7 +329,7 @@ void DX::Render(int pass, bool isPlayer)
 	}
 	else if (pass == 1) {
 		this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
-		clearRender();
+		
 
 		this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
 
@@ -346,8 +348,7 @@ void DX::Render(int pass, bool isPlayer)
 		this->gDeviceContext->PSSetSamplers(1, 1, &this->sMaskSamplerState);
 		this->gDeviceContext->PSSetSamplers(2, 1, &this->ShadowSampler);
 
-		this->gDeviceContext->VSSetConstantBuffers(0, 1, &this->gCBuffer);
-		this->gDeviceContext->VSSetConstantBuffers(1, 1, &this->lcBuffer);
+		
 		this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
 		this->gDeviceContext->GSSetConstantBuffers(1, 1, &this->lcBuffer);
 		this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->lcBuffer);
@@ -356,13 +357,13 @@ void DX::Render(int pass, bool isPlayer)
 
 		if (isPlayer == true)
 		{
-			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
 		}
 
 		if (isPlayer == false)
 		{
-			for (int i = 6; i < this->gVertexBufferArray_size; i++) {
+			for (int i = 1; i < this->gVertexBufferArray_size; i++) {
 				if (FBX.getMeshBoundingBox(i) == 0)
 				{
 					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
@@ -370,6 +371,7 @@ void DX::Render(int pass, bool isPlayer)
 				}
 			}
 		}
+		
 	}
 }
 void DX::clearRender()
@@ -464,9 +466,9 @@ void DX::CreateShaders()
 	//Shadow Sampler
 	D3D11_SAMPLER_DESC shadowSamplerDesc;
 	shadowSamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
-	shadowSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
-	shadowSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
-	shadowSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+	shadowSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	shadowSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	shadowSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	shadowSamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	shadowSamplerDesc.MipLODBias = 1;
 	shadowSamplerDesc.MaxAnisotropy = 16;
@@ -674,6 +676,7 @@ void DX::updatePlayerConstantBuffer() //med player matriser
 	memcpy(dataPtr.pData, &playerMatrices, sizeof(playerMatrices));
 
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+
 }
 void DX::updateCameraConstantBuffer()
 {
@@ -714,23 +717,25 @@ void DX::resetConstantBuffer()
 	memcpy(dataPtr.pData, &standardMatrices, sizeof(standardMatrices));
 
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+
 }
 void DX::createLightCaster()
 {
 	//light for Shadowmapping
-	DirectX::XMVECTOR lightPos = { -4.0f, 2.0f, -5.0f, 1.0f };
-	DirectX::XMVECTOR lookTo = { 0,0,1 };
+	DirectX::XMVECTOR lightPos = { 0.0f, 20.0f, 2.0f, 1.0f };
+	DirectX::XMVECTOR lookTo = { 0,0,0 };
 	DirectX::XMVECTOR upVec = { 0,1,0 };
-	float factor = 0.1f;
 	
 	DirectX::XMMATRIX worldM = DirectX::XMMatrixIdentity();
 
-	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookToLH(lightPos, lookTo, upVec));
-	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixOrthographicLH(800.0f * factor, 640.0f * factor, 0.1f, 200.0f));
+	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(lightPos, lookTo, upVec));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.45, 800.0/640.0, 0.1f, 200.0f));
 
 	this->lMatrix.worldM = worldM;
 	this->lMatrix.viewM = viewM;
 	this->lMatrix.projM = projM;
+
+	printMatrices(lMatrix);
 }
 
 void DX::flushGame() 
@@ -744,7 +749,7 @@ void DX::startMenuLoop()
 {
 	this->clearRender();
 	this->menuControls();
-	this->renderMenu();
+	//this->renderMenu();
 	this->gSwapChain->Present(1,0);
 }
 void DX::menuControls()

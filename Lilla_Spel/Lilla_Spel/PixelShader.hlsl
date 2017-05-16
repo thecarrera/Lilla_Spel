@@ -4,6 +4,7 @@ Texture2D txMask : register(t2);
 Texture2D txGround : register(t3);
 SamplerState sampAni : register(s0);
 SamplerState samp : register(s1);
+
 cbuffer LBUFFER : register(b0)
 {
 	float4x4 lWorld;
@@ -36,16 +37,16 @@ float4 FS_main(FS_IN input) : SV_Target
 {
 	float  shadowBias = .0028f;
 	float3 ambient = { 0.1f, 0.1f, 0.1f };
-	float4 lightPos = { 0.0f, 3.0f, 0.0f, 1.0f };
+	float4 lightPos = { 0.0f, 10.0f, 2.0f, 1.0f };
 
 	float3 lightDir = normalize(lightPos.xyz - input.wPos.xyz);
 	float3 r = reflect(lightDir, input.Norm.xyz);
 
 	input.lPos.xy /= input.lPos.w;
 
-	if (input.lPos.x < -1.0f || input.lPos.x > 1.0f ||
+	/*if (input.lPos.x < -1.0f || input.lPos.x > 1.0f ||
 	input.lPos.y < -1.0f || input.lPos.y > 1.0f ||
-	input.lPos.z < 0.0f	 || input.lPos.z > 1.0f) return float4(ambient,1.0f);
+	input.lPos.z < 0.0f	 || input.lPos.z > 1.0f) return float4(ambient,1.0f);*/
 
 
 
@@ -70,18 +71,18 @@ float4 FS_main(FS_IN input) : SV_Target
 	input.lPos.x %= 1.0f;
 	input.lPos.y %= 1.0f;
 	clamp(mask, 0, 1);
-	//float x, y;
-	//for (y = -1.5f; y <= 1.5f; y += 1.0f) {
-	//	for (x = -1.5f; x <= 1.5f; x += 1.0f) {
-	//
-	//		sum += txShadow.SampleCmpLevelZero(BlurSamp, input.lPos.x + input.lPos.y + texOffset(x,y).x + texOffset(x, y).y, shadowDepth * mask.x);
-	//	}
-	//
-	//}
+	float x, y;
+	for (y = -1.5f; y <= 1.5f; y += 1.0f) {
+		for (x = -1.5f; x <= 1.5f; x += 1.0f) {
+	
+			sum += txShadow.SampleCmpLevelZero(BlurSamp, input.lPos.xy + texOffset(x, y), shadowDepth);
+		}
+	
+	}
 
 	float cos = dot(lightDir, input.Norm.xyz);
 	float shadowFactor = sum / 16.0f;
-	clamp(shadowFactor, 0.8f, 1);
+	//clamp(shadowFactor, 0.8f, 1);
 
 	float spec = dot(r, -input.wPos.xyz);
 
@@ -106,7 +107,7 @@ float4 FS_main(FS_IN input) : SV_Target
 	//return input.wPos;
 	//return float4(input.Norm, 1.0);
 	//return float4(diff, 1.0f);
-	return float4(1, 1, 1, 1);
-	//return float4(saturate(1 * diff + ambient), 1);
+	//return float4(1, 1, 1, 1);
+	return float4(saturate(shadowFactor * diff + ambient), 1);
 
 }
