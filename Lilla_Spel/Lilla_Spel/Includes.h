@@ -26,7 +26,7 @@
 #define WLABEL "Lilla Spel Projekt"
 #define HEIGHT 640.0
 #define WIDTH 800.0
-#define PIXELSAMPLE 4
+#define PIXELSAMPLE 1
 
 #define SAFE_RELEASE(x) if(x) x->Release(), x = nullptr
 #define SAFE_DELETE(x) if(x) delete[] x, x = nullptr

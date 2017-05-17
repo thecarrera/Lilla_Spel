@@ -58,15 +58,15 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import("axis.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
-	{ 1.0f, 0, 0, 0,
+	{	1.0f, 0, 0, 0,
 		0, 1.0f, 0, 0,
 		0, 0, 1.0f, 0,
-		0, 0, 0, 1 };
+		0, 0, 0, 1.f };
 
 	this->createCBuffer(); //kamera
 
@@ -290,12 +290,13 @@ void DX::Render(int pass, bool isPlayer)
 
 	UINT32 vertexSize = sizeof(float) * 8;
 	UINT32 offset = 0;
-	if (pass == 0) {
+	if (pass == 0) 
+	{
 		/**
 		Pass 0: Vertex shader exclusive
 		**/
 		//ShadowMap
-		this->gDeviceContext->OMSetRenderTargets(0, nullptr, this->ShadowDepthStencilView);
+		this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->ShadowDepthStencilView);
 		
 
 		this->gDeviceContext->VSSetShader(this->gShadowVertexShader, nullptr, 0);
@@ -321,20 +322,17 @@ void DX::Render(int pass, bool isPlayer)
 		memcpy(dataPtr.pData, &this->lMatrix, sizeof(this->lMatrix));
 
 		this->gDeviceContext->Unmap(this->lcBuffer, 0);
-
-
-		this->gVertexBufferArray_size = FBX.getTotalMeshes();
 		
 
 		if (isPlayer == true)
 		{
-			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
 		}
 
 		if (isPlayer == false)
 		{
-			for (int i = 1; i < this->gVertexBufferArray_size; i++) {
+			for (int i = 5; i < this->gVertexBufferArray_size; i++) {
 				if (FBX.getMeshBoundingBox(i) == 0)
 				{
 					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
@@ -371,17 +369,15 @@ void DX::Render(int pass, bool isPlayer)
 		this->gDeviceContext->GSSetConstantBuffers(1, 1, &this->lcBuffer);
 		this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->lcBuffer);
 
-		this->gVertexBufferArray_size = FBX.getTotalMeshes();
-
 		if (isPlayer == true)
 		{
-			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
 		}
 
 		if (isPlayer == false)
 		{
-			for (int i = 1; i < this->gVertexBufferArray_size; i++) {
+			for (int i = 5; i < this->gVertexBufferArray_size; i++) {
 				if (FBX.getMeshBoundingBox(i) == 0)
 				{
 					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
@@ -771,7 +767,7 @@ void DX::startMenuLoop()
 {
 	this->clearRender();
 	this->menuControls();
-	//this->renderMenu();
+	this->renderMenu();
 	this->gSwapChain->Present(1,0);
 }
 void DX::menuControls()
@@ -856,10 +852,10 @@ void DX::renderMenu()
 
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[1]);
 
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[1], &vertexSize, &offset);
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
 	this->gDeviceContext->Draw(36, 0);
 
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[2], &vertexSize, &offset);
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[1], &vertexSize, &offset);
 	this->gDeviceContext->Draw(36, 0);
 }
 void DX::renderInGameMenu()
@@ -885,10 +881,10 @@ void DX::renderInGameMenu()
 
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[2]);
 
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[3], &vertexSize, &offset);
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[2], &vertexSize, &offset);
 	this->gDeviceContext->Draw(36, 0);
 
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[3], &vertexSize, &offset);
 	this->gDeviceContext->Draw(36, 0);
 }
 void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, ID3D11ShaderResourceView** &RTV)
