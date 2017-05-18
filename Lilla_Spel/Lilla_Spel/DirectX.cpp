@@ -313,6 +313,15 @@ void DX::Render(int pass, bool isPlayer)
 		this->gDeviceContext->Map(this->lcBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
 		createLightCaster();
 
+		if (isPlayer)
+		{
+			lMatrix.worldM = player->getMatrices().worldM;
+		}
+		else {
+			lMatrix.worldM = originalLightMatrix.worldM;
+		}
+
+
 		memcpy(dataPtr.pData, &this->lMatrix, sizeof(this->lMatrix));
 
 		this->gDeviceContext->Unmap(this->lcBuffer, 0);
