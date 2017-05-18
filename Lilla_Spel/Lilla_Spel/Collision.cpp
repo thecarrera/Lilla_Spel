@@ -30,7 +30,7 @@ Collision::Collision(FBXImport::Mesh* &meshes, int meshCount)
 
 	for (int i = 0; i < meshCount; i++)
 	{
-			if (meshes[i].customAttribute > 0)   
+			if (meshes[i].customAttribute > 0)
 		{
 			bbCount++;
 		}
@@ -265,9 +265,9 @@ void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
 /*****************************************************************************************/
 /*****************************************************************************************/
 
-void InteractiveCollision::test(CollisionData* collisionData, Collision& col)
-{
+void InteractiveCollision::test(CollisionData* collisionData, Collision& col, SoundManager& SM){
 
+	tButtonPress = GetCurrentTime();
 	// Check for the pressure plate collision
 	if (collisionData[eTrigger].id == 2) {
 		m_pressurePlate[__id__(2)].togglePressurePlate();
@@ -275,6 +275,13 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col)
 	}
 	else if (E && __id == 0) {
 			m_lever[__id__(0)].activateLever();
+			
+			if (tButtonPress - lTimePress >= 500)
+			{
+				SM.playSound(3);
+				SM.setVolume(3, 2.0f);
+				lTimePress = GetCurrentTime();
+			}
 	}
 
 

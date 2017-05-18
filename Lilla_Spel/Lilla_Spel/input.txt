@@ -1,4 +1,0 @@
-load
-Z:\Meshes\Placeholder_character.obj
-Z:\Meshes\Col_test.obj
-Z:\Art\Meshes\FBX\Level_Obj_Test.obj

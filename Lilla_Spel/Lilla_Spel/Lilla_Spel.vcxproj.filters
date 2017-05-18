@@ -108,11 +108,14 @@
     <ClInclude Include="Linker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FbxImport.h">
-      <Filter>Header Files\Overhead Handler\Libraries</Filter>
+    <ClInclude Include="ShadowMapping.h">
+      <Filter>Header Files\Sub Resources</Filter>
     </ClInclude>
     <ClInclude Include="Sound.h">
       <Filter>Header Files\Sub Resources\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="FbxImport.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +161,15 @@
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="GeometryShader.hlsl">
+      <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="MenuPixelShader.hlsl">
+      <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexShaderShadow.hlsl">
+      <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="CrystalShader.hlsl">
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

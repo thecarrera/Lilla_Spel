@@ -215,7 +215,7 @@ public:
 		int sum = 0;
 
 
-		sum += data[0].meshes[5].vertexCount;
+		sum += data[0].meshes[4].vertexCount;
 
 		return sum;
 	}

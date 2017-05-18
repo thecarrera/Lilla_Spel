@@ -14,21 +14,33 @@ Player::~Player()
 {
 }
 
-void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress)
-
+void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices &lMatrix, SoundManager& SM)
 {
+	tButtonPress = GetCurrentTime();
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
 	{
-		tButtonPress = GetCurrentTime();
 		if (tButtonPress - lTimePress >= 900)
 		{
 			lTimePress = GetCurrentTime();
 			menuMsg = true;
+			SM.togglePauseSound(0, true);
+			SM.togglePauseSound(1, true);
+			SM.togglePauseSound(2, true);
 		}
 	}
 
 	// If collision is detected, determine which key was last pressed and do an opposite movement action
 	if (collisionData[0].collision) {
+		
+		DirectX::XMFLOAT4X4 CurrentMat, LastMat;
+		
+		DirectX::XMStoreFloat4x4(&CurrentMat, matrices.worldM);
+		DirectX::XMStoreFloat4x4(&LastMat, lastWorld);
+
+		LastMat._24 = CurrentMat._24;
+
+		lastWorld = DirectX::XMLoadFloat4x4(&LastMat);
+
 		matrices.worldM = lastWorld;
 		camera->setView(lastCam);
 		return;
@@ -42,6 +54,8 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 			lastKeyPressed = 0;
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f)));
+
+			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f));
 		}
 
 		if (GetAsyncKeyState(0x53))	//s
@@ -49,6 +63,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 			lastKeyPressed = 1;
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, 0.0f, -0.2f));	
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f)));
+			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
 		}
 
 		if (GetAsyncKeyState(0x41))	//a
@@ -56,6 +71,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 			lastKeyPressed = 2;
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f)));
+			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
 	  }
 
 		if (GetAsyncKeyState(0x44))	//d
@@ -63,6 +79,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 			lastKeyPressed = 3;
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f)));
+			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, -0.0f));
 		}
 
 	}
@@ -78,13 +95,27 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 				if (this->digging == true && collisionData[0].collisionType != 1)
 				{
 					this->digging = false;
+					if (tButtonPress - lTimePress >= 200)
+					{
+						SM.playSound(2);
+						SM.setVolume(2, 1.4f);
+						lTimePress = GetCurrentTime();
+					}
 					camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -5.0f, 0.0f)));
+					this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 10.0f, 0.0f));
 				}
 				else
 				{
 					this->digging = true;
+					if (tButtonPress - lTimePress >= 200)
+					{
+						SM.playSound(2);
+						SM.setVolume(2, 1.4f);
+						lTimePress = GetCurrentTime();
+					}
 					if (collisionData[0].collisionType != 1)
 						camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 0.0f)));
+						this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -10.0f, 0.0f));
 				}
 			}
 		}
@@ -92,10 +123,13 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 
 	if (GetAsyncKeyState(VK_SPACE))	//space
 	{
-		if (this->flyingUp == false)
+		if (digging == false)
 		{
-			this->velocity.y = -1.5f;
-			this->flyingUp = true;
+			if (this->flyingUp == false)
+			{
+				this->velocity.y = -1.2f;
+				this->flyingUp = true;
+			}
 		}
 	}
 
@@ -103,13 +137,17 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 	{
 		this->velocity.y += 0.1f;
 
-		if (velocity.y >= 1.4f)		//Sphagetti code ftw
+		if (velocity.y >= 1.1f)		//Sphagetti code ftw
 		{
 			flyingUp = false;
 		}
-
-		camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(velocity.x, velocity.y, velocity.z)));
-
+		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(velocity.x, -velocity.y, velocity.z));
+		if (tButtonPress - lTimePress >= 200)
+		{
+			SM.playSound(1);
+			SM.soundChannel[1]->setVolume(1.4f);
+			lTimePress = GetCurrentTime();
+		}
 		// if payer hitbox = hitbox ground -> velocity.y = 0;
 	}
 	this->currentTime = GetCurrentTime();

@@ -11,9 +11,9 @@
 
 DX::DX()
 {
-	this->gMenuRTV = new ID3D11ShaderResourceView*[3];
+	this->gMenuRTV = new ID3D11ShaderResourceView*[4];
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		this->gMenuRTV[i] = nullptr;
 	}
@@ -42,8 +42,9 @@ void DX::Clean()
 
 	SAFE_RELEASE(this->gCBuffer);
 
-	SAFE_RELEASE(this->shaderBuffer);
-	SAFE_RELEASE(this->samplerState);
+	SAFE_RELEASE(this->txSamplerState);
+	SAFE_RELEASE(this->sMaskSamplerState);
+	SAFE_RELEASE(this->ShadowSampler);
 
 	SAFE_DELETE(this->gTextureRTV);
 
@@ -57,16 +58,16 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import(".\\Assets\\Files\\test.gay", this->gDevice, this->gVertexBufferArray);
 
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
-	{ 1.0f, 0, 0, 0,
+	{	1.0f, 0, 0, 0,
 		0, 1.0f, 0, 0,
 		0, 0, 1.0f, 0,
-		0, 0, 0, 1 };
+		0, 0, 0, 1.f };
 
 	this->createCBuffer(); //kamera
 
@@ -83,9 +84,12 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
 
 	this->Texture(this->gDevice, this->gDeviceContext, this->gMenuRTV);
+	
+	shadowMap->ShadowMapping((int)WIDTH, (int)HEIGHT, this->ShadowmapTex, this->ShadowMask, this->ShadowDepthStencilView, this->ShadowShaderRecourceView, this->gDevice, this->gDeviceContext, this->ShadowMaskResourceView, this->GroundMaskRV);
 
-	//this->SM.createFMOD();
-	//this->SM.addReverb(1);
+	createLightCaster();
+
+	this->SM.createFMOD();
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
@@ -180,25 +184,32 @@ void DX::Update()
 	SM.update();
 	if (this->menuMsg == false)
 	{
-		//this->player->updateConstantBuffer(this->gCBuffer);
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress);
+		clearRender();
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM);
 
-		//this->player->updateConstantBuffer(this->gCBuffer);
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()),this->menuMsg, this->tButtonPress, this->lTimePress);
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM);
 
-		//interactiveCol.test(col.getCollisionData(), col);
-
-		this->clearRender();
-
+		interactiveCol.test(col.getCollisionData(), col, this->SM);
+		
 		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
-		this->Render(true);
+		//Shadow sampling
+
+
+		// Character Render pass
+		this->Render(0, true); //Debug Comment; RenderPass 1, will take everything and the player to consideration during DepthMap Sampling
+		this->Render(1, true);
+
 
 		//updateraKamera
 
 		this->resetConstantBuffer();
-		this->Render(false);
+		
+		// Enviroment Render pass
+		this->Render(0, false);
+		this->Render(1, false);
 
+		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
 		this->updateCameraConstantBuffer();
 	}
 	else
@@ -222,9 +233,9 @@ void DX::CreateDirect3DContext(HWND* wndHandle)
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	scd.OutputWindow = *wndHandle;
-	scd.BufferDesc.Width = WIDTH;
-	scd.BufferDesc.Height = HEIGHT;
-	scd.SampleDesc.Count = PIXELSAMPLE;
+	scd.BufferDesc.Width = (UINT)WIDTH;
+	scd.BufferDesc.Height = (UINT)HEIGHT;
+	scd.SampleDesc.Count = (int)PIXELSAMPLE;
 	scd.Windowed = TRUE;
 
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(
@@ -275,46 +286,113 @@ void DX::SetViewport()
 
 	this->gDeviceContext->RSSetViewports(1, &vp);
 }
-void DX::Render(bool isPlayer) 
+void DX::Render(int pass, bool isPlayer) 
 {	
+
 	UINT32 vertexSize = sizeof(float) * 8;
 	UINT32 offset = 0;
-
-	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
-
-	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
-	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
-	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
-	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV);
-	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
-
-	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
-	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
-
-	this->gVertexBufferArray_size = FBX.getTotalMeshes();
-
-	if (isPlayer == true)
+	if (pass == 0) 
 	{
-		this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
-		this->gDeviceContext->Draw(FBX.getPlayerSumVertices() , 0);
-	}
+		/**
+		Pass 0: Vertex shader exclusive
+		**/
+		//ShadowMap
+		this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->ShadowDepthStencilView);
+		
 
-	if (isPlayer == false)
-	{
-		for (int i = 6; i < this->gVertexBufferArray_size; i++) {
-			if (FBX.getMeshBoundingBox(i) == 0)
-			{
-				this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-				this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+		this->gDeviceContext->VSSetShader(this->gShadowVertexShader, nullptr, 0);
+		this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+		this->gDeviceContext->PSSetShader(nullptr, nullptr, 0);
+
+		this->gDeviceContext->IASetInputLayout(this->gShadowLayout);
+		this->gDeviceContext->VSSetConstantBuffers(0, 1, &this->lcBuffer);
+		this->gDeviceContext->VSSetConstantBuffers(1, 1, &this->gCBuffer);
+
+		this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		D3D11_MAPPED_SUBRESOURCE dataPtr;
+		this->gDeviceContext->Map(this->lcBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+
+		if (isPlayer) {
+			lMatrix.viewM = this->player->getMatrices().viewM;
+		}
+		else {
+			lMatrix.viewM = originalLightMatrix.viewM;
+		}
+
+		memcpy(dataPtr.pData, &this->lMatrix, sizeof(this->lMatrix));
+
+		this->gDeviceContext->Unmap(this->lcBuffer, 0);
+		
+
+		if (isPlayer == true)
+		{
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
+			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
+		}
+
+		if (isPlayer == false)
+		{
+			for (int i = 5; i < this->gVertexBufferArray_size; i++) {
+				if (FBX.getMeshBoundingBox(i) == 0)
+				{
+					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+				}
 			}
 		}
+		
+
+	}
+	else if (pass == 1) {
+		this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
+		
+
+		this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
+
+		this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
+		this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
+		this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
+
+		this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[0]);
+		this->gDeviceContext->PSSetShaderResources(1, 1, &this->ShadowShaderRecourceView);
+		this->gDeviceContext->PSSetShaderResources(2, 1, &this->ShadowMaskResourceView);
+		this->gDeviceContext->PSSetShaderResources(3, 1, &this->GroundMaskRV);
+
+		this->gDeviceContext->PSSetSamplers(0, 1, &this->txSamplerState);
+		this->gDeviceContext->PSSetSamplers(1, 1, &this->sMaskSamplerState);
+		this->gDeviceContext->PSSetSamplers(2, 1, &this->ShadowSampler);
+
+		
+		this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
+		this->gDeviceContext->GSSetConstantBuffers(1, 1, &this->lcBuffer);
+		this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->lcBuffer);
+
+		if (isPlayer == true)
+		{
+			this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[3]);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
+			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
+		}
+
+		if (isPlayer == false)
+		{
+			for (int i = 5; i < this->gVertexBufferArray_size; i++) {
+				if (FBX.getMeshBoundingBox(i) == 0)
+				{
+					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+				}
+			}
+		}
+		
 	}
 }
 void DX::clearRender()
 {
-	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.f };
+	float clearColor[] = { 0.0f, 1.0f, 0.0f, 1.f };
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -326,7 +404,9 @@ void DX::CreateShaders()
 
 	ID3DBlob* error = nullptr;
 
-	//Vertex Shader
+	//#############################################################
+	//#						Vertex Shader						  #
+	//#############################################################
 	ID3DBlob* pVS = nullptr;
 	D3DCompileFromFile(
 		L"VertexShader.hlsl",
@@ -358,7 +438,68 @@ void DX::CreateShaders()
 
 	SAFE_RELEASE(pVS);
 
-	//Geometric Shader
+	//#############################################################
+	//#					Shadow Vertex Shader					  #
+	//#############################################################
+	ID3DBlob* VSShadow = nullptr;
+	D3DCompileFromFile(
+		L"VertexShaderShadow.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		0,
+		0,
+		&VSShadow,
+		&error
+	);
+
+	hr = this->gDevice->CreateVertexShader(VSShadow->GetBufferPointer(), VSShadow->GetBufferSize(), nullptr, &this->gShadowVertexShader);
+
+	if (error)
+	{
+		OutputDebugStringA((char*)error->GetBufferPointer());
+	}
+
+	D3D11_INPUT_ELEMENT_DESC shadowLayout[] =
+	{ "SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+
+	this->gDevice->CreateInputLayout(shadowLayout, 1, VSShadow->GetBufferPointer(), VSShadow->GetBufferSize(), &this->gShadowLayout);
+
+	SAFE_RELEASE(VSShadow);
+	SAFE_RELEASE(error);
+
+	//Sampler State
+	D3D11_SAMPLER_DESC sampDesc;
+	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+	hr = this->gDevice->CreateSamplerState(&sampDesc, &this->sMaskSamplerState);
+
+	//Shadow Sampler
+	D3D11_SAMPLER_DESC shadowSamplerDesc;
+	shadowSamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+	shadowSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	shadowSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	shadowSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	shadowSamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	shadowSamplerDesc.MipLODBias = 1;
+	shadowSamplerDesc.MaxAnisotropy = 16;
+
+
+	hr = this->gDevice->CreateSamplerState(&shadowSamplerDesc, &this->ShadowSampler);
+
+	if (FAILED(hr))
+	{
+		getchar();
+	}
+
+	//#############################################################
+	//#						Geometry Shader						  #
+	//#############################################################
 	ID3DBlob* pGS = nullptr;
 
 	D3DCompileFromFile(
@@ -381,7 +522,9 @@ void DX::CreateShaders()
 
 	SAFE_RELEASE(pGS);
 
-	//Fragment Shader
+	//#############################################################
+	//#						Fragment Shader						  #
+	//#############################################################
 	ID3DBlob* pFS = nullptr;
 	D3DCompileFromFile(
 		L"PixelShader.hlsl",
@@ -405,19 +548,48 @@ void DX::CreateShaders()
 	SAFE_RELEASE(pFS);
 	SAFE_RELEASE(error);
 
-	//Sampler State
-	D3D11_SAMPLER_DESC sampDesc;
-	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampDesc.MipLODBias = 0;
-	sampDesc.MaxAnisotropy = PIXELSAMPLE;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = 0;
+	//#############################################################
+	//#					Menu Fragment Shader					  #
+	//#############################################################
+	ID3DBlob* pFS2 = nullptr;
+	D3DCompileFromFile(
+		L"MenuPixelShader.hlsl",
+		nullptr,
+		nullptr,
+		"FS_main",
+		"ps_5_0",
+		0,
+		0,
+		&pFS2,
+		&error
+	);
 
-	hr = this->gDevice->CreateSamplerState(&sampDesc, &this->samplerState);
+	hr = this->gDevice->CreatePixelShader(pFS2->GetBufferPointer(), pFS2->GetBufferSize(), nullptr, &this->gMenuFragmentShader);
+
+	if (error)
+	{
+		OutputDebugStringA((char*)error->GetBufferPointer());
+	}
+
+	SAFE_RELEASE(pFS);
+	SAFE_RELEASE(error);
+
+	//Sampler State
+	D3D11_SAMPLER_DESC sampDesc2;
+	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
+	sampDesc2.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc2.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc2.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc2.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	sampDesc2.MipLODBias = 0;
+	sampDesc2.MaxAnisotropy = PIXELSAMPLE;
+	sampDesc2.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc2.MinLOD = 0;
+	sampDesc2.MaxLOD = 0;
+
+	hr = this->gDevice->CreateSamplerState(&sampDesc2, &this->txSamplerState);
+
+
 }
 void DX::createCBuffer()
 {
@@ -453,6 +625,24 @@ void DX::createCBuffer()
 	data.pSysMem = &this->player->getMatrices();
 
 	hr = gDevice->CreateBuffer(&cBufferDesc, &data, &this->gCBuffer);
+
+	if (FAILED(hr))
+	{
+		exit(-1);
+	}
+	
+	D3D11_BUFFER_DESC lcbuff;
+	lcbuff.Usage = D3D11_USAGE_DYNAMIC;
+	lcbuff.ByteWidth = sizeof(objMatrices);
+	lcbuff.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lcbuff.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lcbuff.MiscFlags = 0;
+	lcbuff.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA ldat;
+	ldat.pSysMem = &this->lMatrix;
+
+	hr = gDevice->CreateBuffer(&lcbuff, &ldat, &this->lcBuffer);
+
 
 	if (FAILED(hr))
 	{
@@ -502,6 +692,7 @@ void DX::updatePlayerConstantBuffer() //med player matriser
 	memcpy(dataPtr.pData, &playerMatrices, sizeof(playerMatrices));
 
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+
 }
 void DX::updateCameraConstantBuffer()
 {
@@ -542,6 +733,29 @@ void DX::resetConstantBuffer()
 	memcpy(dataPtr.pData, &standardMatrices, sizeof(standardMatrices));
 
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
+
+}
+void DX::createLightCaster()
+{
+	//light for Shadowmapping
+	DirectX::XMVECTOR lightPos = { 0.0f, 5.0f, 2.0f, 1.0f };
+	DirectX::XMVECTOR lookTo = { 0,0,0 };
+	DirectX::XMVECTOR upVec = { 0,1,0 };
+	
+	DirectX::XMMATRIX worldM = DirectX::XMMatrixIdentity();
+
+	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(lightPos, lookTo, upVec));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.9f, 800.0f/640.0f, 0.1f, 200.0f));
+
+	this->lMatrix.worldM = worldM;
+	this->lMatrix.viewM = viewM;
+	this->lMatrix.projM = projM;
+
+	originalLightMatrix.worldM = lMatrix.worldM;
+	originalLightMatrix.viewM = lMatrix.viewM;
+	test.viewM = lMatrix.viewM;
+
+	printMatrices(lMatrix);
 }
 
 void DX::flushGame() 
@@ -582,6 +796,9 @@ void DX::menuControls()
 				this->flushGame();
 				this->menuMsg = false;
 				this->isStartMenu = true;
+				this->SM.stopSound(0);
+				this->SM.stopSound(1);
+				this->SM.stopSound(2);
 			}
 		}
 	}
@@ -606,14 +823,33 @@ void DX::menuControls()
 			std::cout << "test" << std::endl;
 		}
 	}
-	
-	if (this->tButtonPress - this->lTimePress >= 900)
+	if (this->isStartMenu == true) 
 	{
-		if (GetAsyncKeyState(VK_RETURN))//Esc
+		if (this->tButtonPress - this->lTimePress >= 900)  
 		{
-			this->lTimePress = GetCurrentTime();
-			this->menuMsg = false;
-			this->isStartMenu = false;
+			if (GetAsyncKeyState(VK_RETURN))//Esc
+			{
+				this->lTimePress = GetCurrentTime();
+				this->menuMsg = false;
+				this->isStartMenu = false;
+				this->SM.playSound(0);
+				this->SM.setVolume(0, 0.4f);
+			}
+		}
+	}
+	else
+	{
+		if (this->tButtonPress - this->lTimePress >= 900)
+		{
+			if (GetAsyncKeyState(VK_RETURN))//Esc
+			{
+				this->lTimePress = GetCurrentTime();
+				this->menuMsg = false;
+				this->isStartMenu = false;
+				this->SM.togglePauseSound(0, false);
+				this->SM.togglePauseSound(1, false);
+				this->SM.togglePauseSound(2, false);
+			}
 		}
 	}
 }
@@ -622,28 +858,28 @@ void DX::renderMenu()
 	UINT32 vertexSize = sizeof(float) * 8;
 	UINT32 offset = 0;
 
+	this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
 	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
 
 	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
 	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
-	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->gMenuFragmentShader, nullptr, 0);
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[0]);
-	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);
+	this->gDeviceContext->PSSetSamplers(0, 1, &this->txSamplerState);
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->menuBuffer);
-	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
 	this->gDeviceContext->Draw(6, 0);
 
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[1]);
 
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[1], &vertexSize, &offset);
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
 	this->gDeviceContext->Draw(36, 0);
 
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[2], &vertexSize, &offset);
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[1], &vertexSize, &offset);
 	this->gDeviceContext->Draw(36, 0);
 }
 void DX::renderInGameMenu()
@@ -651,28 +887,28 @@ void DX::renderInGameMenu()
 	UINT32 vertexSize = sizeof(float) * 8;
 	UINT32 offset = 0;
 
+	this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
 	this->gDeviceContext->IASetInputLayout(this->gVertexLayout);
 
 	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
 	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
-	this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->gMenuFragmentShader, nullptr, 0);
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[0]);
-	this->gDeviceContext->PSSetSamplers(0, 1, &this->samplerState);  
+	this->gDeviceContext->PSSetSamplers(0, 1, &this->txSamplerState);  
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->menuBuffer);
-	this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->shaderBuffer);
 
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
 	this->gDeviceContext->Draw(6, 0);
 
 	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[2]);
 
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[3], &vertexSize, &offset);
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[2], &vertexSize, &offset);
 	this->gDeviceContext->Draw(36, 0);
 
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[3], &vertexSize, &offset);
 	this->gDeviceContext->Draw(36, 0);
 }
 void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, ID3D11ShaderResourceView** &RTV)
@@ -680,9 +916,10 @@ void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, I
 	HRESULT hr;
 
 	wchar_t fileName[256];
-	char temp1[256] = "Menu_BG_art.jpg";
-	char temp2[256] = "Buttons_startMenu.jpg";
-	char temp3[256] = "Buttons_Pause_BG.jpg";
+	char temp1[256] = ".\\Assets\\Textures\\Menu\\Menu_BG_art2.jpg";
+	char temp2[256] = ".\\Assets\\Textures\\Menu\\Buttons_startMenu.jpg";
+	char temp3[256] = ".\\Assets\\Textures\\Menu\\Buttons_Pause_BG.jpg";
+	char temp4[256] = ".\\Assets\\Textures\\Models\\Merlin_Lowpoly.png";
 
 	for (int i = 0; i < sizeof(temp1); i++)
 	{
@@ -696,7 +933,7 @@ void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, I
 		return exit(-1);
 	}
 
-	for (int i = 0; i < sizeof(temp1); i++)
+	for (int i = 0; i < sizeof(temp2); i++)
 	{
 		fileName[i] = temp2[i];
 	}
@@ -708,12 +945,24 @@ void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, I
 		return exit(-1);
 	}
 
-	for (int i = 0; i < sizeof(temp1); i++)
+	for (int i = 0; i < sizeof(temp3); i++)
 	{
 		fileName[i] = temp3[i];
 	}
 
 	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, fileName, NULL, &RTV[2], NULL);
+
+	if (FAILED(hr))
+	{
+		return exit(-1);
+	}
+
+	for (int i = 0; i < sizeof(temp4); i++)
+	{
+		fileName[i] = temp4[i];
+	}
+
+	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, fileName, NULL, &RTV[3], NULL);
 
 	if (FAILED(hr))
 	{

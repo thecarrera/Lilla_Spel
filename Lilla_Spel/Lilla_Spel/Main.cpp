@@ -63,7 +63,7 @@ HWND InitWindow(HMODULE hModule)
 		return false;
 	}
 
-	RECT rc = { 0,0,HEIGHT,WIDTH };
+	RECT rc = { 0, 0, (long)WIDTH, (long)HEIGHT };
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, TRUE);
 
 	auto wWidth = rc.right - rc.left;

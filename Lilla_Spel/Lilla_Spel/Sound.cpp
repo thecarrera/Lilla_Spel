@@ -1,4 +1,5 @@
 #include "Sound.h"
+#include <d3d11.h>
 
 SoundManager::SoundManager()
 {
@@ -7,26 +8,53 @@ SoundManager::SoundManager()
 	this->Reverb = new FMOD::Reverb3D*[this->soundCap];
 	this->Reverb[0] = nullptr;
 
-	this->prop = new FMOD_REVERB_PROPERTIES[1];
-	this->prop2 = new FMOD_REVERB_PROPERTIES[1];
+	this->prop = new FMOD_REVERB_PROPERTIES*[3];
 
-	prop->DecayTime = 1500;
-	prop->Density = 7;
-	prop->Diffusion = 11;
-	prop->EarlyDelay = 5000;
-	prop->EarlyLateMix = 54;
-	prop->HFDecayRatio = 100;
-	prop->HFReference = 60;
-	prop->HighCut = 250;
-	prop->LateDelay = 0;
-	prop->LowShelfFrequency = 2900;
-	prop->LowShelfGain = 83;
-	prop->WetLevel = 0.5f;
+	for (int i = 0; i < 3; i++)
+	{
+		this->prop[i] = new FMOD_REVERB_PROPERTIES;
+	}
+
+	prop[0]->DecayTime = 1500;
+	prop[0]->Density = 7;
+	prop[0]->Diffusion = 11;
+	prop[0]->EarlyDelay = 5000;
+	prop[0]->EarlyLateMix = 54;
+	prop[0]->HFDecayRatio = 100;
+	prop[0]->HFReference = 60;
+	prop[0]->HighCut = 250;
+	prop[0]->LateDelay = 0;
+	prop[0]->LowShelfFrequency = 2900;
+	prop[0]->LowShelfGain = 83;
+	prop[0]->WetLevel = 0.5f;
+
+	this->soundList = new FMOD::Sound*[4];
+	this->soundChannel = new FMOD::Channel*[4];
+
+	this->soundChannel[0]->setVolume(0.0001f);
+	this->soundChannel[3]->setVolume(2.0f);
 
 }
 SoundManager::~SoundManager()
 {
 	this->Clean();
+}
+
+void SoundManager::playSound(int i)
+{
+	this->system->playSound(this->soundList[i], 0, false, &this->soundChannel[i]);
+}
+void SoundManager::stopSound(int i)
+{
+	this->soundChannel[i]->stop();
+}
+void SoundManager::togglePauseSound(int i, bool paused)
+{
+	this->soundChannel[i]->setPaused(paused);
+}
+void SoundManager::setVolume(int i, float volume)
+{
+	this->soundChannel[i]->setVolume(volume);
 }
 
 void SoundManager::createFMOD()
@@ -35,7 +63,8 @@ void SoundManager::createFMOD()
 	fr = FMOD::System_Create(&system);      // Create the main system object.
 	if (fr != FMOD_OK)
 	{
-		std::cout << ("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
+		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
+		getchar();
 		exit(-1);
 	}
 
@@ -43,8 +72,42 @@ void SoundManager::createFMOD()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
+		getchar();
 		exit(-1);
 	}
+
+	fr = system->createSound(".\\Assets\\Sound\\Theme.mp3", FMOD_2D, 0, &this->soundList[0]);
+	if (fr != FMOD_OK)
+	{
+		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
+		getchar();
+		exit(-1);
+	}
+
+	fr = system->createSound(".\\Assets\\Sound\\Blop.mp3", FMOD_2D, 0, &this->soundList[1]);
+	if (fr != FMOD_OK)
+	{
+		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
+		getchar();
+		exit(-1);
+	}
+
+	fr = system->createSound(".\\Assets\\Sound\\Crumbling.mp3", FMOD_2D, 0, &this->soundList[2]);
+	if (fr != FMOD_OK)
+	{
+		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
+		getchar();
+		exit(-1);
+	}
+
+	fr = system->createSound(".\\Assets\\Sound\\Lever.mp3", FMOD_2D, 0, &this->soundList[3]);
+	if (fr != FMOD_OK)
+	{
+		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
+		getchar();
+		exit(-1);
+	}
+
 }
 void SoundManager::update()
 {
@@ -75,31 +138,25 @@ void SoundManager::addReverb(int addedReverb)
 
 	std::cout << std::endl << std::endl;
 	
-	Reverb[0]->setProperties(prop);
-	Reverb[0]->getProperties(prop2);
-	std::cout << 1 << " " << prop2->DecayTime<< std::endl;
+	Reverb[0]->setProperties(prop[0]);
+	Reverb[0]->getProperties(prop[1]);
+	std::cout << 1 << " " << prop[1]->DecayTime<< std::endl;
+	
+	prop[0]->DecayTime += 200;
 
-	this->prop->DecayTime += 500;
-
-	std::cout << 2 << " " << prop2->DecayTime << std::endl;
-
-	Reverb[1]->setProperties(prop);
-	Reverb[1]->getProperties(prop3);
-
-	std::cout << 3 << " " << prop3->DecayTime << std::endl;
-
-	std::cout << std::endl << std::endl;
-
+	Reverb[3]->setProperties(prop[0]);
+	Reverb[3]->getProperties(prop[2]);
+	std::cout << 1 << " " << prop[2]->DecayTime << std::endl;
 }
 void SoundManager::expandReverb()
 {
-	this->soundCap += 20;
-	FMOD::Reverb3D** tempReverb = new FMOD::Reverb3D*[this->soundCap];
+	FMOD::Reverb3D** tempReverb = new FMOD::Reverb3D*[this->soundCap + 20];
 
 	for (int i = 0; i < this->amountOfSounds; i++)
 	{
 		tempReverb[i] = this->Reverb[i];
 	}
-
 	this->Reverb = tempReverb;
+
+	this->soundCap += 20;
 }

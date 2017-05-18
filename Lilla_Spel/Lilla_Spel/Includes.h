@@ -13,21 +13,21 @@
 //#include <wincodec.h>
 //#include <wrl.h>
 #include "WICTextureLoader.h"
-#include <fmod.hpp>
-#include <fmod_errors.h>
+
+#include "ShadowMapping.h"
  
 #include "TriangleData.h"
 #include "Collision.h"
 #include "FbxImport.h"
-#include "Sound.h"
+
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 
 #define WLABEL "Lilla Spel Projekt"
-#define HEIGHT 800
-#define WIDTH 640
-#define PIXELSAMPLE 4
+#define HEIGHT 640.0
+#define WIDTH 800.0
+#define PIXELSAMPLE 1
 
 #define SAFE_RELEASE(x) if(x) x->Release(), x = nullptr
 #define SAFE_DELETE(x) if(x) delete[] x, x = nullptr
@@ -39,4 +39,5 @@ struct objMatrices
 	DirectX::XMMATRIX worldM;
 	DirectX::XMMATRIX viewM;
 	DirectX::XMMATRIX projM;
+	DirectX::XMFLOAT3 lightPos;
 };

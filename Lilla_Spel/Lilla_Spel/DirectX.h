@@ -29,7 +29,7 @@ public:
 	void SetViewport();
 
 	void Update();
-	void Render(bool isPlayer);
+	void Render(int pass, bool isPlayer);
 	void clearRender();
 
 	void CreateShaders();
@@ -40,6 +40,8 @@ public:
 	void updateCameraConstantBuffer();
 	void resetConstantBuffer();
 
+	void createLightCaster();
+	
 	void flushGame();
 	void menuControls();
 	void startMenuLoop();
@@ -55,27 +57,43 @@ private:
 	ID3D11DeviceContext* gDeviceContext = nullptr;
 	IDXGISwapChain* gSwapChain = nullptr;
 	ID3D11RenderTargetView* gBackBufferRTV = nullptr;
- 
-	ID3D11InputLayout* gVertexLayout = nullptr;
-	ID3D11VertexShader* gVertexShader = nullptr;
-	ID3D11Buffer* gMenuVertexArray = nullptr;
 
+	ID3D11InputLayout* gVertexLayout = nullptr;
+	ID3D11InputLayout* gShadowLayout = nullptr;
+
+	ID3D11VertexShader* gVertexShader = nullptr;
+	ID3D11VertexShader* gShadowVertexShader = nullptr;
+	
+	ID3D11Buffer* gMenuVertexArray = nullptr;
+	
 	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
 	int gVertexBufferArray_size;
 
 	ID3D11GeometryShader* gGeometryShader = nullptr;
 
 	ID3D11PixelShader* gFragmentShader = nullptr;
+	ID3D11PixelShader* gMenuFragmentShader = nullptr;
 
 	ID3D11DepthStencilState* depthState = nullptr;
 	ID3D11DepthStencilView* gDSV = nullptr;
 	ID3D11Texture2D* gDepthStencil = nullptr;
+	
+	//shadowmap
+	ShadowMap						*shadowMap = nullptr;
+	ID3D11Texture2D					*ShadowMask = nullptr;
+	ID3D11Texture2D					*ShadowmapTex = nullptr;
+	ID3D11DepthStencilView			*ShadowDepthStencilView = nullptr;
+	ID3D11ShaderResourceView		*ShadowShaderRecourceView = nullptr;
+	ID3D11ShaderResourceView		*ShadowMaskResourceView = nullptr;
+	ID3D11ShaderResourceView		*GroundMaskRV = nullptr;
+	ID3D11SamplerState				*ShadowSampler = nullptr;
+	ID3D11SamplerState				*sMaskSamplerState = nullptr;
 
 	ID3D11Buffer* gCBuffer = nullptr;
 	ID3D11Buffer* menuBuffer = nullptr;
 
-	ID3D11Buffer* shaderBuffer = nullptr;
-	ID3D11SamplerState* samplerState = nullptr;
+	//ID3D11Buffer* shaderBuffer = nullptr;
+	ID3D11SamplerState* txSamplerState = nullptr;
 
 	ID3D11ShaderResourceView* gTextureRTV = nullptr;
 	ID3D11ShaderResourceView** gMenuRTV = nullptr;
@@ -97,6 +115,9 @@ public:
 	SoundManager SM;
 
 	objMatrices TEMP;
+	objMatrices originalLightMatrix;
+
+	objMatrices test;
 
 private:
 	DirectX::XMVECTOR cameraPos;
@@ -104,6 +125,9 @@ private:
 	DirectX::XMVECTOR upVec;
 	DirectX::XMVECTOR mRight;
 
+	objMatrices lMatrix;
+	ID3D11Buffer* lcBuffer = nullptr;
+	ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
 
 private:
 	objMatrices menuMats;
