@@ -317,7 +317,7 @@ void DX::Render(int pass, bool isPlayer)
 		if (isPlayer)
 		{
 			lMatrix.worldM = player->getMatrices().worldM;
-			lMatrix.viewM = this->player->getMatrices().viewM;
+			//lMatrix.viewM = this->player->getMatrices().viewM;
 		}
 		else
 		{

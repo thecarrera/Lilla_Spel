@@ -89,8 +89,6 @@ float4 FS_main(FS_IN input) : SV_Target
 	float2 uv = input.uv;
 
 	float3 tex = txDiffuse.Sample(sampAni, uv).xyz;
-		uv.y = 1 - uv.y;
-
 
 	float3 s = normalize(lPos - input.wPos.xyz);
 	float3 v = normalize(lPos - input.wPos.xyz);

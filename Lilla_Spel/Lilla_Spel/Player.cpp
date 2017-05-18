@@ -127,7 +127,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 		{
 			if (this->flyingUp == false)
 			{
-				this->velocity.y = -1.2f;
+				this->velocity.y = -1.0f;
 				this->flyingUp = true;
 			}
 		}
@@ -137,7 +137,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 	{
 		this->velocity.y += 0.1f;
 
-		if (velocity.y >= 1.1f)		//Sphagetti code ftw
+		if (velocity.y >= 0.9f)		//Sphagetti code ftw
 		{
 			flyingUp = false;
 		}
