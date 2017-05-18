@@ -2,7 +2,7 @@
 
 #include "Includes.h"
 #include "Camera.h"
-
+using namespace DirectX;
 class Player
 {
 private:
@@ -37,6 +37,9 @@ public:
 
 	bool getIsDigging() const;
 
+	void getPosition(XMFLOAT4& pos);
+
+	void getPositionVec(XMVECTOR& pos);
 
 	void flushGame();
 };

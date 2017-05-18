@@ -312,13 +312,18 @@ void DX::Render(int pass, bool isPlayer)
 
 		D3D11_MAPPED_SUBRESOURCE dataPtr;
 		this->gDeviceContext->Map(this->lcBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dataPtr);
+		createLightCaster();
 
-		if (isPlayer) {
+		if (isPlayer)
+		{
+			lMatrix.worldM = player->getMatrices().worldM;
 			lMatrix.viewM = this->player->getMatrices().viewM;
 		}
-		else {
-			lMatrix.viewM = originalLightMatrix.viewM;
+		else
+		{
+			lMatrix.worldM = originalLightMatrix.worldM;
 		}
+
 
 		memcpy(dataPtr.pData, &this->lMatrix, sizeof(this->lMatrix));
 
@@ -738,24 +743,30 @@ void DX::resetConstantBuffer()
 void DX::createLightCaster()
 {
 	//light for Shadowmapping
-	DirectX::XMVECTOR lightPos = { 0.0f, 5.0f, 2.0f, 1.0f };
-	DirectX::XMVECTOR lookTo = { 0,0,0 };
+	DirectX::XMFLOAT4 lightPos = { 30, 50.0f, 2.0f, 1.0f };
+	DirectX::XMVECTOR lookTo = { 0.5,-1,0.5 };
 	DirectX::XMVECTOR upVec = { 0,1,0 };
+
 	
 	DirectX::XMMATRIX worldM = DirectX::XMMatrixIdentity();
-
-	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(lightPos, lookTo, upVec));
-	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.9f, 800.0f/640.0f, 0.1f, 200.0f));
+	
+	player->getPosition(lMatrix.lightPos);
+	player->getPositionVec(lookTo);
+	
+	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(XMVECTOR{lMatrix.lightPos.x,lightPos.y,lightPos.z,lightPos.w}, lookTo, upVec));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.70f, 800.0f/640.0f, 0.1f, 100.0f));
 
 	this->lMatrix.worldM = worldM;
 	this->lMatrix.viewM = viewM;
 	this->lMatrix.projM = projM;
+	this->lMatrix.lightPos = lightPos;
 
 	originalLightMatrix.worldM = lMatrix.worldM;
 	originalLightMatrix.viewM = lMatrix.viewM;
+	originalLightMatrix.lightPos = lMatrix.lightPos;
 	test.viewM = lMatrix.viewM;
 
-	printMatrices(lMatrix);
+	//printMatrices(lMatrix);
 }
 
 void DX::flushGame() 

@@ -36,10 +36,10 @@ float2 texOffset(int u, int v)
 float4 FS_main(FS_IN input) : SV_Target
 {
 	float  shadowBias = .002f;
-	float3 ambient = { 0.1f, 0.1f, 0.1f };
-	float4 lightPos = { 0.0f, 10.0f, 2.0f, 1.0f };
+	float3 ambient = { 0.3f, 0.3f, 0.31f };
+	//float4 lightPos = { 0.0f, 10.0f, 2.0f, 1.0f };
 
-	float3 lightDir = normalize(lightPos.xyz - input.wPos.xyz);
+	float3 lightDir = normalize(lPos.xyz - input.wPos.xyz);
 	float3 r = reflect(lightDir, input.Norm.xyz);
 
 	input.lPos.xy /= input.lPos.w;
@@ -80,23 +80,26 @@ float4 FS_main(FS_IN input) : SV_Target
 	
 	}
 
-	float cos = dot(lightDir, input.Norm.xyz);
+	float diffuse = dot(lightDir, input.Norm.xyz);
 	float shadowFactor = sum / 16.0f;
-	//clamp(shadowFactor, 0.8f, 1);
+	clamp(shadowFactor, 0.2f, 0.8);
 
 	float spec = dot(r, -input.wPos.xyz);
 
 	float2 uv = input.uv;
 
+	float3 tex = txDiffuse.Sample(sampAni, uv).xyz;
 		uv.y = 1 - uv.y;
 
-	//return float4(input.uv,1.0f);
-	float3 diff = saturate(dot(normalize(input.Norm), lightDir));
-	//diff = diff* (ground * 0.4);
 
-	float3 s = txDiffuse.Sample(sampAni, uv).xyz * 7 * ambient * cos; //+ pow(spec, 2.0f) * 1.0;
+	float3 s = normalize(lPos - input.wPos.xyz);
+	float3 v = normalize(lPos - input.wPos.xyz);
+	float3 reflection = reflect(-s, input.Norm);
+	// Material properties
+	float3 ks = { 1.0, 1.0, 1.0 };
+	float3 specular = ks * pow(max(dot(reflection, v), 0.0), 50.0);
 
-	clamp(diff, 0.2f, 0.6f);
+
 
 	//return mask;
 	//return input.lPos;
@@ -106,6 +109,6 @@ float4 FS_main(FS_IN input) : SV_Target
 	//return float4(input.Norm, 1.0);
 	//return float4(diff, 1.0f);
 	//return float4(1, 1, 1, 1);
-	//return float4(saturate(shadowFactor * diff + ambient), 1);
-	return float4(s, 1.0f);
+	return float4(saturate(shadowFactor * tex * diffuse + ambient * tex + specular * tex * shadowFactor), 1);
+	return float4(tex, 1.0f);
 }
