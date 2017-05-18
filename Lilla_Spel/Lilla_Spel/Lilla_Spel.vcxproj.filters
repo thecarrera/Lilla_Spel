@@ -58,6 +58,9 @@
     <Filter Include="Source Files\Sub Resources\Movement">
       <UniqueIdentifier>{7017c8ca-50a5-46e7-8ce7-3d71340b6f53}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Sub Resources\Sound">
+      <UniqueIdentifier>{f99f2c7d-a4d6-4e3b-86ee-c52867343838}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Importers.h">
@@ -108,6 +111,12 @@
     <ClInclude Include="ShadowMapping.h">
       <Filter>Header Files\Sub Resources</Filter>
     </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Header Files\Sub Resources\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="FbxImport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">
@@ -140,6 +149,9 @@
     <ClCompile Include="Lever.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Sound.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl">
@@ -155,6 +167,9 @@
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="VertexShaderShadow.hlsl">
+      <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="CrystalShader.hlsl">
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

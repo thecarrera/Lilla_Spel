@@ -11,9 +11,9 @@
 
 DX::DX()
 {
-	this->gMenuRTV = new ID3D11ShaderResourceView*[3];
+	this->gMenuRTV = new ID3D11ShaderResourceView*[4];
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		this->gMenuRTV[i] = nullptr;
 	}
@@ -58,7 +58,8 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import(".\\Assets\\Files\\test.gay", this->gDevice, this->gVertexBufferArray);
+
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	this->player = new Player();
@@ -84,11 +85,11 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->Texture(this->gDevice, this->gDeviceContext, this->gMenuRTV);
 	
-	shadowMap->ShadowMapping(WIDTH, HEIGHT, this->ShadowmapTex, this->ShadowMask, this->ShadowDepthStencilView, this->ShadowShaderRecourceView, this->gDevice, this->gDeviceContext, this->ShadowMaskResourceView, this->GroundMaskRV);
+	shadowMap->ShadowMapping((int)WIDTH, (int)HEIGHT, this->ShadowmapTex, this->ShadowMask, this->ShadowDepthStencilView, this->ShadowShaderRecourceView, this->gDevice, this->gDeviceContext, this->ShadowMaskResourceView, this->GroundMaskRV);
 
 	createLightCaster();
 
-
+	this->SM.createFMOD();
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
@@ -180,16 +181,16 @@ void DX::createMenu()
 }
 void DX::Update()
 {
+	SM.update();
 	if (this->menuMsg == false)
 	{
 		clearRender();
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test);
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM);
 
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test);
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM);
 
-		interactiveCol.test(col.getCollisionData(), col);
-
-
+		interactiveCol.test(col.getCollisionData(), col, this->SM);
+		
 		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
 		//Shadow sampling
@@ -232,9 +233,9 @@ void DX::CreateDirect3DContext(HWND* wndHandle)
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	scd.OutputWindow = *wndHandle;
-	scd.BufferDesc.Width = WIDTH;
-	scd.BufferDesc.Height = HEIGHT;
-	scd.SampleDesc.Count = PIXELSAMPLE;
+	scd.BufferDesc.Width = (UINT)WIDTH;
+	scd.BufferDesc.Height = (UINT)HEIGHT;
+	scd.SampleDesc.Count = (int)PIXELSAMPLE;
 	scd.Windowed = TRUE;
 
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(
@@ -316,8 +317,10 @@ void DX::Render(int pass, bool isPlayer)
 		if (isPlayer)
 		{
 			lMatrix.worldM = player->getMatrices().worldM;
+			lMatrix.viewM = this->player->getMatrices().viewM;
 		}
-		else {
+		else
+		{
 			lMatrix.worldM = originalLightMatrix.worldM;
 		}
 
@@ -374,6 +377,7 @@ void DX::Render(int pass, bool isPlayer)
 
 		if (isPlayer == true)
 		{
+			this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[3]);
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
 		}
@@ -750,7 +754,7 @@ void DX::createLightCaster()
 	player->getPositionVec(lookTo);
 	
 	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(XMVECTOR{lMatrix.lightPos.x,lightPos.y,lightPos.z,lightPos.w}, lookTo, upVec));
-	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.70, 800.0/640.0, 0.1f, 100.0f));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.70f, 800.0f/640.0f, 0.1f, 100.0f));
 
 	this->lMatrix.worldM = worldM;
 	this->lMatrix.viewM = viewM;
@@ -803,6 +807,9 @@ void DX::menuControls()
 				this->flushGame();
 				this->menuMsg = false;
 				this->isStartMenu = true;
+				this->SM.stopSound(0);
+				this->SM.stopSound(1);
+				this->SM.stopSound(2);
 			}
 		}
 	}
@@ -827,14 +834,33 @@ void DX::menuControls()
 			std::cout << "test" << std::endl;
 		}
 	}
-	
-	if (this->tButtonPress - this->lTimePress >= 900)
+	if (this->isStartMenu == true) 
 	{
-		if (GetAsyncKeyState(VK_RETURN))//Esc
+		if (this->tButtonPress - this->lTimePress >= 900)  
 		{
-			this->lTimePress = GetCurrentTime();
-			this->menuMsg = false;
-			this->isStartMenu = false;
+			if (GetAsyncKeyState(VK_RETURN))//Esc
+			{
+				this->lTimePress = GetCurrentTime();
+				this->menuMsg = false;
+				this->isStartMenu = false;
+				this->SM.playSound(0);
+				this->SM.setVolume(0, 0.4f);
+			}
+		}
+	}
+	else
+	{
+		if (this->tButtonPress - this->lTimePress >= 900)
+		{
+			if (GetAsyncKeyState(VK_RETURN))//Esc
+			{
+				this->lTimePress = GetCurrentTime();
+				this->menuMsg = false;
+				this->isStartMenu = false;
+				this->SM.togglePauseSound(0, false);
+				this->SM.togglePauseSound(1, false);
+				this->SM.togglePauseSound(2, false);
+			}
 		}
 	}
 }
@@ -901,9 +927,10 @@ void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, I
 	HRESULT hr;
 
 	wchar_t fileName[256];
-	char temp1[256] = "Menu_BG_art.jpg";
-	char temp2[256] = "Buttons_startMenu.jpg";
-	char temp3[256] = "Buttons_Pause_BG.jpg";
+	char temp1[256] = ".\\Assets\\Textures\\Menu\\Menu_BG_art2.jpg";
+	char temp2[256] = ".\\Assets\\Textures\\Menu\\Buttons_startMenu.jpg";
+	char temp3[256] = ".\\Assets\\Textures\\Menu\\Buttons_Pause_BG.jpg";
+	char temp4[256] = ".\\Assets\\Textures\\Models\\Merlin_Lowpoly.png";
 
 	for (int i = 0; i < sizeof(temp1); i++)
 	{
@@ -917,7 +944,7 @@ void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, I
 		return exit(-1);
 	}
 
-	for (int i = 0; i < sizeof(temp1); i++)
+	for (int i = 0; i < sizeof(temp2); i++)
 	{
 		fileName[i] = temp2[i];
 	}
@@ -929,12 +956,24 @@ void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, I
 		return exit(-1);
 	}
 
-	for (int i = 0; i < sizeof(temp1); i++)
+	for (int i = 0; i < sizeof(temp3); i++)
 	{
 		fileName[i] = temp3[i];
 	}
 
 	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, fileName, NULL, &RTV[2], NULL);
+
+	if (FAILED(hr))
+	{
+		return exit(-1);
+	}
+
+	for (int i = 0; i < sizeof(temp4); i++)
+	{
+		fileName[i] = temp4[i];
+	}
+
+	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, fileName, NULL, &RTV[3], NULL);
 
 	if (FAILED(hr))
 	{

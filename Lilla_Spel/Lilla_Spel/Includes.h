@@ -15,6 +15,7 @@
 #include "WICTextureLoader.h"
 
 #include "ShadowMapping.h"
+ 
 #include "TriangleData.h"
 #include "Collision.h"
 #include "FbxImport.h"

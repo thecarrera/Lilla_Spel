@@ -4,6 +4,8 @@
 #include "Camera.h"
 #include "Player.h"
 
+
+
 /*
 #################################################################################################################################
 #																																#
@@ -109,6 +111,8 @@ private:
 public:
 	FBXImport FBX;
 	bool isStartMenu = true;
+
+	SoundManager SM;
 
 	objMatrices TEMP;
 	objMatrices originalLightMatrix;

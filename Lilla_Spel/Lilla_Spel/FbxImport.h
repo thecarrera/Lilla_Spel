@@ -30,7 +30,7 @@ public:
 		// 4 - Pressure Plate Bounding Box
 		// 5 - Lever Bounding Box
 		int customAttribute = 0;
-		int id;
+		int id = 0;
 
 		~Mesh() {
 			if (vertexCount != 0) {
@@ -73,26 +73,25 @@ private:
 	{
 		HRESULT hr;
 
-		//if (gVertexBufferArray != nullptr)
-		//{
-		//	ID3D11Buffer** tempBuffer = new ID3D11Buffer*[this->totalSumMeshes + FBX.meshCount];
-		//	tempBuffer = { nullptr };
-		//
-		//	for (int i = 0; i < this->totalSumMeshes; i++)
-		//	{
-		//		tempBuffer[i] = gVertexBufferArray[i];
-		//	}
+		if (gVertexBufferArray != nullptr)
+		{
+			ID3D11Buffer** tempBuffer = new ID3D11Buffer*[this->totalSumMeshes + FBX.meshCount];
+		
+			for (int i = 0; i < this->totalSumMeshes; i++)
+			{
+				tempBuffer[i] = gVertexBufferArray[i];
+			}
 
-		//	gVertexBufferArray = tempBuffer;
+			gVertexBufferArray = tempBuffer;
 
-		//	this->totalSumMeshes += FBX.meshCount;
-		//}
-		//else 
-		//{
+			this->totalSumMeshes += FBX.meshCount;
+		}
+		else 
+		{
 		gVertexBufferArray = new ID3D11Buffer*[FBX.meshCount];
 
 		this->totalSumMeshes += FBX.meshCount;
-		//}
+		}
 
 		for (int i = 0; i < FBX.meshCount; i++)
 		{
@@ -145,6 +144,8 @@ private:
 
 				data[count].meshes[i].texturePath = temp;
 
+				std::cout << data[count].meshes[i].texturePath << std::endl;
+
 				is.read((char*)&data[count].meshes[i].vertexCount, sizeof(int));
 				is.read((char*)&data[count].meshes[i].vertSize, sizeof(int));
 
@@ -153,7 +154,8 @@ private:
 				is.read((char*)data[count].meshes[i].vertices, data[count].meshes[i].vertSize);
 
 				std::cout << data[0].meshes[i].vertices[0].position[0] << std::endl;
-
+				std::cout << data[0].meshes[i].vertices[0].position[1] << std::endl;
+				std::cout << data[0].meshes[i].vertices[0].position[2] << std::endl;
 
 				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int));
 				is.read((char*)&data[count].meshes[i].id, sizeof(int));

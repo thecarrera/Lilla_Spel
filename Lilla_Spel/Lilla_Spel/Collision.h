@@ -3,7 +3,7 @@
 #include "PressurePlate.h"
 #include "Lever.h"
 #include "FbxImport.h"
-
+#include "Sound.h"
 
 //Todo:
 // 1. Make bounding box appear ingame - done
@@ -119,9 +119,12 @@ private:
 
 	int pressurePlateCount = 0;
 	int leverCount = 0;
+
+	time_t tButtonPress;
+	time_t lTimePress;
 public:
 
-	void test(CollisionData *collisionData, Collision& col);
+	void test(CollisionData *collisionData, Collision& col, SoundManager& SM);
 
 	int getIndexById(int id);
 
