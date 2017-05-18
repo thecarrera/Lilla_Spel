@@ -38,5 +38,5 @@ struct objMatrices
 	DirectX::XMMATRIX worldM;
 	DirectX::XMMATRIX viewM;
 	DirectX::XMMATRIX projM;
-	DirectX::XMFLOAT3 lightPos;
+	DirectX::XMFLOAT4 lightPos;
 };

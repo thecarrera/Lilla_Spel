@@ -152,3 +152,25 @@ bool Player::getIsDigging() const
 {
 	return digging;
 }
+
+void Player::getPosition(XMFLOAT4 & pos)
+{
+	XMFLOAT4X4 temp;
+
+	XMStoreFloat4x4(&temp, matrices.worldM);
+
+	pos.x = temp._14;
+	pos.z = temp._34;
+	
+}
+
+void Player::getPositionVec(XMVECTOR & pos)
+{
+	XMFLOAT4 test;
+	test.y = 0;
+	getPosition(test);
+
+
+	pos = XMLoadFloat4(&test);
+
+}
