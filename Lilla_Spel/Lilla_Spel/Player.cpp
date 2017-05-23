@@ -23,9 +23,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 		{
 			lTimePress = GetCurrentTime();
 			menuMsg = true;
-			SM.togglePauseSound(0, true);
-			SM.togglePauseSound(1, true);
-			SM.togglePauseSound(2, true);
+			SM.pauseAllAmbient(true);
 		}
 	}
 
@@ -97,8 +95,8 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 					this->digging = false;
 					if (tButtonPress - lTimePress >= 200)
 					{
-						SM.playSound(2);
-						SM.setVolume(2, 1.4f);
+						SM.playSound(6);
+						SM.setVolume(6, 1.4f);
 						lTimePress = GetCurrentTime();
 					}
 					camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -5.0f, 0.0f)));
@@ -109,8 +107,8 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 					this->digging = true;
 					if (tButtonPress - lTimePress >= 200)
 					{
-						SM.playSound(2);
-						SM.setVolume(2, 1.4f);
+						SM.playSound(6);
+						SM.setVolume(6, 1.4f);
 						lTimePress = GetCurrentTime();
 					}
 					if (collisionData[0].collisionType != 1)
@@ -144,13 +142,22 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(velocity.x, -velocity.y, velocity.z));
 		if (tButtonPress - lTimePress >= 200)
 		{
-			SM.playSound(1);
-			SM.soundChannel[1]->setVolume(1.4f);
+			SM.playSound(5);
+			SM.setVolume(5, 1.4f);
 			lTimePress = GetCurrentTime();
 		}
 		// if payer hitbox = hitbox ground -> velocity.y = 0;
 	}
 	this->currentTime = GetCurrentTime();
+
+	DirectX::XMFLOAT4X4 tempWorldMat;
+	FMOD_VECTOR tempPlayerPos;
+	DirectX::XMStoreFloat4x4(&tempWorldMat, this->matrices.worldM);
+	tempPlayerPos.x = tempWorldMat._14;
+	tempPlayerPos.y = tempWorldMat._24;
+	tempPlayerPos.y = tempWorldMat._34;
+
+	SM.setListnerPos(tempPlayerPos);
 }
 
 void Player::initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj)

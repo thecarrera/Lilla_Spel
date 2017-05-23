@@ -14,7 +14,7 @@ struct FS_IN
 	float4 Pos : SV_POSITION;
 	float2 uv : UV;
 	float3 Norm : NORMAL;
-	float4 wPos : POSITION;
+	float4 wPos : POSITION;   
 	float4 lPos : TEXCOORD0;
 };
 

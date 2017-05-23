@@ -278,8 +278,8 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col, So
 			
 			if (tButtonPress - lTimePress >= 500)
 			{
-				SM.playSound(3);
-				SM.setVolume(3, 2.0f);
+				SM.playSound(8);
+				SM.setVolume(8, 2.0f);
 				lTimePress = GetCurrentTime();
 			}
 	}

@@ -169,7 +169,7 @@
     <FxCompile Include="VertexShaderShadow.hlsl">
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="CrystalShader.hlsl">
+    <FxCompile Include="ComputeShader.hlsl">
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

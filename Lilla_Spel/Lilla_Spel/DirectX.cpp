@@ -11,11 +11,11 @@
 
 DX::DX()
 {
-	this->gMenuRTV = new ID3D11ShaderResourceView*[4];
+	this->gTextureRTV = new ID3D11ShaderResourceView*[5];
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
-		this->gMenuRTV[i] = nullptr;
+		this->gTextureRTV[i] = nullptr;
 	}
 }
 DX::~DX()
@@ -30,26 +30,55 @@ void DX::Clean()
 	SAFE_RELEASE(this->gBackBufferRTV);
 
 	SAFE_RELEASE(this->gVertexLayout);
+	SAFE_RELEASE(this->gShadowLayout);
+		
 	SAFE_RELEASE(this->gVertexShader);
+	SAFE_RELEASE(this->gShadowVertexShader);
 
+	SAFE_RELEASE(this->gMenuVertexArray);
+
+	for (int i = 0; i < this->gVertexBufferArray_size; i++)
+	{
+		SAFE_RELEASE(this->gVertexBufferArray[i]);
+	} SAFE_DELETE(this->gVertexBufferArray);
+	
 	SAFE_RELEASE(this->gGeometryShader);
 
+	SAFE_RELEASE(this->gBlurShader);
+	SAFE_RELEASE(this->gBlurUAV);
+
 	SAFE_RELEASE(this->gFragmentShader);
+	SAFE_RELEASE(this->gMenuFragmentShader);
 
 	SAFE_RELEASE(this->depthState);
 	SAFE_RELEASE(this->gDSV);
 	SAFE_RELEASE(this->gDepthStencil);
 
+	SAFE_DELETE(this->shadowMap);
+	SAFE_RELEASE(this->ShadowMask);
+	SAFE_RELEASE(this->ShadowmapTex);
+	SAFE_RELEASE(this->ShadowDepthStencilView);
+	SAFE_RELEASE(this->ShadowShaderRecourceView);
+	SAFE_RELEASE(this->ShadowMaskResourceView);
+	SAFE_RELEASE(this->GroundMaskRV);
+	SAFE_RELEASE(this->ShadowSampler);
+	SAFE_RELEASE(this->sMaskSamplerState);
+
 	SAFE_RELEASE(this->gCBuffer);
+	SAFE_RELEASE(this->menuBuffer);
 
 	SAFE_RELEASE(this->txSamplerState);
-	SAFE_RELEASE(this->sMaskSamplerState);
-	SAFE_RELEASE(this->ShadowSampler);
 
-	SAFE_DELETE(this->gTextureRTV);
+	for (int i = 0; i < 5; i++)
+	{
+		SAFE_RELEASE(this->gTextureRTV[i]);
+	}SAFE_DELETE(this->gTextureRTV);
 
-	SAFE_DELETE(this->gVertexBufferArray);
-	
+	SAFE_DELETE(this->vertexCountOBJ);
+
+	SAFE_RELEASE(this->lcBuffer);
+	SAFE_RELEASE(this->nullSRV[0]);
+
 }
 
 void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
@@ -58,7 +87,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import(".\\Assets\\Files\\test.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import(".\\Assets\\Files\\Axis.Trump", this->gDevice, this->gVertexBufferArray);
 
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
@@ -83,7 +112,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
 
-	this->Texture(this->gDevice, this->gDeviceContext, this->gMenuRTV);
+	this->Texture(this->gDevice, this->gDeviceContext, this->gTextureRTV);
 	
 	shadowMap->ShadowMapping((int)WIDTH, (int)HEIGHT, this->ShadowmapTex, this->ShadowMask, this->ShadowDepthStencilView, this->ShadowShaderRecourceView, this->gDevice, this->gDeviceContext, this->ShadowMaskResourceView, this->GroundMaskRV);
 
@@ -209,6 +238,8 @@ void DX::Update()
 		this->Render(0, false);
 		this->Render(1, false);
 
+		//this->printMatrices(this->player->getMatrices());
+
 		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
 		this->updateCameraConstantBuffer();
 	}
@@ -332,13 +363,13 @@ void DX::Render(int pass, bool isPlayer)
 
 		if (isPlayer == true)
 		{
-			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
 		}
 
 		if (isPlayer == false)
 		{
-			for (int i = 5; i < this->gVertexBufferArray_size; i++) {
+			for (int i = 6; i < this->gVertexBufferArray_size; i++) {
 				if (FBX.getMeshBoundingBox(i) == 0)
 				{
 					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
@@ -359,9 +390,12 @@ void DX::Render(int pass, bool isPlayer)
 
 		this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
 		this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
+		this->gDeviceContext->CSSetShader(this->gBlurShader, nullptr, 0);
 		this->gDeviceContext->PSSetShader(this->gFragmentShader, nullptr, 0);
 
-		this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[0]);
+		this->gDeviceContext->CSSetShaderResources(0, 1, &this->gTextureRTV[4]);
+
+		this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[4]);
 		this->gDeviceContext->PSSetShaderResources(1, 1, &this->ShadowShaderRecourceView);
 		this->gDeviceContext->PSSetShaderResources(2, 1, &this->ShadowMaskResourceView);
 		this->gDeviceContext->PSSetShaderResources(3, 1, &this->GroundMaskRV);
@@ -377,14 +411,14 @@ void DX::Render(int pass, bool isPlayer)
 
 		if (isPlayer == true)
 		{
-			this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[3]);
-			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
+			this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[3]);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
 		}
 
 		if (isPlayer == false)
 		{
-			for (int i = 5; i < this->gVertexBufferArray_size; i++) {
+			for (int i = 6; i < this->gVertexBufferArray_size; i++) {
 				if (FBX.getMeshBoundingBox(i) == 0)
 				{
 					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
@@ -526,6 +560,33 @@ void DX::CreateShaders()
 	}
 
 	SAFE_RELEASE(pGS);
+
+	//#############################################################
+	//#						  Blur Shader						  #
+	//#############################################################
+	ID3DBlob* pCS = nullptr;
+	D3DCompileFromFile(
+		L"ComputeShader.hlsl",
+		nullptr,
+		nullptr,
+		"CS_main",
+		"cs_5_0",
+		0,
+		0,
+		&pCS,
+		&error
+	);
+
+	hr = this->gDevice->CreateComputeShader(pCS->GetBufferPointer(), pCS->GetBufferSize(), nullptr, &this->gBlurShader);
+
+	if (error)
+	{
+		OutputDebugStringA((char*)error->GetBufferPointer());
+	}
+
+	SAFE_RELEASE(pCS);
+	SAFE_RELEASE(error);
+
 
 	//#############################################################
 	//#						Fragment Shader						  #
@@ -807,9 +868,7 @@ void DX::menuControls()
 				this->flushGame();
 				this->menuMsg = false;
 				this->isStartMenu = true;
-				this->SM.stopSound(0);
-				this->SM.stopSound(1);
-				this->SM.stopSound(2);
+				this->SM.stopAllAmbient();
 			}
 		}
 	}
@@ -843,8 +902,7 @@ void DX::menuControls()
 				this->lTimePress = GetCurrentTime();
 				this->menuMsg = false;
 				this->isStartMenu = false;
-				this->SM.playSound(0);
-				this->SM.setVolume(0, 0.4f);
+				this->SM.playAllAmbient();
 			}
 		}
 	}
@@ -857,9 +915,7 @@ void DX::menuControls()
 				this->lTimePress = GetCurrentTime();
 				this->menuMsg = false;
 				this->isStartMenu = false;
-				this->SM.togglePauseSound(0, false);
-				this->SM.togglePauseSound(1, false);
-				this->SM.togglePauseSound(2, false);
+				this->SM.pauseAllAmbient(false);
 			}
 		}
 	}
@@ -876,8 +932,15 @@ void DX::renderMenu()
 
 	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
 	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
+	this->gDeviceContext->CSSetShader(this->gBlurShader, nullptr, 0);
 	this->gDeviceContext->PSSetShader(this->gMenuFragmentShader, nullptr, 0);
-	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[0]);
+
+	this->gDeviceContext->CSSetShaderResources(0, 1, &this->gTextureRTV[0]);
+
+	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->gBlurUAV, 0);
+
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[0]);
+	
 	this->gDeviceContext->PSSetSamplers(0, 1, &this->txSamplerState);
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->menuBuffer);
@@ -885,12 +948,12 @@ void DX::renderMenu()
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
 	this->gDeviceContext->Draw(6, 0);
 
-	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[1]);
-
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
-	this->gDeviceContext->Draw(36, 0);
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[1]);
 
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[1], &vertexSize, &offset);
+	this->gDeviceContext->Draw(36, 0);
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[2], &vertexSize, &offset);
 	this->gDeviceContext->Draw(36, 0);
 }
 void DX::renderInGameMenu()
@@ -906,7 +969,7 @@ void DX::renderInGameMenu()
 	this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
 	this->gDeviceContext->GSSetShader(this->gGeometryShader, nullptr, 0);
 	this->gDeviceContext->PSSetShader(this->gMenuFragmentShader, nullptr, 0);
-	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[0]);
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[0]);
 	this->gDeviceContext->PSSetSamplers(0, 1, &this->txSamplerState);  
 
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->menuBuffer);
@@ -914,12 +977,12 @@ void DX::renderInGameMenu()
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gMenuVertexArray, &vertexSize, &offset);
 	this->gDeviceContext->Draw(6, 0);
 
-	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gMenuRTV[2]);
-
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[2], &vertexSize, &offset);
-	this->gDeviceContext->Draw(36, 0);
+	this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[2]);
 
 	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[3], &vertexSize, &offset);
+	this->gDeviceContext->Draw(36, 0);
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
 	this->gDeviceContext->Draw(36, 0);
 }
 void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, ID3D11ShaderResourceView** &RTV)
@@ -931,6 +994,8 @@ void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, I
 	char temp2[256] = ".\\Assets\\Textures\\Menu\\Buttons_startMenu.jpg";
 	char temp3[256] = ".\\Assets\\Textures\\Menu\\Buttons_Pause_BG.jpg";
 	char temp4[256] = ".\\Assets\\Textures\\Models\\Merlin_Lowpoly.png";
+	char temp5[256] = ".\\Assets\\Textures\\Models\\ColorLookUp_Table.png";
+	
 
 	for (int i = 0; i < sizeof(temp1); i++)
 	{
@@ -980,6 +1045,18 @@ void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, I
 		return exit(-1);
 	}
 
+	for (int i = 0; i < sizeof(temp5); i++)
+	{
+		fileName[i] = temp5[i];
+	}
+
+	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, fileName, NULL, &RTV[4], NULL);
+
+	if (FAILED(hr))
+	{
+		return exit(-1);
+	}
+
 }
 
 void DX::printMatrices(objMatrices mat)
@@ -992,20 +1069,19 @@ void DX::printMatrices(objMatrices mat)
 	XMStoreFloat4x4(&v, mat.viewM);
 	XMStoreFloat4x4(&p, mat.projM);
 
-	cout << "New World: " << endl;
-
+	cout << "World: " << endl;
 	cout << w._11 << ", " << w._12 << ", " << w._13 << ", " << w._14 <<  endl;
 	cout << w._21 << ", " << w._22 << ", " << w._23 << ", " << w._24 << endl;
 	cout << w._31 << ", " << w._32 << ", " << w._33 << ", " << w._34 << endl;
 	cout << w._41 << ", " << w._42 << ", " << w._43 << ", " << w._44 << endl;
-	cout << "New View: " << endl;
+	cout << "View: " << endl;
 	cout << v._11 << ", " << v._12 << ", " << v._13 << ", " << v._14 << endl;
 	cout << v._21 << ", " << v._22 << ", " << v._23 << ", " << v._24 << endl;
 	cout << v._31 << ", " << v._32 << ", " << v._33 << ", " << v._34 << endl;
 	cout << v._41 << ", " << v._42 << ", " << v._43 << ", " << v._44 << endl;
-	cout << "New Proj: " << endl;
+	cout << "Proj: " << endl;
 	cout << p._11 << ", " << p._12 << ", " << p._13 << ", " << p._14 << endl;
 	cout << p._21 << ", " << p._22 << ", " << p._23 << ", " << p._24 << endl;
 	cout << p._31 << ", " << p._32 << ", " << p._33 << ", " << p._34 << endl;
 	cout << p._41 << ", " << p._42 << ", " << p._43 << ", " << p._44 << endl << endl;;
-}
+}  

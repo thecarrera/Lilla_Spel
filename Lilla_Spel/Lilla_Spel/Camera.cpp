@@ -33,7 +33,7 @@ void Camera::createCamera()
 	this->FOV = { 0.45f * DirectX::XM_PI };
 	this->ARO = (float)WIDTH / (float)HEIGHT;
 	this->nPlane = 0.1f;
-	this->fPlane = 200.0f;
+	this->fPlane = 500.0f;
 	 
 	DirectX::XMMATRIX worldM =
 	{ 1.0f, 0, 0, 0,

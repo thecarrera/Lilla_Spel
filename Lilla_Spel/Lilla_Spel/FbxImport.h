@@ -134,7 +134,7 @@ private:
 			{
 
 				is.read((char*)&data[count].meshes[i].strLength, sizeof(int));
-				std::cout << data[count].meshes[i].strLength << std::endl;
+				//std::cout << data[count].meshes[i].strLength << std::endl;
 
 				temp = new char[data[count].meshes[i].strLength];
 
@@ -144,7 +144,7 @@ private:
 
 				data[count].meshes[i].texturePath = temp;
 
-				std::cout << data[count].meshes[i].texturePath << std::endl;
+				//std::cout << data[count].meshes[i].texturePath << std::endl;
 
 				is.read((char*)&data[count].meshes[i].vertexCount, sizeof(int));
 				is.read((char*)&data[count].meshes[i].vertSize, sizeof(int));
@@ -153,9 +153,9 @@ private:
 
 				is.read((char*)data[count].meshes[i].vertices, data[count].meshes[i].vertSize);
 
-				std::cout << data[0].meshes[i].vertices[0].position[0] << std::endl;
-				std::cout << data[0].meshes[i].vertices[0].position[1] << std::endl;
-				std::cout << data[0].meshes[i].vertices[0].position[2] << std::endl;
+				//std::cout << data[0].meshes[i].vertices[0].position[0] << std::endl;
+				//std::cout << data[0].meshes[i].vertices[0].position[1] << std::endl;
+				//std::cout << data[0].meshes[i].vertices[0].position[2] << std::endl;
 
 				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int));
 				is.read((char*)&data[count].meshes[i].id, sizeof(int));
@@ -163,11 +163,11 @@ private:
 			}
 			is.close();
 
-			std::cout << data[count].meshes[0].texturePath << std::endl;
+			//std::cout << data[count].meshes[0].texturePath << std::endl;
 
 			this->BindDataToBuffer(gDevice, gBuffer, data[count]);
 
-			std::cout << data[0].meshes[0].vertices[0].position[0] << std::endl;
+			//std::cout << data[0].meshes[0].vertices[0].position[0] << std::endl;
 		}
 	};
 
@@ -215,7 +215,7 @@ public:
 		int sum = 0;
 
 
-		sum += data[0].meshes[4].vertexCount;
+		sum += data[0].meshes[5].vertexCount;
 
 		return sum;
 	}

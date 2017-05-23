@@ -33,14 +33,21 @@ public:
 	*/
 	void setVolume(int index, float volume); 
 	void stopSound(int index);
-	void togglePauseSound(int index, bool isPaused);
+	void togglePauseSound(int index, bool state);
+
+	void playAllAmbient();
+	void pauseAllAmbient(bool state);
+	void stopAllAmbient();
 
 	void createFMOD();
+	void loadSound();
 	void update();
 
 	void addReverb(int i); 
 	void expandReverb();
-	void addSound();
+	void placeReverbs();
+
+	void setListnerPos(FMOD_VECTOR pos);
 	
 	void Clean() { system->release(); };
 	

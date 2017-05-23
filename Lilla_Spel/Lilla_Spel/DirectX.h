@@ -71,6 +71,9 @@ private:
 
 	ID3D11GeometryShader* gGeometryShader = nullptr;
 
+	ID3D11ComputeShader* gBlurShader = nullptr;
+	ID3D11UnorderedAccessView* gBlurUAV = nullptr;
+
 	ID3D11PixelShader* gFragmentShader = nullptr;
 	ID3D11PixelShader* gMenuFragmentShader = nullptr;
 
@@ -95,8 +98,8 @@ private:
 	//ID3D11Buffer* shaderBuffer = nullptr;
 	ID3D11SamplerState* txSamplerState = nullptr;
 
-	ID3D11ShaderResourceView* gTextureRTV = nullptr;
-	ID3D11ShaderResourceView** gMenuRTV = nullptr;
+	ID3D11ShaderResourceView** gTextureRTV = nullptr;
+	int textureCount = 0;
 
 	Camera* camera = nullptr;
 	Player* player = nullptr;

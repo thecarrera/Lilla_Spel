@@ -77,7 +77,6 @@ float4 FS_main(FS_IN input) : SV_Target
 	
 			sum += txShadow.SampleCmpLevelZero(BlurSamp, input.lPos.xy + texOffset(x, y), shadowDepth);
 		}
-	
 	}
 
 	float diffuse = dot(lightDir, input.Norm.xyz);
@@ -87,6 +86,7 @@ float4 FS_main(FS_IN input) : SV_Target
 	float spec = dot(r, -input.wPos.xyz);
 
 	float2 uv = input.uv;
+	uv.y = 1 - uv.y;
 
 	float3 tex = txDiffuse.Sample(sampAni, uv).xyz;
 
@@ -102,7 +102,7 @@ float4 FS_main(FS_IN input) : SV_Target
 	//return mask;
 	//return input.lPos;
 	//return float4(shadowFactor, shadowFactor, shadowFactor, 1);
-	//return float4(input.uv, 1.0f);
+	//return float4(uv, 0.0f, 1.0f);
 	//return input.wPos;
 	//return float4(input.Norm, 1.0);
 	//return float4(diff, 1.0f);
