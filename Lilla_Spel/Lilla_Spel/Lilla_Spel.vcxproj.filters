@@ -72,13 +72,7 @@
     <ClInclude Include="InputFileReader.hpp">
       <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
     </ClInclude>
-    <ClInclude Include="OBJLoader.hpp">
-      <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
-    </ClInclude>
     <ClInclude Include="TriangleData.h">
-      <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
-    </ClInclude>
-    <ClInclude Include="Vertex.h">
       <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
     </ClInclude>
     <ClInclude Include="DirectX.h">
@@ -115,6 +109,18 @@
       <Filter>Header Files\Sub Resources\Sound</Filter>
     </ClInclude>
     <ClInclude Include="FbxImport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FBXLoader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Skeleton.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OBJLoader.hpp">
+      <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
