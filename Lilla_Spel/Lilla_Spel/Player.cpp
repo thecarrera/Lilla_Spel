@@ -34,7 +34,8 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 		
 		XMMATRIX worldM = matrices.worldM;
 		DirectX::XMStoreFloat4x4(&CurrentMat, worldM);
-		DirectX::XMStoreFloat4x4(&LastMat, lastWorld);
+		XMMATRIX lastWorldM = lastWorld;
+		DirectX::XMStoreFloat4x4(&LastMat, lastWorldM);
 
 		LastMat._24 = CurrentMat._24;
 
@@ -51,34 +52,42 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 		if (GetAsyncKeyState(0x57)) //w
 		{
 			lastKeyPressed = 0;
-			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
+			XMMATRIX worldM = this->matrices.worldM;
+			this->matrices.worldM = worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f)));
 
-			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f));
+			XMMATRIX viewM = lMatrix.viewM;
+			lMatrix.viewM = viewM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f));
 		}
 
 		if (GetAsyncKeyState(0x53))	//s
 		{
 			lastKeyPressed = 1;
-			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, 0.0f, -0.2f));	
+			XMMATRIX worldM = this->matrices.worldM;
+			this->matrices.worldM = worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, 0.0f, -0.2f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f)));
-			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
+			XMMATRIX viewM = lMatrix.viewM;
+			lMatrix.viewM = viewM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
 		}
 
 		if (GetAsyncKeyState(0x41))	//a
 		{
 			lastKeyPressed = 2;
-			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f));
+			XMMATRIX worldM = this->matrices.worldM;
+			this->matrices.worldM = worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f)));
-			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
+			XMMATRIX viewM = lMatrix.viewM;
+			lMatrix.viewM = viewM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
 	  }
 
 		if (GetAsyncKeyState(0x44))	//d
 		{
 			lastKeyPressed = 3;
-			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
+			XMMATRIX worldM = this->matrices.worldM;
+			this->matrices.worldM = worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f)));
-			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, -0.0f));
+			XMMATRIX viewM = lMatrix.viewM;
+			lMatrix.viewM = viewM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, -0.0f));
 		}
 
 	}
@@ -101,7 +110,8 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 						lTimePress = GetCurrentTime();
 					}
 					camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -5.0f, 0.0f)));
-					this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 10.0f, 0.0f));
+					XMMATRIX worldM = this->matrices.worldM;
+					this->matrices.worldM = worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 10.0f, 0.0f));
 				}
 				else
 				{
@@ -112,9 +122,12 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 						SM.setVolume(6, 1.4f);
 						lTimePress = GetCurrentTime();
 					}
-					if (collisionData[0].collisionType != 1)
+					if (collisionData[0].collisionType != 1) {
 						camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 5.0f, 0.0f)));
-						this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -10.0f, 0.0f));
+						// WAS OUTSIDE IF STATEMENT BEFORE, PRESUMED MISTAKE AND MOVED INSIDE
+						XMMATRIX worldM = this->matrices.worldM;
+						this->matrices.worldM = worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -10.0f, 0.0f));
+					}
 				}
 			}
 		}
@@ -140,7 +153,8 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 		{
 			flyingUp = false;
 		}
-		this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(velocity.x, -velocity.y, velocity.z));
+		XMMATRIX worldM = this->matrices.worldM;
+		this->matrices.worldM = worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(velocity.x, -velocity.y, velocity.z));
 		if (tButtonPress - lTimePress >= 200)
 		{
 			SM.playSound(5);
