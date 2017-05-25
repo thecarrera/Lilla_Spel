@@ -32,7 +32,8 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 		
 		DirectX::XMFLOAT4X4 CurrentMat, LastMat;
 		
-		DirectX::XMStoreFloat4x4(&CurrentMat, matrices.worldM);
+		XMMATRIX worldM = matrices.worldM;
+		DirectX::XMStoreFloat4x4(&CurrentMat, worldM);
 		DirectX::XMStoreFloat4x4(&LastMat, lastWorld);
 
 		LastMat._24 = CurrentMat._24;
@@ -152,7 +153,8 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 
 	DirectX::XMFLOAT4X4 tempWorldMat;
 	FMOD_VECTOR tempPlayerPos;
-	DirectX::XMStoreFloat4x4(&tempWorldMat, this->matrices.worldM);
+	XMMATRIX worldM = this->matrices.worldM;
+	DirectX::XMStoreFloat4x4(&tempWorldMat, worldM);
 	tempPlayerPos.x = tempWorldMat._14;
 	tempPlayerPos.y = tempWorldMat._24;
 	tempPlayerPos.y = tempWorldMat._34;
@@ -197,7 +199,8 @@ void Player::getPosition(XMFLOAT4 & pos)
 {
 	XMFLOAT4X4 temp;
 
-	XMStoreFloat4x4(&temp, matrices.worldM);
+	XMMATRIX worldM = matrices.worldM;
+	XMStoreFloat4x4(&temp, worldM);
 
 	pos.x = temp._14;
 	pos.z = temp._34;

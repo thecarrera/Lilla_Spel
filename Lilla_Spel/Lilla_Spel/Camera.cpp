@@ -71,7 +71,8 @@ void Camera::setCameraMatrices(objMatrices& cameraMatrices)
 
 void Camera::move(DirectX::XMMATRIX& temp)
 {
-	this->cameraMatrices.viewM *= temp;
+	XMMATRIX viewM = this->cameraMatrices.viewM;
+	this->cameraMatrices.viewM = viewM * temp;
 }
 void Camera::setCameraPos(DirectX::XMFLOAT3 cameraPos)
 {
