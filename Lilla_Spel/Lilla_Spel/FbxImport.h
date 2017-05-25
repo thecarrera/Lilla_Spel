@@ -9,11 +9,11 @@
 class FBXImport
 {
 public:
-	struct Vertex {
-		float position[3];
-		float uv[2];
-		float normal[3];
-	};
+	//struct Vertex {
+	//	float position[3];
+	//	float uv[2];
+	//	float normal[3];
+	//};
 
 	class Mesh {
 	public:
@@ -86,11 +86,11 @@ private:
 
 			this->totalSumMeshes += FBX.meshCount;
 		}
-		else 
+		else
 		{
-		gVertexBufferArray = new ID3D11Buffer*[FBX.meshCount];
+			gVertexBufferArray = new ID3D11Buffer*[FBX.meshCount];
 
-		this->totalSumMeshes += FBX.meshCount;
+			this->totalSumMeshes += FBX.meshCount;
 		}
 
 		for (int i = 0; i < FBX.meshCount; i++)

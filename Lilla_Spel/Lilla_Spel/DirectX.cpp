@@ -125,40 +125,45 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 }
 void DX::createMenu()
 {
-	struct Vertex
-	{
-		float pos[3];
-		float uv[2];
-		float normal[3];
-	};
+	//struct Vertex
+	//{
+	//	float pos[3];
+	//	float uv[2];
+	//	float normal[3];
+	//};
 
-	Vertex verticies[66] = 
-	{
+	//Background
+	Vertex verticies[6];
 
-		//Background
+	verticies[0] = {
 		-40.0f, 0.0f, 32.0f,			//Position
 		0.0f, 0.0f,						//uv
-		0.0f, 1.0f, 0.0f,				//Normal
-
+		0.0f, 1.0f, 0.0f				//Normal
+	};
+	verticies[1] = {
 		40.0f, 0.0f, -32.0f,			//Position
 		1.0f, 1.0f,						//uv
-		0.0f, 1.0f, 0.0f,				//Normal
-
+		0.0f, 1.0f, 0.0f				//Normal
+	};
+	verticies[2] = {
 		-40.0f, 0.0f, -32.0f,			//Position
 		0.0f, 1.0f,						//uv
-		0.0f, 1.0f, 0.0f,				//Normal
-
-		-40.0f, 0.0f, 32.0f,				//Position
+		0.0f, 1.0f, 0.0f				//Normal
+	};
+	verticies[3] = {
+		-40.0f, 0.0f, 32.0f,			//Position
 		0.0f, 0.0f,						//uv
-		0.0f, 1.0f, 0.0f,				//Normal
-
+		0.0f, 1.0f, 0.0f				//Normal
+	};
+	verticies[4] = {
 		40.0f, 0.0f, 32.0f,				//Position
 		1.0f, 0.0f,						//uv
-		0.0f, 1.0f, 0.0f,				//Normal
-
+		0.0f, 1.0f, 0.0f				//Normal
+	};
+	verticies[5] = {
 		40.0f, 0.0f, -32.0f,			//Position
 		1.0f, 1.0f,						//uv
-		0.0f, 1.0f, 0.0f,				//Normal
+		0.0f, 1.0f, 0.0f				//Normal
 	};
 
 	DirectX::XMVECTOR cameraPosVec = { 0, 50, 0 };
@@ -196,7 +201,7 @@ void DX::createMenu()
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = sizeof(Vertex) * 36;// fill
+	bufferDesc.ByteWidth = sizeof(Vertex) * 6;// fill
 
 	D3D11_SUBRESOURCE_DATA data;
 	ZeroMemory(&data, sizeof(data));
@@ -320,7 +325,7 @@ void DX::SetViewport()
 void DX::Render(int pass, bool isPlayer) 
 {	
 
-	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 vertexSize = sizeof(Vertex);
 	UINT32 offset = 0;
 	if (pass == 0) 
 	{
@@ -431,7 +436,7 @@ void DX::Render(int pass, bool isPlayer)
 }
 void DX::clearRender()
 {
-	float clearColor[] = { 0.0f, 1.0f, 0.0f, 1.f };
+	float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.f };
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -468,7 +473,23 @@ void DX::CreateShaders()
 	D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
 		{ "SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "INT", 0, DXGI_FORMAT_R32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "INT", 1, DXGI_FORMAT_R32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "INT", 2, DXGI_FORMAT_R32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "INT", 3, DXGI_FORMAT_R32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "INT", 4, DXGI_FORMAT_R32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "INT", 5, DXGI_FORMAT_R32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "INT", 6, DXGI_FORMAT_R32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "INT", 7, DXGI_FORMAT_R32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "FLOAT", 0, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "FLOAT", 1, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "FLOAT", 2, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "FLOAT", 3, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "FLOAT", 4, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "FLOAT", 5, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "FLOAT", 6, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "FLOAT", 7, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 
@@ -922,7 +943,7 @@ void DX::menuControls()
 }
 void DX::renderMenu()
 {
-	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 vertexSize = sizeof(Vertex);
 	UINT32 offset = 0;
 
 	this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
@@ -958,7 +979,7 @@ void DX::renderMenu()
 }
 void DX::renderInGameMenu()
 {
-	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 vertexSize = sizeof(Vertex);
 	UINT32 offset = 0;
 
 	this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);

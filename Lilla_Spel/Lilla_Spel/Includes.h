@@ -16,10 +16,11 @@
 
 #include "ShadowMapping.h"
  
+#include "Vertex.h"
 #include "TriangleData.h"
+#include "Skeleton.hpp"
 #include "Collision.h"
 #include "FbxImport.h"
-
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
