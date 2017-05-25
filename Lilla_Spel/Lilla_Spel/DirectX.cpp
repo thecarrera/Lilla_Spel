@@ -325,7 +325,7 @@ void DX::SetViewport()
 void DX::Render(int pass, bool isPlayer) 
 {	
 
-	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 vertexSize = sizeof(Vertex);
 	UINT32 offset = 0;
 	if (pass == 0) 
 	{
@@ -943,7 +943,7 @@ void DX::menuControls()
 }
 void DX::renderMenu()
 {
-	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 vertexSize = sizeof(Vertex);
 	UINT32 offset = 0;
 
 	this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
@@ -979,7 +979,7 @@ void DX::renderMenu()
 }
 void DX::renderInGameMenu()
 {
-	UINT32 vertexSize = sizeof(float) * 8;
+	UINT32 vertexSize = sizeof(Vertex);
 	UINT32 offset = 0;
 
 	this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
