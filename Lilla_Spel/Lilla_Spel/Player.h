@@ -31,8 +31,8 @@ public:
 	~Player();
 	
 	void move(Camera* &camera, CollisionData* collision, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices& lMatrix, SoundManager& SM);
-	void initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj);
-	void setMatrices(objMatrices all);
+	void initiateMatrices(DirectX::XMMATRIX& world, DirectX::XMMATRIX& view, DirectX::XMMATRIX& proj);
+	void setMatrices(objMatrices& all);
 	objMatrices getMatrices()const;
 
 	bool getIsDigging() const;

@@ -25,9 +25,9 @@ public:
 	void updateCamera();
 
 	objMatrices getCameraMatrices()const;
-	void setCameraMatrices(objMatrices cameraMatrices);
+	void setCameraMatrices(objMatrices& cameraMatrices);
 
-	void move(DirectX::XMMATRIX temp);
+	void move(DirectX::XMMATRIX& temp);
 
 	void setCameraPos(DirectX::XMFLOAT3 cameraPos);
 
@@ -37,5 +37,5 @@ public:
 	void flushGame();
 
 
-	void setView(XMMATRIX view);
+	void setView(XMMATRIX& view);
 };

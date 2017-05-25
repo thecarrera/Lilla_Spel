@@ -160,13 +160,13 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 	SM.setListnerPos(tempPlayerPos);
 }
 
-void Player::initiateMatrices(DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj)
+void Player::initiateMatrices(DirectX::XMMATRIX& world, DirectX::XMMATRIX& view, DirectX::XMMATRIX& proj)
 {
 	this->matrices.worldM = world;
 	this->matrices.viewM = view;
 	this->matrices.projM = proj;
 }
-void Player::setMatrices(objMatrices all)
+void Player::setMatrices(objMatrices& all)
 {
 	this->matrices.worldM = all.worldM;
 	this->matrices.viewM = all.viewM;

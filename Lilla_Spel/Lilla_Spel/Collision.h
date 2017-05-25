@@ -75,7 +75,7 @@ public:
 
 	// This calculates collisions with bounding boxes and stores it in cData. 
 	// cData is an array of 2 where 0 is for collider data and 1 is for trigger data
-	CollisionData* calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging);
+	CollisionData* calculateCollisionData(XMMATRIX& playerWorldMatrix, bool isDigging);
 
 	// Returns the cData variable to access the collision data
 	CollisionData* getCollisionData();

@@ -119,7 +119,7 @@ Collision::~Collision()
 {
 }
 
-CollisionData* Collision::calculateCollisionData(XMMATRIX playerWorldMatrix, bool isDigging)
+CollisionData* Collision::calculateCollisionData(XMMATRIX& playerWorldMatrix, bool isDigging)
 {
 	int colCount = 0;
 	int triggerCount = 0;

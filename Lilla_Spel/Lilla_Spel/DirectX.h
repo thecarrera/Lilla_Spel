@@ -50,7 +50,7 @@ public:
 	void Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, ID3D11ShaderResourceView** &RTV);
 
 	float degreeToRadians(float x) { return x*(XM_PI / 180); };
-	void printMatrices(objMatrices mat);
+	void printMatrices(objMatrices& mat);
 
 private:
 	ID3D11Device* gDevice = nullptr;

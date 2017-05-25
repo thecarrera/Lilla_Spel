@@ -1059,7 +1059,7 @@ void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, I
 
 }
 
-void DX::printMatrices(objMatrices mat)
+void DX::printMatrices(objMatrices& mat)
 {
 	XMFLOAT4X4 w;
 	XMFLOAT4X4 v;

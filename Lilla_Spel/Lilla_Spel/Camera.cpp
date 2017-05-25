@@ -16,8 +16,8 @@ void Camera::flushGame()
 
 void Camera::createCamera()
 {
-	this->cameraPos = { 0, 25, -20 };	// y 50% större än z ger bra-ish
-	this->lookAt = { 0, -1, 1 };		// lookAT vill vi ska vara på origo, där spelaren är
+	this->cameraPos = { 0, 25, -20 };	// y 50% stï¿½rre ï¿½n z ger bra-ish
+	this->lookAt = { 0, -1, 1 };		// lookAT vill vi ska vara pï¿½ origo, dï¿½r spelaren ï¿½r
 	this->upVec = { 0, 1, 0 };
 
 	DirectX::XMVECTOR cameraPosVec = DirectX::XMLoadFloat3(&this->cameraPos);
@@ -64,12 +64,12 @@ objMatrices Camera::getCameraMatrices()const
 {
 	return this->cameraMatrices;
 }
-void Camera::setCameraMatrices(objMatrices cameraMatrices)
+void Camera::setCameraMatrices(objMatrices& cameraMatrices)
 {
 	this->cameraMatrices = cameraMatrices;
 }
 
-void Camera::move(DirectX::XMMATRIX temp)
+void Camera::move(DirectX::XMMATRIX& temp)
 {
 	this->cameraMatrices.viewM *= temp;
 }
@@ -78,7 +78,7 @@ void Camera::setCameraPos(DirectX::XMFLOAT3 cameraPos)
 	this->cameraPos = cameraPos;
 }
 
-void Camera::setView(XMMATRIX view)
+void Camera::setView(XMMATRIX& view)
 {
 	this->cameraMatrices.viewM = view;
 }
