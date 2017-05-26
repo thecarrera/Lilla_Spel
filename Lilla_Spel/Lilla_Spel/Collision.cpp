@@ -1,7 +1,7 @@
 #include "Collision.h"
 #include <mutex>
 
-once_flag flag;
+once_flag flag, flag2, flag3, flag4;
 
 
 Collision::Collision() {
@@ -140,7 +140,6 @@ CollisionData* Collision::calculateCollisionData(XMMATRIX playerWorldMatrix, boo
 		if (isDigging && m_BoundingBox[i].collisionAbove)
 		{
 			if (m_BoundingBox[i].isCollidingWithPlayer) {
-				cout << "Collision. i is: " << i << endl;
 				cData[eCollider].collisionType = 1;
 				colCount++;
 			}
@@ -204,7 +203,7 @@ void Collision::removeBoundingBox(int id)
 
 	for (int i = 0; i < bbCount; i++)
 	{
-		cout << "id: " << " index: " << i << " " << m_BoundingBox[i].getId() << " Coltype: " << m_BoundingBox[i].getCollisionType() << endl;
+		//cout << "id: " << " index: " << i << " " << m_BoundingBox[i].getId() << " Coltype: " << m_BoundingBox[i].getCollisionType() << endl;
 	}
 
 
@@ -230,7 +229,6 @@ void Collision::disableBoundingBox(int id)
 	{
 		if (m_BoundingBox[i].getId() == id)
 		{
-			m_BoundingBox[i].setOriginalColType(m_BoundingBox[i].getCollisionType());
 			m_BoundingBox[i].setCollisionType(0);
 		}
 	}
@@ -265,42 +263,191 @@ void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
 /*****************************************************************************************/
 /*****************************************************************************************/
 
-void InteractiveCollision::test(CollisionData* collisionData, Collision& col)
+void InteractiveCollision::test(CollisionData* collisionData, Collision& col, float posX)
 {
+	//cout << posX << endl;
 
-	// Check for the pressure plate collision
-	if (collisionData[eTrigger].id == 2) {
-		m_pressurePlate[__id__(2)].togglePressurePlate();
-		//cout << "pressure plate with id " << m_pressurePlate[__id__(2)].getId() << endl;
-	}
-	else if (E && __id == 0) {
-			m_lever[__id__(0)].activateLever();
-	}
-
-
-	if (m_lever[__id__(0)].getLeverOnOffState())
+	if (posX > 0 && posX < 100 )
 	{
-		// turn off boundingbox based on id 
-		call_once(flag, [&]() { col.removeBoundingBox(1); }
-		);		
+		cout << "Level 1" << endl;
+		// Check for the pressure plate collision
+		if (collisionData[eTrigger].id == 2) {
+			m_pressurePlate[__id__(2)].togglePressurePlate();
+			//cout << "pressure plate with id " << m_pressurePlate[__id__(2)].getId() << endl;
+		}
+		else if (E && __id == 0) {
+				m_lever[__id__(0)].activateLever();
+		}
+
+
+		if (m_lever[__id__(0)].getLeverOnOffState())
+		{
+			// turn off boundingbox based on id 
+			call_once(flag, [&]() { col.removeBoundingBox(1); }
+			);		
+		}
+
+		if (m_pressurePlate[__id__(2)].getPressurePlateData().toggled)
+		{
+			//cout << "pressureplate toggled" << endl;
+			col.disableBoundingBox(3);
+		}
+		else
+		{
+			col.enableBoundingBox(3);
+		}
+
+		//if (m_pressurePlate[__id__(2)].getPressurePlateData().active && !m_pressurePlate[__id__(2)].getPressurePlateData().ticking) {
+		//	col.disableBoundingBox(3);
+		//}
+		//else {
+		//	//col.enableBoundingBox(3);
+		//}
+
 	}
 
-	if (m_pressurePlate[__id__(2)].getPressurePlateData().toggled)
+	// Level 2
+	if (posX > 100 && posX < 300)
 	{
-		//cout << "pressureplate toggled" << endl;
-		col.disableBoundingBox(3);
-	}
-	else
-	{
-		col.enableBoundingBox(3);
+		cout << "Level 2" << endl;
+		if (E && __id == 4)
+		{
+			m_lever[__id__(4)].activateLever();
+		}
+		if (E && __id == 17)
+		{
+			m_lever[__id__(17)].activateLever();
+		}
+		if (E && __id == 7)
+		{
+			m_lever[__id__(7)].activateLever();
+		}
+		if (E && __id == 18)
+		{
+			m_lever[__id__(18)].activateLever();
+		}
+
+
+		if (m_lever[__id__(4)].getLeverOnOffState())
+		{
+			col.disableBoundingBox(5);
+		}
+		else {
+			col.enableBoundingBox(5);
+		}
+
+		if (m_lever[__id__(17)].getLeverOnOffState())
+		{
+			col.disableBoundingBox(8);
+		}
+		else {
+			col.enableBoundingBox(8);
+		}
+
+		if (m_lever[__id__(7)].getLeverOnOffState())
+		{
+			col.disableBoundingBox(6);
+		}
+		else {
+			col.enableBoundingBox(6);
+		}
+
+		if (m_lever[__id__(18)].getLeverOnOffState())
+		{
+			col.disableBoundingBox(9);
+		}
+		else {
+			col.enableBoundingBox(9);
+		}
+
+		if (collisionData[eTrigger].id == 10) {
+			m_pressurePlate[__id__(10)].togglePressurePlate();
+		}
+
+		if (m_pressurePlate[__id__(10)].getPressurePlateData().toggled)
+		{
+		
+			col.disableBoundingBox(11);
+		}
+		else
+		{
+			col.enableBoundingBox(11);
+		}
+
 	}
 
-	//if (m_pressurePlate[__id__(2)].getPressurePlateData().active && !m_pressurePlate[__id__(2)].getPressurePlateData().ticking) {
-	//	col.disableBoundingBox(3);
-	//}
-	//else {
-	//	//col.enableBoundingBox(3);
-	//}
+	// Statues
+	if (posX > 500 && posX < 700)
+	{
+		cout << "Level 3" << endl;
+
+		if (E && __id == 12)
+		{
+			m_lever[__id__(12)].activateLever();
+		}
+		if (E && __id == 13)
+		{
+			m_lever[__id__(13)].activateLever();
+		}
+		if (E && __id == 14)
+		{
+			m_lever[__id__(14)].activateLever();
+		}
+		if (E && __id == 15)
+		{
+			m_lever[__id__(15)].activateLever();
+		}
+
+		if (m_lever[__id__(12)].getLeverOnOffState() && m_lever[__id__(13)].getLeverOnOffState() && !m_lever[__id__(14)].getLeverOnOffState() && m_lever[__id__(15)].getLeverOnOffState())
+		{
+			call_once(flag2, [&]() { col.removeBoundingBox(16); /* TEMP REMOVE SOON! -->*/ col.removeBoundingBox(44); }
+			);
+		}
+
+	}
+
+
+	// Level 4
+
+	if (posX > 1100 && posX < 1500)
+	{
+
+		// toggles
+		if (collisionData[eTrigger].id == 47 )
+		{
+			m_pressurePlate[__id__(47)].setActiveTime(30000);
+			m_pressurePlate[__id__(47)].activatePressurePlate();
+		}
+
+		if (collisionData[eTrigger].id == 46)
+		{
+			m_pressurePlate[__id__(46)].setActiveTime(25000);
+			m_pressurePlate[__id__(46)].activatePressurePlate();
+		}
+
+		if (collisionData[eTrigger].id == 45)
+		{
+			m_pressurePlate[__id__(45)].setActiveTime(20000);
+			m_pressurePlate[__id__(45)].activatePressurePlate();
+		}
+
+		if (collisionData[eTrigger].id == 48)
+		{
+			m_pressurePlate[__id__(48)].setActiveTime(15000);
+			m_pressurePlate[__id__(48)].activatePressurePlate();
+		}
+
+
+
+		// Checks
+		if (m_pressurePlate[__id__(47)].getPressurePlateData().ticking && m_pressurePlate[__id__(46)].getPressurePlateData().ticking && m_pressurePlate[__id__(45)].getPressurePlateData().ticking && m_pressurePlate[__id__(48)].getPressurePlateData().ticking)
+		{
+			call_once(flag3, [&]() { col.disableBoundingBox(49); }
+			);
+		}
+
+
+	}
 
 }
 int InteractiveCollision::getIndexById(int id)
@@ -335,7 +482,6 @@ InteractiveCollision::InteractiveCollision(FBXImport::Mesh* &meshes, int meshCou
 
 
 	int ppCount = 0;
-	// Hardcoded for now
 	for (int i = 0; i < meshCount; i++)
 	{
 		if (meshes[i].customAttribute == 4)
@@ -345,11 +491,9 @@ InteractiveCollision::InteractiveCollision(FBXImport::Mesh* &meshes, int meshCou
 			index_by_id[meshes[i].id] = ppCount;
 			ppCount++;
 		}
-
 	}
 
 	int lCount = 0;
-	// Hardcoded for now
 	for (int i = 0; i < meshCount; i++)
 	{
 		if (meshes[i].customAttribute == 5)
@@ -359,7 +503,6 @@ InteractiveCollision::InteractiveCollision(FBXImport::Mesh* &meshes, int meshCou
 			index_by_id[meshes[i].id] = lCount;
 			lCount++;
 		}
-
 	}
 }
 

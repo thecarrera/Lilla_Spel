@@ -135,7 +135,7 @@ private:
 			{
 
 				is.read((char*)&data[count].meshes[i].strLength, sizeof(int));
-				std::cout << data[count].meshes[i].strLength << std::endl;
+				//std::cout << data[count].meshes[i].strLength << std::endl;
 
 				temp = new char[data[count].meshes[i].strLength];
 
@@ -152,20 +152,24 @@ private:
 
 				is.read((char*)data[count].meshes[i].vertices, data[count].meshes[i].vertSize);
 
-				std::cout << data[0].meshes[i].vertices[0].position[0] << std::endl;
+				//std::cout << data[0].meshes[i].vertices[0].position[0] << std::endl;
 
 
 				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int));
+				if (data[count].meshes[i].customAttribute > 0 )
+				{
+					int x = 23;
+				}
 				is.read((char*)&data[count].meshes[i].id, sizeof(int));
 
 			}
 			is.close();
 
-			std::cout << data[count].meshes[0].texturePath << std::endl;
+			//std::cout << data[count].meshes[0].texturePath << std::endl;
 
 			this->BindDataToBuffer(gDevice, gBuffer, data[count]);
 
-			std::cout << data[0].meshes[0].vertices[0].position[0] << std::endl;
+			//std::cout << data[0].meshes[0].vertices[0].position[0] << std::endl;
 		}
 	};
 
@@ -208,12 +212,12 @@ public:
 		this->loadModel(fileDir, gDevice, gVertexBufferArray, fileCount - 1);
 	};
 
-	int getPlayerSumVertices()
+	int getPlayerSumVertices(int index)
 	{
 		int sum = 0;
 
 
-		sum += data[0].meshes[4].vertexCount;
+		sum += data[0].meshes[index].vertexCount;
 
 		return sum;
 	}

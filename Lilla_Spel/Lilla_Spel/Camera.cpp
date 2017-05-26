@@ -53,7 +53,7 @@ void Camera::updateCamera()
 	DirectX::XMVECTOR mRightVec = DirectX::XMLoadFloat3(&this->mRight);
 
 
-	DirectX::XMMATRIX viewM = DirectX::XMMatrixLookAtLH(cameraPosVec, lookAtVec, upVecVec);
+	DirectX::XMMATRIX viewM = DirectX::XMMatrixLookToLH(cameraPosVec, lookAtVec, upVecVec);
 	
 	DirectX::XMMATRIX projM = DirectX::XMMatrixPerspectiveFovLH(FOV, ARO, nPlane, fPlane);
 

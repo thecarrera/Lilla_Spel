@@ -58,7 +58,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import("test.gay", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import("New_.trump", this->gDevice, this->gVertexBufferArray);
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	this->player = new Player();
@@ -142,7 +142,7 @@ void DX::createMenu()
 	DirectX::XMMATRIX worldM = DirectX::XMMatrixIdentity();
 
 	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookToLH(cameraPosVec, lookAtVec, upVecVec));
-	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixOrthographicLH(800.0f * factor , 640.0f * factor, nPlane, fPlane));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixOrthographicLH(1920.0f * factor , 1080.0f * factor, nPlane, fPlane));
 
 	this->menuMats.worldM = worldM;
 	this->menuMats.viewM = viewM;
@@ -187,7 +187,7 @@ void DX::Update()
 
 		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test);
 
-		interactiveCol.test(col.getCollisionData(), col);
+		interactiveCol.test(col.getCollisionData(), col, player->getPositionX());
 
 
 		this->updatePlayerConstantBuffer(); //annars ser inte rör
@@ -217,7 +217,7 @@ void DX::Update()
 		this->menuControls();
 		this->renderInGameMenu();
 	}
-	this->gSwapChain->Present(1, 0);
+	this->gSwapChain->Present(0, 0);
 }
 
 void DX::CreateDirect3DContext(HWND* wndHandle)
@@ -329,13 +329,13 @@ void DX::Render(int pass, bool isPlayer)
 
 		if (isPlayer == true)
 		{
-			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
-			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
+			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(0), 0);
 		}
 
 		if (isPlayer == false)
 		{
-			for (int i = 5; i < this->gVertexBufferArray_size; i++) {
+			for (int i = 1; i < this->gVertexBufferArray_size; i++) {
 				if (FBX.getMeshBoundingBox(i) == 0)
 				{
 					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
@@ -374,17 +374,21 @@ void DX::Render(int pass, bool isPlayer)
 
 		if (isPlayer == true)
 		{
-			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[4], &vertexSize, &offset);
-			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[0], &vertexSize, &offset);
+			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(0), 0);
 		}
 
 		if (isPlayer == false)
 		{
-			for (int i = 5; i < this->gVertexBufferArray_size; i++) {
+			for (int i = 1; i < this->gVertexBufferArray_size; i++) {
 				if (FBX.getMeshBoundingBox(i) == 0)
 				{
-					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+					if (true/*FBX.getMeshes()[i].id == -200 || FBX.getMeshes()[i].id == -100*/)
+					{
+						this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+						this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+
+					}
 				}
 			}
 		}
@@ -393,7 +397,7 @@ void DX::Render(int pass, bool isPlayer)
 }
 void DX::clearRender()
 {
-	float clearColor[] = { 0.0f, 1.0f, 0.0f, 1.f };
+	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.f };
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -678,7 +682,7 @@ void DX::updatePlayerConstantBuffer() //med player matriser
 {
 
 	TEMP.worldM = this->player->getMatrices().worldM;
-	TEMP.viewM = camera->getCameraMatrices().viewM;
+	TEMP.viewM = player->getMatrices().viewM;
 	TEMP.projM = camera->getCameraMatrices().projM;
 
 	objMatrices playerMatrices = TEMP; //this->player->getMatrices();
@@ -750,7 +754,7 @@ void DX::createLightCaster()
 	player->getPositionVec(lookTo);
 	
 	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(XMVECTOR{lMatrix.lightPos.x,lightPos.y,lightPos.z,lightPos.w}, lookTo, upVec));
-	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.70, 800.0/640.0, 0.1f, 100.0f));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.70, 1920.0/1080.0, 0.1f, 100.0f));
 
 	this->lMatrix.worldM = worldM;
 	this->lMatrix.viewM = viewM;

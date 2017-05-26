@@ -121,7 +121,7 @@ private:
 	int leverCount = 0;
 public:
 
-	void test(CollisionData *collisionData, Collision& col);
+	void test(CollisionData *collisionData, Collision& col, float posX);
 
 	int getIndexById(int id);
 

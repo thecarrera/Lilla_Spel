@@ -21,11 +21,7 @@ private:
 	time_t timeWhenBurrowed;
 	int burrowCD;
 
-	int lastKeyPressed = -1;
-	bool canPressW = true;
-	bool canPressS = true;
-	bool canPressA = true;
-	bool canPressD = true;
+
 public:
 	Player();
 	~Player();
@@ -38,7 +34,7 @@ public:
 	bool getIsDigging() const;
 
 	void getPosition(XMFLOAT4& pos);
-
+	float getPositionX();
 	void getPositionVec(XMVECTOR& pos);
 
 	void flushGame();

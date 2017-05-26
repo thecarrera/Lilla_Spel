@@ -38,4 +38,5 @@ public:
 
 
 	void setView(XMMATRIX view);
+	//void setLookAt();
 };

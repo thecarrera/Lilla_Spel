@@ -7,7 +7,7 @@ Player::Player()
 	this->digging = false;
 
 	this->currentTime = GetCurrentTime();
-	this->burrowCD = 3000;
+	this->burrowCD = 1000;
 	this->timeWhenBurrowed = 0;
 }
 Player::~Player()
@@ -15,8 +15,27 @@ Player::~Player()
 }
 
 void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices &lMatrix)
-
 {
+
+	if (GetAsyncKeyState(0x54))
+	{
+		XMFLOAT4X4 temp;
+		XMStoreFloat4x4(&temp, matrices.worldM);
+
+		temp._14 = 1100;
+		temp._34 = 35;
+
+		matrices.worldM = XMLoadFloat4x4(&temp);
+
+		XMFLOAT3 pos = { 1100, 25, 10 };
+
+		camera->setCameraPos(pos);
+	
+		camera->updateCamera();
+	}
+
+
+
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
 	{
 		tButtonPress = GetCurrentTime();
@@ -39,8 +58,9 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 		// Check which key is pressed and store last key press as int. wsad = 0123
 		if (GetAsyncKeyState(0x57)) //w
 		{
-			lastKeyPressed = 0;
+			
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
+
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f)));
 
 			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -0.2f));
@@ -48,7 +68,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 
 		if (GetAsyncKeyState(0x53))	//s
 		{
-			lastKeyPressed = 1;
+			
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.0f, 0.0f, -0.2f));	
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f)));
 			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.2f));
@@ -56,7 +76,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 
 		if (GetAsyncKeyState(0x41))	//a
 		{
-			lastKeyPressed = 2;
+			
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f)));
 			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
@@ -64,7 +84,7 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 
 		if (GetAsyncKeyState(0x44))	//d
 		{
-			lastKeyPressed = 3;
+			
 			this->matrices.worldM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.2f, 0.0f, 0.0f));
 			camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, 0.0f)));
 			lMatrix.viewM *= DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-0.2f, 0.0f, -0.0f));
@@ -148,6 +168,7 @@ void Player::flushGame()
 	this->timeWhenBurrowed = 0;
 }
 
+
 bool Player::getIsDigging() const
 {
 	return digging;
@@ -162,6 +183,15 @@ void Player::getPosition(XMFLOAT4 & pos)
 	pos.x = temp._14;
 	pos.z = temp._34;
 	
+}
+
+float Player::getPositionX()
+{
+	XMFLOAT4X4 temp;
+
+	XMStoreFloat4x4(&temp, matrices.worldM);
+
+	return temp._14;
 }
 
 void Player::getPositionVec(XMVECTOR & pos)
