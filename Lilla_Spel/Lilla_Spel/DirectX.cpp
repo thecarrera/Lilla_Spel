@@ -58,7 +58,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import("New_.trump", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import("leve.trump", this->gDevice, this->gVertexBufferArray);
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
 	this->player = new Player();
@@ -682,7 +682,7 @@ void DX::updatePlayerConstantBuffer() //med player matriser
 {
 
 	TEMP.worldM = this->player->getMatrices().worldM;
-	TEMP.viewM = player->getMatrices().viewM;
+	TEMP.viewM = camera->getCameraMatrices().viewM;
 	TEMP.projM = camera->getCameraMatrices().projM;
 
 	objMatrices playerMatrices = TEMP; //this->player->getMatrices();

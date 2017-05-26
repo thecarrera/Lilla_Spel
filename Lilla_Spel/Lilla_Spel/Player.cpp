@@ -22,12 +22,12 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 		XMFLOAT4X4 temp;
 		XMStoreFloat4x4(&temp, matrices.worldM);
 
-		temp._14 = 1100;
+		temp._14 = 790;
 		temp._34 = 35;
 
 		matrices.worldM = XMLoadFloat4x4(&temp);
 
-		XMFLOAT3 pos = { 1100, 25, 10 };
+		XMFLOAT3 pos = { 790, 25, 10 };
 
 		camera->setCameraPos(pos);
 	

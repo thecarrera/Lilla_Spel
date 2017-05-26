@@ -1,7 +1,7 @@
 #include "Collision.h"
 #include <mutex>
 
-once_flag flag, flag2, flag3, flag4;
+once_flag flag, flag2, flag3, flag4, flag5, flag6, flag7;
 
 
 Collision::Collision() {
@@ -407,7 +407,7 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col, fl
 	}
 
 
-	// Level 4
+	// Level 5
 
 	if (posX > 1100 && posX < 1500)
 	{
@@ -446,9 +446,88 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col, fl
 			);
 		}
 
-
+		// Level 4
 	}
 
+		//Hint 1
+		if (collisionData[eTrigger].id == 22)
+		{
+			m_pressurePlate[__id__(22)].setActiveTime(120000);
+			m_pressurePlate[__id__(22)].activatePressurePlate();
+		}
+		if (collisionData[eTrigger].id == 25)
+		{
+			m_pressurePlate[__id__(25)].setActiveTime(120000);
+			m_pressurePlate[__id__(25)].activatePressurePlate();
+		}
+		if (collisionData[eTrigger].id == 26)
+		{
+			m_pressurePlate[__id__(26)].setActiveTime(120000);
+			m_pressurePlate[__id__(26)].activatePressurePlate();
+		}
+
+		//Fail
+
+		if (collisionData[eTrigger].id == 19 || collisionData[eTrigger].id == 20 || collisionData[eTrigger].id == 21 || collisionData[eTrigger].id == 23 || collisionData[eTrigger].id == 24 || collisionData[eTrigger].id == 29 || collisionData[eTrigger].id == 30 || collisionData[eTrigger].id == 31 || collisionData[eTrigger].id == 32 || collisionData[eTrigger].id == 37 || collisionData[eTrigger].id == 36 || collisionData[eTrigger].id == 41)
+		{
+			col.enableBoundingBox(52);
+			col.enableBoundingBox(53);
+			col.enableBoundingBox(44);
+		}
+
+		//Hint 2
+		if (collisionData[eTrigger].id == 27)
+		{
+			m_pressurePlate[__id__(27)].setActiveTime(120000);
+			m_pressurePlate[__id__(27)].activatePressurePlate();
+		}
+		if (collisionData[eTrigger].id == 28)
+		{
+			m_pressurePlate[__id__(28)].setActiveTime(120000);
+			m_pressurePlate[__id__(28)].activatePressurePlate();
+		}
+		if (collisionData[eTrigger].id == 33)
+		{
+			m_pressurePlate[__id__(33)].setActiveTime(120000);
+			m_pressurePlate[__id__(33)].activatePressurePlate();
+		}
+
+
+		//Hint 3
+		if (collisionData[eTrigger].id == 38)
+		{
+			m_pressurePlate[__id__(38)].setActiveTime(120000);
+			m_pressurePlate[__id__(38)].activatePressurePlate();
+		}
+		if (collisionData[eTrigger].id == 43)
+		{
+			m_pressurePlate[__id__(43)].setActiveTime(120000);
+			m_pressurePlate[__id__(43)].activatePressurePlate();
+		}
+		if (collisionData[eTrigger].id == 42)
+		{
+			m_pressurePlate[__id__(42)].setActiveTime(120000);
+			m_pressurePlate[__id__(42)].activatePressurePlate();
+		}
+
+
+		//Check Hint 1
+		if (m_pressurePlate[__id__(22)].getPressurePlateData().ticking && m_pressurePlate[__id__(25)].getPressurePlateData().ticking && m_pressurePlate[__id__(26)].getPressurePlateData().ticking)
+		{
+			call_once(flag5, [&]() { col.disableBoundingBox(52); });
+		}
+
+		//Check Hint 2
+		if (m_pressurePlate[__id__(27)].getPressurePlateData().ticking && m_pressurePlate[__id__(28)].getPressurePlateData().ticking && m_pressurePlate[__id__(33)].getPressurePlateData().ticking)
+		{
+			call_once(flag6, [&]() { col.disableBoundingBox(53); });
+		}
+
+		//Check Hint 3
+		if (m_pressurePlate[__id__(38)].getPressurePlateData().ticking && m_pressurePlate[__id__(43)].getPressurePlateData().ticking && m_pressurePlate[__id__(42)].getPressurePlateData().ticking)
+		{
+			call_once(flag7, [&]() { col.disableBoundingBox(44); });
+		}
 }
 int InteractiveCollision::getIndexById(int id)
 {
