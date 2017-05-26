@@ -1,4 +1,5 @@
 #include "DirectX.h"
+#include "FBXLoader.hpp"
 
 /*
 #################################################################################################################################
@@ -34,6 +35,8 @@ void DX::Clean()
 		
 	SAFE_RELEASE(this->gVertexShader);
 	SAFE_RELEASE(this->gShadowVertexShader);
+	SAFE_RELEASE(this->gBoneVertexShader);
+	SAFE_RELEASE(this->gBoneShadowVertexShader);
 
 	SAFE_RELEASE(this->gMenuVertexArray);
 
@@ -87,9 +90,11 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import(".\\Assets\\Files\\Axis.Trump", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import(".\\Assets\\Files\\Axis_Anim_Fixed.GAY", this->gDevice, this->gVertexBufferArray);
 
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
+
+	FBXLoader::FL_LoadSkeleton(this->skeletons);
 
 	this->player = new Player();
 	DirectX::XMMATRIX world =
@@ -122,6 +127,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
+	skeletons.StartTime();
 }
 void DX::createMenu()
 {
@@ -247,6 +253,11 @@ void DX::Update()
 
 		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
 		this->updateCameraConstantBuffer();
+
+		skeletons.UpdateAnimations("all", true, 1);
+		if (GetAsyncKeyState(0x30)) {
+			skeletons.PlayAnimation("Root_IDLE");
+		}
 	}
 	else
 	{
@@ -324,7 +335,6 @@ void DX::SetViewport()
 }
 void DX::Render(int pass, bool isPlayer) 
 {	
-
 	UINT32 vertexSize = sizeof(Vertex);
 	UINT32 offset = 0;
 	if (pass == 0) 
@@ -368,6 +378,21 @@ void DX::Render(int pass, bool isPlayer)
 
 		if (isPlayer == true)
 		{
+			XMFLOAT4X4 boneMatrixArray[64];
+			if (skeletons.animationTime[0] != -1) {
+				skeletons.UpdateBoneMatrices(boneMatrixArray, 0, skeletons.rootJoints[0]);
+			}
+			else {
+				for (int matrixI = 0; matrixI < 64; matrixI++) {
+					boneMatrixArray[matrixI] = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1);
+				}
+			}
+			D3D11_MAPPED_SUBRESOURCE boneMatrixData;
+			gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
+			memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
+			gDeviceContext->Unmap(boneBuffer, 0);
+			this->gDeviceContext->VSSetShader(this->gBoneShadowVertexShader, nullptr, 0);
+			gDeviceContext->VSSetConstantBuffers(2, 1, &boneBuffer);
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
 		}
@@ -418,6 +443,21 @@ void DX::Render(int pass, bool isPlayer)
 		{
 			this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[3]);
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
+			XMFLOAT4X4 boneMatrixArray[64];
+			if (skeletons.animationTime[0] != -1) {
+				skeletons.UpdateBoneMatrices(boneMatrixArray, 0, skeletons.rootJoints[0]);
+			}
+			else {
+				for (int matrixI = 0; matrixI < 64; matrixI++) {
+					boneMatrixArray[matrixI] = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1);
+				}
+			}
+			D3D11_MAPPED_SUBRESOURCE boneMatrixData;
+			gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
+			memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
+			gDeviceContext->Unmap(boneBuffer, 0);
+			this->gDeviceContext->VSSetShader(this->gBoneVertexShader, nullptr, 0);
+			gDeviceContext->VSSetConstantBuffers(0, 1, &boneBuffer);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
 		}
 
@@ -426,8 +466,13 @@ void DX::Render(int pass, bool isPlayer)
 			for (int i = 6; i < this->gVertexBufferArray_size; i++) {
 				if (FBX.getMeshBoundingBox(i) == 0)
 				{
-					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+					int id = FBX.getMeshes()[i].id;
+					if (id < -9 && id > -100) {
+					}
+					else {
+						this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+						this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+					}
 				}
 			}
 		}
@@ -551,6 +596,65 @@ void DX::CreateShaders()
 
 
 	hr = this->gDevice->CreateSamplerState(&shadowSamplerDesc, &this->ShadowSampler);
+
+	if (FAILED(hr))
+	{
+		getchar();
+	}
+
+	//#############################################################
+	//#						Vertex Shader Bone					  #
+	//#############################################################
+	ID3DBlob* pVSB = nullptr;
+	D3DCompileFromFile(
+		L"VertexShaderBone.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		0,
+		0,
+		&pVSB,
+		&error
+		);
+	hr = this->gDevice->CreateVertexShader(pVSB->GetBufferPointer(), pVSB->GetBufferSize(), NULL, &this->gBoneVertexShader);
+
+	if (error)
+	{
+		OutputDebugStringA((char*)error->GetBufferPointer());
+	}
+
+	this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), pVSB->GetBufferPointer(), pVSB->GetBufferSize(), &this->gVertexLayout);
+
+	SAFE_RELEASE(pVSB);
+
+	//#############################################################
+	//#					Bone Shadow Vertex Shader				  #
+	//#############################################################
+	ID3DBlob* VSBShadow = nullptr;
+	D3DCompileFromFile(
+		L"VertexShaderBoneShadow.hlsl",
+		nullptr,
+		nullptr,
+		"VS_main",
+		"vs_5_0",
+		0,
+		0,
+		&VSBShadow,
+		&error
+		);
+
+	hr = this->gDevice->CreateVertexShader(VSBShadow->GetBufferPointer(), VSBShadow->GetBufferSize(), nullptr, &this->gBoneShadowVertexShader);
+
+	if (error)
+	{
+		OutputDebugStringA((char*)error->GetBufferPointer());
+	}
+
+	this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), VSBShadow->GetBufferPointer(), VSBShadow->GetBufferSize(), &this->gShadowLayout);
+
+	SAFE_RELEASE(VSBShadow);
+	SAFE_RELEASE(error);
 
 	if (FAILED(hr))
 	{
@@ -717,7 +821,7 @@ void DX::createCBuffer()
 	{
 		exit(-1);
 	}
-	
+
 	D3D11_BUFFER_DESC lcbuff;
 	lcbuff.Usage = D3D11_USAGE_DYNAMIC;
 	lcbuff.ByteWidth = sizeof(objMatrices);
@@ -730,6 +834,21 @@ void DX::createCBuffer()
 
 	hr = gDevice->CreateBuffer(&lcbuff, &ldat, &this->lcBuffer);
 
+
+	if (FAILED(hr))
+	{
+		exit(-1);
+	}
+
+	D3D11_BUFFER_DESC boneBufferDesc;
+	boneBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	boneBufferDesc.ByteWidth = sizeof(XMFLOAT4X4) * 64;
+	boneBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	boneBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	boneBufferDesc.MiscFlags = 0;
+	boneBufferDesc.StructureByteStride = 0;
+
+	hr = gDevice->CreateBuffer(&boneBufferDesc, nullptr, &this->boneBuffer);
 
 	if (FAILED(hr))
 	{

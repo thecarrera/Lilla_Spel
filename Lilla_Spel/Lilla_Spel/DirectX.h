@@ -4,8 +4,6 @@
 #include "Camera.h"
 #include "Player.h"
 
-
-
 /*
 #################################################################################################################################
 #																																#
@@ -63,7 +61,9 @@ private:
 
 	ID3D11VertexShader* gVertexShader = nullptr;
 	ID3D11VertexShader* gShadowVertexShader = nullptr;
-	
+	ID3D11VertexShader* gBoneVertexShader = nullptr;
+	ID3D11VertexShader* gBoneShadowVertexShader = nullptr;
+
 	ID3D11Buffer* gMenuVertexArray = nullptr;
 	
 	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
@@ -105,6 +105,7 @@ private:
 	Player* player = nullptr;
 	Collision col;
 	InteractiveCollision interactiveCol;
+	Skeleton skeletons;
 
 	// New code
 	int* vertexCountOBJ = nullptr;
@@ -130,6 +131,7 @@ private:
 
 	objMatrices lMatrix;
 	ID3D11Buffer* lcBuffer = nullptr;
+	ID3D11Buffer* boneBuffer = nullptr;
 	ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
 
 private:

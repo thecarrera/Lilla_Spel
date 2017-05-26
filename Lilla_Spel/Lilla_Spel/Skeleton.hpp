@@ -228,7 +228,7 @@ public:
 		}
 	}
 
-	void UpdateBoneMatrices(XMFLOAT4X4 p_matrices[64], int p_skeletonIndex, Joint*& p_joint, float p_time = -2, XMFLOAT4X4 p_parentWM = XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)) {
+	void UpdateBoneMatrices(XMFLOAT4X4 p_matrices[64], int p_skeletonIndex, Joint*& p_joint, float p_time = -2, XMFLOAT4X4 p_parentWM = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1)) {
 		if (p_time == -2) {
 			p_time = animationTime[p_skeletonIndex];
 		}
