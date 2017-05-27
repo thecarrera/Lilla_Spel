@@ -254,10 +254,7 @@ void DX::Update()
 		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
 		this->updateCameraConstantBuffer();
 
-		skeletons.UpdateAnimations("all", true, 1);
-		if (GetAsyncKeyState(0x30)) {
-			skeletons.PlayAnimation("Root_IDLE");
-		}
+		skeletons.UpdateAnimations(0);
 	}
 	else
 	{
@@ -379,8 +376,8 @@ void DX::Render(int pass, bool isPlayer)
 		if (isPlayer == true)
 		{
 			XMFLOAT4X4 boneMatrixArray[64];
-			if (skeletons.animationTime[0] != -1) {
-				skeletons.UpdateBoneMatrices(boneMatrixArray, 0, skeletons.rootJoints[0]);
+			if (skeletons.checkAnimating(-10)) {
+				skeletons.UpdateBoneMatrices(boneMatrixArray, -10, skeletons.GetConnectedRootjoint(-10));
 			}
 			else {
 				for (int matrixI = 0; matrixI < 64; matrixI++) {
@@ -444,8 +441,8 @@ void DX::Render(int pass, bool isPlayer)
 			this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[3]);
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
 			XMFLOAT4X4 boneMatrixArray[64];
-			if (skeletons.animationTime[0] != -1) {
-				skeletons.UpdateBoneMatrices(boneMatrixArray, 0, skeletons.rootJoints[0]);
+			if (skeletons.checkAnimating(-10)) {
+				skeletons.UpdateBoneMatrices(boneMatrixArray, -10, skeletons.GetConnectedRootjoint(-10));
 			}
 			else {
 				for (int matrixI = 0; matrixI < 64; matrixI++) {
@@ -1042,7 +1039,7 @@ void DX::menuControls()
 				this->lTimePress = GetCurrentTime();
 				this->menuMsg = false;
 				this->isStartMenu = false;
-				this->SM.playAllAmbient();
+				//this->SM.playAllAmbient(); // TEMP
 			}
 		}
 	}

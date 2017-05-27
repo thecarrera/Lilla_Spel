@@ -110,6 +110,10 @@ public:
 class Skeleton {
 	chrono::high_resolution_clock::time_point lastFrameTime;
 
+	void ConvertMeshI(int& p_meshI) {
+		p_meshI = -p_meshI - 10;
+	}
+
 	void deleteSkeleton(Joint*& joint) {
 		if (joint->children != nullptr) {
 			for (int child = 0; child < joint->childCount; child++) {
@@ -129,13 +133,13 @@ class Skeleton {
 public:
 	Joint** rootJoints = nullptr;
 
-	float* animationTime = nullptr;
 	float* animationEnds = nullptr;
 
 	int rootCount = 0;
 	int* boneCount = nullptr;
 
-	int* meshIndex = nullptr;
+	int connectedSkeleton[90];
+	float connectedSkeletonTime[90];
 
 	~Skeleton() {
 		for (int root = 0; root < rootCount; root++) {
@@ -143,94 +147,112 @@ public:
 			delete rootJoints[root];
 		}
 		delete[] rootJoints;
-		delete[] animationTime;
 		delete[] animationEnds;
 		delete[] boneCount;
-		delete[] meshIndex;
 	}
 
 	void AddRoot() {
 		Joint** new_rootJoints = new Joint*[++rootCount];
-		float* new_animationTime = new float[rootCount];
 		float* new_animationEnds = new float[rootCount];
 		int* new_boneCount = new int[rootCount];
-		int* new_meshIndex = new int[rootCount];
 
 		for (int root = 0; root < rootCount - 1; root++) {
 			new_rootJoints[root] = rootJoints[root];
-			new_animationTime[root] = animationTime[root];
 			new_animationEnds[root] = animationEnds[root];
 			new_boneCount[root] = boneCount[root];
-			new_meshIndex[root] = meshIndex[root];
 		}
 		new_rootJoints[rootCount - 1] = new Joint;
 		new_rootJoints[rootCount - 1]->root = true;
 		new_rootJoints[rootCount - 1]->index = 0;
-		new_animationTime[rootCount - 1] = -1;
 		new_animationEnds[rootCount - 1] = 0;
 		new_boneCount[rootCount - 1] = 1;
-		new_meshIndex[rootCount - 1] = -1;
 
 		delete[] rootJoints;
-		delete[] animationTime;
 		delete[] animationEnds;
 		delete[] boneCount;
-		delete[] meshIndex;
 		rootJoints = new_rootJoints;
-		animationTime = new_animationTime;
 		animationEnds = new_animationEnds;
 		boneCount = new_boneCount;
-		meshIndex = new_meshIndex;
+	}
+
+	void ConnectMesh(int p_meshI, string p_rootName, bool p_playAnimation = true) {
+		ConvertMeshI(p_meshI);
+		for (int rootI = 0; rootI < rootCount; rootI++) {
+			if (rootJoints[rootI]->name == p_rootName) {
+				connectedSkeleton[p_meshI] = rootI;
+				connectedSkeletonTime[p_meshI] = -1;
+				if (p_playAnimation) {
+					ConvertMeshI(p_meshI);
+					PlayAnimation(p_meshI);
+				}
+				break;
+			}
+		}
+	}
+
+	void ConnectMeshes() {
+		ConnectMesh(-10, "Root_IDLE");
 	}
 
 	void StartTime() {
 		lastFrameTime = chrono::high_resolution_clock::now();
 	}
 
-	void PlayAnimation(string p_rootName, float p_startTime = 0) {
-		for (unsigned int root = 0; root < rootCount; root++) {
-			if (rootJoints[root]->name == p_rootName) {
-				animationTime[root] = p_startTime;
-				break;
-			}
-		}
+	void PlayAnimation(int p_meshI, float p_startTime = 0) {
+		ConvertMeshI(p_meshI);
+		connectedSkeletonTime[p_meshI] = p_startTime;
 	}
 
-	void StopAnimation(string p_rootName) {
-		for (unsigned int root = 0; root < rootCount; root++) {
-			if (rootJoints[root]->name == p_rootName) {
-				animationTime[root] = -1;
-				break;
-			}
-		}
+	void StopAnimation(int p_meshI) {
+		ConvertMeshI(p_meshI);
+		connectedSkeletonTime[p_meshI] = -1;
 	}
 
-	void UpdateAnimations(string p_rootName = "all", bool p_include = true, float p_speed = 1) {
+	bool checkAnimating(int p_meshI) {
+		ConvertMeshI(p_meshI);
+		bool r = false;
+		if (connectedSkeletonTime[p_meshI] != -1) {
+			r = true;
+		}
+		return r;
+	}
+
+	void UpdateAnimations(int p_meshI = 0, bool p_include = true, float p_speed = 1) {
 		chrono::high_resolution_clock::time_point currentFrameTime = chrono::high_resolution_clock::now();
 		float deltaTime = chrono::duration<float>(currentFrameTime - lastFrameTime).count();
 		lastFrameTime = currentFrameTime;
 
-		if (p_rootName == "all" && p_include) {
-			for (unsigned int root = 0; root < rootCount; root++) {
-				if (animationTime[root] != -1) {
-					animationTime[root] += deltaTime * p_speed;
-					animationTime[root] = fmod(animationTime[root], animationEnds[root]);
+		if (p_meshI == 0 && p_include) {
+			for (unsigned int connectedSkeletonI = 0; connectedSkeletonI < 90; connectedSkeletonI++) {
+				if (connectedSkeletonTime[connectedSkeletonI] != -1) {
+					connectedSkeletonTime[connectedSkeletonI] += deltaTime * p_speed;
+					connectedSkeletonTime[connectedSkeletonI] = fmod(connectedSkeletonTime[connectedSkeletonI], animationEnds[connectedSkeleton[connectedSkeletonI]]);
 				}
 			}
 		}
-		else {
-			for (unsigned int root = 0; root < rootCount; root++) {
-				if (animationTime[root] != -1 && ((rootJoints[root]->name == p_rootName && p_include) || (rootJoints[root]->name != p_rootName && !p_include))) {
-					animationTime[root] += deltaTime * p_speed;
-					animationTime[root] = fmod(animationTime[root], animationEnds[root]);
+		else if (p_meshI != 0) {
+			ConvertMeshI(p_meshI);
+			if (p_include) {
+				if (connectedSkeletonTime[p_meshI] != -1) {
+					connectedSkeletonTime[p_meshI] += deltaTime * p_speed;
+					connectedSkeletonTime[p_meshI] = fmod(connectedSkeletonTime[p_meshI], animationEnds[connectedSkeleton[p_meshI]]);
+				}
+			}
+			else {
+				for (unsigned int connectedSkeletonI = 0; connectedSkeletonI < 90; connectedSkeletonI++) {
+					if (connectedSkeletonTime[connectedSkeletonI] != -1 && connectedSkeletonI != p_meshI) {
+						connectedSkeletonTime[connectedSkeletonI] += deltaTime * p_speed;
+						connectedSkeletonTime[connectedSkeletonI] = fmod(connectedSkeletonTime[connectedSkeletonI], animationEnds[connectedSkeleton[connectedSkeletonI]]);
+					}
 				}
 			}
 		}
 	}
 
-	void UpdateBoneMatrices(XMFLOAT4X4 p_matrices[64], int p_skeletonIndex, Joint*& p_joint, float p_time = -2, XMFLOAT4X4 p_parentWM = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1)) {
+	void UpdateBoneMatrices(XMFLOAT4X4 p_matrices[64], int p_meshI, Joint*& p_joint, float yRotOffset = 0, float p_time = -2, XMFLOAT4X4 p_parentWM = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1)) {
+		ConvertMeshI(p_meshI);
 		if (p_time == -2) {
-			p_time = animationTime[p_skeletonIndex];
+			p_time = connectedSkeletonTime[p_meshI];
 		}
 
 		float position[3]; float rotation[3];
@@ -246,7 +268,7 @@ public:
 
 		XMMATRIX boneTransform = XMLoadFloat4x4(&p_parentWM);
 		boneTransform = boneTransform * DirectX::XMMatrixTranspose((DirectX::XMMatrixRotationX(p_joint->pivotRotation[0]) * DirectX::XMMatrixRotationY(p_joint->pivotRotation[1]) * DirectX::XMMatrixRotationZ(p_joint->pivotRotation[2])) * DirectX::XMMatrixTranslation(position[0], position[1], position[2]));
-		boneTransform = boneTransform * DirectX::XMMatrixTranspose(DirectX::XMMatrixRotationX(rotation[0]) * DirectX::XMMatrixRotationY(rotation[1]) * DirectX::XMMatrixRotationZ(rotation[2]));
+		boneTransform = boneTransform * DirectX::XMMatrixTranspose(DirectX::XMMatrixRotationX(rotation[0]) * DirectX::XMMatrixRotationY(rotation[1] + yRotOffset * -0.0174533) * DirectX::XMMatrixRotationZ(rotation[2]));
 		XMFLOAT4X4 worldMatrix; XMStoreFloat4x4(&worldMatrix, boneTransform);
 		XMMATRIX inverseBindPose = p_joint->inverseBindPose;
 		boneTransform = boneTransform * inverseBindPose;
@@ -254,7 +276,7 @@ public:
 		p_matrices[p_joint->index] = boneTransformMatrix;
 
 		for (int child = 0; child < p_joint->childCount; child++) {
-			UpdateBoneMatrices(p_matrices, p_skeletonIndex, p_joint->children[child], p_time, worldMatrix);
+			UpdateBoneMatrices(p_matrices, p_meshI, p_joint->children[child], 0, p_time, worldMatrix);
 		}
 	}
 
@@ -280,6 +302,11 @@ public:
 		else {
 			return -1;
 		}
+	}
+
+	Joint*& GetConnectedRootjoint(int p_meshI) {
+		ConvertMeshI(p_meshI);
+		return rootJoints[connectedSkeleton[p_meshI]];
 	}
 
 	void SetInverseBindPose(string p_jointName, int p_rootIndex, XMMATRIX& p_inverseBindPose, Joint* p_joint = nullptr) {

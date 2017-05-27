@@ -239,5 +239,6 @@ namespace FBXLoader {
 		if (fileCount) {
 			delete[] files;
 		}
+		skeleton.ConnectMeshes();
 	}
 }
