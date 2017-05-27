@@ -225,9 +225,12 @@ void DX::Update()
 	if (this->menuMsg == false)
 	{
 		clearRender();
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM);
+		chrono::high_resolution_clock::time_point currentFrameTime = chrono::high_resolution_clock::now();
+		deltaTime = chrono::duration<float>(currentFrameTime - lastFrameTime).count();
+		lastFrameTime = currentFrameTime;
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, deltaTime);
 
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM);
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, deltaTime);
 
 		interactiveCol.test(col.getCollisionData(), col, this->SM);
 		
@@ -377,7 +380,7 @@ void DX::Render(int pass, bool isPlayer)
 		{
 			XMFLOAT4X4 boneMatrixArray[64];
 			if (skeletons.checkAnimating(-10)) {
-				skeletons.UpdateBoneMatrices(boneMatrixArray, -10, skeletons.GetConnectedRootjoint(-10));
+				skeletons.UpdateBoneMatrices(boneMatrixArray, -10, skeletons.GetConnectedRootjoint(-10), player->rotation);
 			}
 			else {
 				for (int matrixI = 0; matrixI < 64; matrixI++) {
@@ -442,7 +445,7 @@ void DX::Render(int pass, bool isPlayer)
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
 			XMFLOAT4X4 boneMatrixArray[64];
 			if (skeletons.checkAnimating(-10)) {
-				skeletons.UpdateBoneMatrices(boneMatrixArray, -10, skeletons.GetConnectedRootjoint(-10));
+				skeletons.UpdateBoneMatrices(boneMatrixArray, -10, skeletons.GetConnectedRootjoint(-10), player->rotation);
 			}
 			else {
 				for (int matrixI = 0; matrixI < 64; matrixI++) {

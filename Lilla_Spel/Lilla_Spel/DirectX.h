@@ -106,6 +106,8 @@ private:
 	Collision col;
 	InteractiveCollision interactiveCol;
 	Skeleton skeletons;
+	chrono::high_resolution_clock::time_point lastFrameTime;
+	float deltaTime = 0;
 
 	// New code
 	int* vertexCountOBJ = nullptr;
