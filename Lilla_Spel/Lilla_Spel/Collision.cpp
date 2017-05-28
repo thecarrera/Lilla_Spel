@@ -265,8 +265,8 @@ void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
 /*****************************************************************************************/
 /*****************************************************************************************/
 
-void InteractiveCollision::test(CollisionData* collisionData, Collision& col, SoundManager& SM){
-
+string InteractiveCollision::test(CollisionData* collisionData, Collision& col, SoundManager& SM){
+	string r = "";
 	tButtonPress = GetCurrentTime();
 	// Check for the pressure plate collision
 	if (collisionData[eTrigger].id == 2) {
@@ -274,6 +274,7 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col, So
 		//cout << "pressure plate with id " << m_pressurePlate[__id__(2)].getId() << endl;
 	}
 	else if (E && __id == 0) {
+		r += "pull_lever";
 			m_lever[__id__(0)].activateLever();
 			
 			if (tButtonPress - lTimePress >= 500)
@@ -288,12 +289,13 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col, So
 	if (m_lever[__id__(0)].getLeverOnOffState())
 	{
 		// turn off boundingbox based on id 
-		call_once(flag, [&]() { col.removeBoundingBox(1); }
+		call_once(flag, [&]() { r += "0"; col.removeBoundingBox(1); }
 		);		
 	}
 
 	if (m_pressurePlate[__id__(2)].getPressurePlateData().toggled)
 	{
+		r += "1";
 		//cout << "pressureplate toggled" << endl;
 		col.disableBoundingBox(3);
 	}
@@ -308,7 +310,7 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col, So
 	//else {
 	//	//col.enableBoundingBox(3);
 	//}
-
+	return r;
 }
 int InteractiveCollision::getIndexById(int id)
 {

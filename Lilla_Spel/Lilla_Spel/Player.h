@@ -6,8 +6,8 @@ using namespace DirectX;
 class Player
 {
 private:
-	float movementSpeed = 5;
-	float turnSpeed = 5;
+	float movementSpeed = 8;
+	float turnSpeed = 4;
 
 	objMatrices matrices;
 
@@ -35,7 +35,7 @@ public:
 	Player();
 	~Player();
 	
-	void move(Camera* &camera, CollisionData* collision, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices& lMatrix, SoundManager& SM, float deltaTime);
+	string move(Camera* &camera, CollisionData* collision, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices& lMatrix, SoundManager& SM, bool canMove, float deltaTime);
 	void initiateMatrices(DirectX::XMMATRIX& world, DirectX::XMMATRIX& view, DirectX::XMMATRIX& proj);
 	void setMatrices(objMatrices& all);
 	objMatrices getMatrices()const;

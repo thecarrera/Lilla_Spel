@@ -90,7 +90,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import(".\\Assets\\Files\\Axis_Anim_Fixed.GAY", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import(".\\Assets\\Files\\NewLevel_Fixed.GAY", this->gDevice, this->gVertexBufferArray);
 
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
@@ -228,11 +228,14 @@ void DX::Update()
 		chrono::high_resolution_clock::time_point currentFrameTime = chrono::high_resolution_clock::now();
 		deltaTime = chrono::duration<float>(currentFrameTime - lastFrameTime).count();
 		lastFrameTime = currentFrameTime;
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, deltaTime);
+		skeletons.SetPlayerAnimation(player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, skeletons.canMove, deltaTime));
+		//player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, deltaTime);
 
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, deltaTime);
-
-		interactiveCol.test(col.getCollisionData(), col, this->SM);
+		string colR = interactiveCol.test(col.getCollisionData(), col, this->SM);
+		if (colR.find("pull_lever") != string::npos) {
+			skeletons.SetPlayerAnimation("pull_lever");
+		}
+		skeletons.SetRootAnimation(colR);
 		
 		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
@@ -402,6 +405,24 @@ void DX::Render(int pass, bool isPlayer)
 			for (int i = 6; i < this->gVertexBufferArray_size; i++) {
 				if (FBX.getMeshBoundingBox(i) == 0)
 				{
+					int id = FBX.getMeshes()[i].id;
+					if (id < -9 && id > -100) {
+						XMFLOAT4X4 boneMatrixArray[64];
+						if (skeletons.checkAnimating(id) || (id < -10 && id > -24)) {
+							skeletons.UpdateBoneMatrices(boneMatrixArray, id, skeletons.GetConnectedRootjoint(id));
+						}
+						else {
+							for (int matrixI = 0; matrixI < 64; matrixI++) {
+								boneMatrixArray[matrixI] = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1);
+							}
+						}
+						D3D11_MAPPED_SUBRESOURCE boneMatrixData;
+						gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
+						memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
+						gDeviceContext->Unmap(boneBuffer, 0);
+						this->gDeviceContext->VSSetShader(this->gBoneShadowVertexShader, nullptr, 0);
+						gDeviceContext->VSSetConstantBuffers(2, 1, &boneBuffer);
+					}
 					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
 					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 				}
@@ -468,11 +489,24 @@ void DX::Render(int pass, bool isPlayer)
 				{
 					int id = FBX.getMeshes()[i].id;
 					if (id < -9 && id > -100) {
+						XMFLOAT4X4 boneMatrixArray[64];
+						if (skeletons.checkAnimating(id) || (id < -10 && id > -24)) {
+							skeletons.UpdateBoneMatrices(boneMatrixArray, id, skeletons.GetConnectedRootjoint(id));
+						}
+						else {
+							for (int matrixI = 0; matrixI < 64; matrixI++) {
+								boneMatrixArray[matrixI] = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1);
+							}
+						}
+						D3D11_MAPPED_SUBRESOURCE boneMatrixData;
+						gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
+						memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
+						gDeviceContext->Unmap(boneBuffer, 0);
+						this->gDeviceContext->VSSetShader(this->gBoneVertexShader, nullptr, 0);
+						gDeviceContext->VSSetConstantBuffers(0, 1, &boneBuffer);
 					}
-					else {
-						this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-						this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
-					}
+					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 				}
 			}
 		}

@@ -170,7 +170,7 @@ namespace FBXLoader {
 			}
 
 			if (search) {
-				_FL_LoadChildData(node, skeleton);
+				_FL_LoadChildData(node, skeleton, loadBind);
 			}
 		}
 	}
@@ -179,7 +179,7 @@ namespace FBXLoader {
 		int fileCount = 0;
 		char** files = nullptr;
 
-		ifstream inFile("input.txt");
+		ifstream inFile("FBX Animations.txt");
 		if (inFile.is_open()) {
 			string line;
 			while (getline(inFile, line)) {
@@ -215,7 +215,7 @@ namespace FBXLoader {
 
 		for (int file = 0; file < fileCount; file++) {
 			FbxImporter* importer = FbxImporter::Create(manager, "");
-			if (!importer->Initialize(files[file], -1, manager->GetIOSettings())) {
+			if (!importer->Initialize(("Assets\\Files\\" + string(files[file])).c_str(), -1, manager->GetIOSettings())) {
 				printf("Call to FbxImporter::Initialize() failed.\n");
 				printf("Error returned: %s\n\n", importer->GetStatus().GetErrorString());
 				exit(-1);

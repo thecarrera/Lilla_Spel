@@ -1,2 +1,0 @@
-Load:
-C:\Users\Jonah\Documents\Visual Studio 2015\Projects\Lilla_Spel\Lilla_Spel\Lilla_Spel\Assets\Files\AxisAlignedLevel_WithAnim.fbx

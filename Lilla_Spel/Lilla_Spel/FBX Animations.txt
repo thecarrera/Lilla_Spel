@@ -1,0 +1,10 @@
+Load:
+
+Idle.fbx
+Walk.fbx
+Jump.fbx
+Dive.fbx
+Below.fbx
+Emerge.fbx
+Pull_Lever.fbx
+Roots.fbx

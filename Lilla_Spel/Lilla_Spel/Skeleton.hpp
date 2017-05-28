@@ -109,9 +109,29 @@ public:
 
 class Skeleton {
 	chrono::high_resolution_clock::time_point lastFrameTime;
+	string playerAnimation;
+	int collisionTimer;
+	bool canAnimate = true;
 
 	void ConvertMeshI(int& p_meshI) {
 		p_meshI = -p_meshI - 10;
+	}
+
+	void EndAnimation(int p_meshI, float p_rest) {
+		if (p_meshI == 0) {
+			canAnimate = canMove = true;
+		}
+
+		if (connectedSkeletonAftermath[p_meshI] == "loop") {
+			connectedSkeletonTime[p_meshI] = p_rest;
+		}
+		else if (connectedSkeletonAftermath[p_meshI] == "stop") {
+			connectedSkeletonTime[p_meshI] = animationEnds[connectedSkeleton[p_meshI]];
+		}
+		else if (connectedSkeletonAftermath[p_meshI] == "play below") {
+			playerAnimation = "below";
+			ConnectMesh(-10, "Root_BELOW");
+		}
 	}
 
 	void deleteSkeleton(Joint*& joint) {
@@ -140,6 +160,9 @@ public:
 
 	int connectedSkeleton[90];
 	float connectedSkeletonTime[90];
+	string connectedSkeletonAftermath[90];
+
+	bool canMove = true;
 
 	~Skeleton() {
 		for (int root = 0; root < rootCount; root++) {
@@ -175,12 +198,13 @@ public:
 		boneCount = new_boneCount;
 	}
 
-	void ConnectMesh(int p_meshI, string p_rootName, bool p_playAnimation = true) {
+	void ConnectMesh(int p_meshI, string p_rootName, bool p_playAnimation = true, string p_afterMath = "loop") {
 		ConvertMeshI(p_meshI);
 		for (int rootI = 0; rootI < rootCount; rootI++) {
 			if (rootJoints[rootI]->name == p_rootName) {
 				connectedSkeleton[p_meshI] = rootI;
 				connectedSkeletonTime[p_meshI] = -1;
+				connectedSkeletonAftermath[p_meshI] = p_afterMath;
 				if (p_playAnimation) {
 					ConvertMeshI(p_meshI);
 					PlayAnimation(p_meshI);
@@ -192,6 +216,19 @@ public:
 
 	void ConnectMeshes() {
 		ConnectMesh(-10, "Root_IDLE");
+		ConnectMesh(-11, "root_root", false, "stop");
+		ConnectMesh(-12, "root_root1", false, "stop");
+		ConnectMesh(-13, "root_root2", false, "stop");
+		ConnectMesh(-14, "root_root3", false, "stop");
+		ConnectMesh(-15, "root_root4", false, "stop");
+		ConnectMesh(-16, "root_root5", false, "stop");
+		ConnectMesh(-17, "root_root6", false, "stop");
+		ConnectMesh(-18, "root_root7", false, "stop");
+		ConnectMesh(-19, "root_root8", false, "stop");
+		ConnectMesh(-20, "root_root9", false, "stop");
+		ConnectMesh(-21, "root_root10", false, "stop");
+		ConnectMesh(-22, "root_root11", false, "stop");
+		ConnectMesh(-23, "root_root12", false, "stop");
 	}
 
 	void StartTime() {
@@ -226,7 +263,10 @@ public:
 			for (unsigned int connectedSkeletonI = 0; connectedSkeletonI < 90; connectedSkeletonI++) {
 				if (connectedSkeletonTime[connectedSkeletonI] != -1) {
 					connectedSkeletonTime[connectedSkeletonI] += deltaTime * p_speed;
-					connectedSkeletonTime[connectedSkeletonI] = fmod(connectedSkeletonTime[connectedSkeletonI], animationEnds[connectedSkeleton[connectedSkeletonI]]);
+					float segment = fmod(connectedSkeletonTime[connectedSkeletonI], animationEnds[connectedSkeleton[connectedSkeletonI]]);
+					if (segment != connectedSkeletonTime[connectedSkeletonI]) {
+						EndAnimation(connectedSkeletonI, segment);
+					}
 				}
 			}
 		}
@@ -235,14 +275,20 @@ public:
 			if (p_include) {
 				if (connectedSkeletonTime[p_meshI] != -1) {
 					connectedSkeletonTime[p_meshI] += deltaTime * p_speed;
-					connectedSkeletonTime[p_meshI] = fmod(connectedSkeletonTime[p_meshI], animationEnds[connectedSkeleton[p_meshI]]);
+					float segment = fmod(connectedSkeletonTime[p_meshI], animationEnds[connectedSkeleton[p_meshI]]);
+					if (segment != connectedSkeletonTime[p_meshI]) {
+						EndAnimation(p_meshI, segment);
+					}
 				}
 			}
 			else {
 				for (unsigned int connectedSkeletonI = 0; connectedSkeletonI < 90; connectedSkeletonI++) {
 					if (connectedSkeletonTime[connectedSkeletonI] != -1 && connectedSkeletonI != p_meshI) {
 						connectedSkeletonTime[connectedSkeletonI] += deltaTime * p_speed;
-						connectedSkeletonTime[connectedSkeletonI] = fmod(connectedSkeletonTime[connectedSkeletonI], animationEnds[connectedSkeleton[connectedSkeletonI]]);
+						float segment = fmod(connectedSkeletonTime[connectedSkeletonI], animationEnds[connectedSkeleton[connectedSkeletonI]]);
+						if (segment != connectedSkeletonTime[connectedSkeletonI]) {
+							EndAnimation(connectedSkeletonI, segment);
+						}
 					}
 				}
 			}
@@ -253,6 +299,9 @@ public:
 		ConvertMeshI(p_meshI);
 		if (p_time == -2) {
 			p_time = connectedSkeletonTime[p_meshI];
+			if (p_meshI > 0 && p_meshI < 14) {
+				p_time == 0;
+			}
 		}
 
 		float position[3]; float rotation[3];
@@ -307,6 +356,74 @@ public:
 	Joint*& GetConnectedRootjoint(int p_meshI) {
 		ConvertMeshI(p_meshI);
 		return rootJoints[connectedSkeleton[p_meshI]];
+	}
+
+	void SetPlayerAnimation(string p_animation) {
+		if (!canAnimate && p_animation != "dive") {
+			return;
+		}
+
+		if (playerAnimation == "collision" && (p_animation == "collision" || p_animation == "idle" || p_animation == "walk")) {
+			if (p_animation == "collision") {
+				collisionTimer = 5;
+			}
+			else {
+				collisionTimer--;
+				if (!collisionTimer) {
+					collisionTimer = 5;
+					playerAnimation = "idle";
+					SetPlayerAnimation(p_animation);
+				}
+			}
+		}
+		else if (p_animation == "collision" && (playerAnimation == "idle" || playerAnimation == "walk")) {
+			if (playerAnimation != "idle") {
+				ConnectMesh(-10, "Root_IDLE");
+			}
+			playerAnimation = "collision";
+		}
+		else if (p_animation == "idle" && playerAnimation != "idle" && playerAnimation != "below") {
+			playerAnimation = "idle";
+			ConnectMesh(-10, "Root_IDLE");
+		}
+		else if (p_animation == "walk" && playerAnimation != "walk" && playerAnimation != "below") {
+			if (!collisionTimer) {
+				playerAnimation = "walk";
+				ConnectMesh(-10, "Root_WALK");
+			}
+			else {
+				collisionTimer--;
+			}
+		}
+		else if (p_animation == "jump" && playerAnimation != "jump" && playerAnimation != "below") {
+			canAnimate = false;
+			playerAnimation = "jump";
+			ConnectMesh(-10, "Root_JUMP");
+		}
+		else if (p_animation == "dive") {
+			canAnimate = canMove = false;
+			playerAnimation = "dive";
+			ConnectMesh(-10, "Root_DIVE", true, "play below");
+		}
+		else if (p_animation == "emerge" && playerAnimation == "below") {
+			canAnimate = canMove = false;
+			playerAnimation = "dive";
+			ConnectMesh(-10, "Root_EMERGE");
+		}
+		else if (p_animation == "pull_lever") {
+			canAnimate = canMove = false;
+			playerAnimation = "pull_lever";
+			ConnectMesh(-10, "Root_Pull_Lever");
+		}
+	}
+
+	void SetRootAnimation(string p_animation) {
+		if (p_animation.find("0") != string::npos && !checkAnimating(-11)) {
+			PlayAnimation(-11);
+		}
+		if (p_animation.find("1") != string::npos && !checkAnimating(-12)) {
+			PlayAnimation(-12);
+		}
 	}
 
 	void SetInverseBindPose(string p_jointName, int p_rootIndex, XMMATRIX& p_inverseBindPose, Joint* p_joint = nullptr) {
