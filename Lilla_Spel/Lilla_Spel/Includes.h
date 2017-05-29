@@ -2,57 +2,42 @@
 
 #pragma comment(lib, "windowscodecs.lib")
 
-#include <iostream>
 #include <vector>
 
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
-#include <DirectXMath.h>
+#include <DirectXMath.h> 
+#include <DirectXCollision.h>
 
 //#include <wincodec.h>
 //#include <wrl.h>
-//#include "WICTextureLoader.h"
+#include "WICTextureLoader.h"
 
+#include "ShadowMapping.h"
+ 
 #include "TriangleData.h"
-
-//clock
-#include <ctime>
+#include "Collision.h"
+#include "FbxImport.h"
 
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 
 #define WLABEL "Lilla Spel Projekt"
-#define HEIGHT 800
-#define WIDTH 640
-#define PIXELSAMPLE 4
+#define HEIGHT 640.0
+#define WIDTH 800.0
+#define PIXELSAMPLE 1
 
 #define SAFE_RELEASE(x) if(x) x->Release(), x = nullptr
 #define SAFE_DELETE(x) if(x) delete[] x, x = nullptr
+
+//#define SAFE_LOOP2_DELETE(x,y) if(x) for(int i = 0; i < y; i++){if(x[i]) delete x[i]; } delete[] x, x = nullptr
 
 struct objMatrices
 {
 	DirectX::XMMATRIX worldM;
 	DirectX::XMMATRIX viewM;
 	DirectX::XMMATRIX projM;
-};
-
-struct ParticleType
-{
-	float PositionX;
-	float PositionY;
-	float PositionZ;
-	float red;
-	float green;
-	float blue;
-	float velocity;
-	bool active;
-};
-
-struct VertexType
-{
-	DirectX::XMFLOAT3 position;
-	DirectX::XMFLOAT4 color;
-	//DirectX::XMFLOAT2 FILL; //ta bort om funkar utan
+	DirectX::XMFLOAT4 lightPos;
 };

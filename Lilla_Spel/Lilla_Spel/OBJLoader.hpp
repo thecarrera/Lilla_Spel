@@ -57,14 +57,14 @@ namespace OBJLoader {
 						for (int i = 0; i < fC; i++) {
 							int lastPos = 0;
 							for (int j = 2; j > -1; j--) {
-								int slashPos = f[i].find('/', lastPos);
-								int spacePos = f[i].find(' ', lastPos);
-								int vI = stoi(f[i].substr(lastPos, slashPos - lastPos)) - 1;
-								int vtI = stoi(f[i].substr(slashPos + 1, spacePos - slashPos)) - 1;
+								int slashPos = (int)f[i].find('/', lastPos);
+								int spacePos = (int)f[i].find(' ', lastPos);
+								int vI = (int)stoi(f[i].substr(lastPos, slashPos - lastPos)) - 1;
+								int vtI = (int)stoi(f[i].substr(slashPos + 1, spacePos - slashPos)) - 1;
 
-								int vFirstSpacePos = v[vI].find(' ');
-								int vSecondSpacePos = v[vI].find(' ', vFirstSpacePos + 1);
-								int vtSpacePos = vt[vtI].find(' ');
+								int vFirstSpacePos = (int)v[vI].find(' ');
+								int vSecondSpacePos = (int)v[vI].find(' ', vFirstSpacePos + 1);
+								int vtSpacePos = (int)vt[vtI].find(' ');
 
 								vtxA[k][i * 3 + j] = { -(stof(v[vI].substr(0, vFirstSpacePos))),
 									stof(v[vI].substr(vFirstSpacePos + 1, vSecondSpacePos - vFirstSpacePos)),

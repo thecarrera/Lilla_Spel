@@ -1,13 +1,10 @@
 #pragma once
 //#include "Linker.h"
 #include "includes.h"
-#include "Player.h"
 #include "Camera.h"
-#include "NewParticle.h"
+#include "Player.h"
+#include "Handler.h"
 
-//partiklar
-//#include "ParticleClass.h"
-//#include "ParticleShader.h"
 
 /*
 #################################################################################################################################
@@ -25,24 +22,35 @@ public:
 	~DX();
 
 	void OfflineCreation(HMODULE hModule, HWND* wndHandle);
+	void createMenu();
 	void Clean();
 
 	void CreateDirect3DContext(HWND* wndHandle);
 	void SetViewport();
 
 	void Update();
-	void Render(bool isPlayer);
-	//void RenderParticles();
+	void Render(int pass, bool isPlayer);
+	void clearRender();
 
 	void CreateShaders();
-	void createGCBuffer();
+	void createCBuffer();
 	void DepthBuffer();
 
 	void updatePlayerConstantBuffer();
 	void updateCameraConstantBuffer();
 	void resetConstantBuffer();
 
-	//void initiateParticles(HWND hwnd);
+	void createLightCaster();
+	
+	void flushGame();
+	void menuControls();
+	void startMenuLoop();
+	void renderMenu();
+	void renderInGameMenu();
+	void Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, ID3D11ShaderResourceView** &RTV);
+
+	float degreeToRadians(float x) { return x*(XM_PI / 180); };
+	void printMatrices(objMatrices mat);
 
 private:
 	ID3D11Device* gDevice = nullptr;
@@ -51,52 +59,82 @@ private:
 	ID3D11RenderTargetView* gBackBufferRTV = nullptr;
 
 	ID3D11InputLayout* gVertexLayout = nullptr;
-	ID3D11Buffer* gVertexBuffer = nullptr;
+	ID3D11InputLayout* gShadowLayout = nullptr;
+
 	ID3D11VertexShader* gVertexShader = nullptr;
+	ID3D11VertexShader* gShadowVertexShader = nullptr;
+	
+	ID3D11Buffer* gMenuVertexArray = nullptr;
+	
+	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
+	int gVertexBufferArray_size;
 
 	ID3D11GeometryShader* gGeometryShader = nullptr;
 
 	ID3D11PixelShader* gFragmentShader = nullptr;
+	ID3D11PixelShader* gMenuFragmentShader = nullptr;
 
 	ID3D11DepthStencilState* depthState = nullptr;
 	ID3D11DepthStencilView* gDSV = nullptr;
 	ID3D11Texture2D* gDepthStencil = nullptr;
+	
+	//shadowmap
+	ShadowMap						*shadowMap = nullptr;
+	ID3D11Texture2D					*ShadowMask = nullptr;
+	ID3D11Texture2D					*ShadowmapTex = nullptr;
+	ID3D11DepthStencilView			*ShadowDepthStencilView = nullptr;
+	ID3D11ShaderResourceView		*ShadowShaderRecourceView = nullptr;
+	ID3D11ShaderResourceView		*ShadowMaskResourceView = nullptr;
+	ID3D11ShaderResourceView		*GroundMaskRV = nullptr;
+	ID3D11SamplerState				*ShadowSampler = nullptr;
+	ID3D11SamplerState				*sMaskSamplerState = nullptr;
 
 	ID3D11Buffer* gCBuffer = nullptr;
+	ID3D11Buffer* menuBuffer = nullptr;
 
-	ID3D11Buffer* shaderBuffer = nullptr;
-	ID3D11SamplerState* samplerState = nullptr;
+	//ID3D11Buffer* shaderBuffer = nullptr;
+	ID3D11SamplerState* txSamplerState = nullptr;
 
 	ID3D11ShaderResourceView* gTextureRTV = nullptr;
+	ID3D11ShaderResourceView** gMenuRTV = nullptr;
 
-	Camera* camera;
-	Player* player;
-
-	//PARTICLESSSSS
-	//ParticleClass* mParticleSystem;
-	//ParticleShader* mParticleShader;
-
-	//ID3D11VertexShader* gVSParticle = nullptr;
-	//ID3D11GeometryShader* gGSParticle = nullptr;
-	//ID3D11PixelShader* gPSParticle = nullptr;
-
-	//ny partikel
-	NewParticle newParticle;
-
-	//time
-	time_t frameTime;
+	Camera* camera = nullptr;
+	Player* player = nullptr;
+	Collision col;
+	InteractiveCollision interactiveCol;
 
 	// New code
 	int* vertexCountOBJ = nullptr;
 	int gVertexBuffer2_size;
 	float* objCoords;	//denna?
-	ID3D11Buffer** gVertexBufferArray = nullptr; //DENNA!
+	
+	//Particle Handler
+	Handler handler;
 
-private:
-	//Linker linker;
+public:
+	FBXImport FBX;
+	bool isStartMenu = true;
+
+	SoundManager SM;
+
+	objMatrices TEMP;
+	objMatrices originalLightMatrix;
+
+	objMatrices test;
+
 private:
 	DirectX::XMVECTOR cameraPos;
 	DirectX::XMVECTOR lookAT;
 	DirectX::XMVECTOR upVec;
 	DirectX::XMVECTOR mRight;
+
+	objMatrices lMatrix;
+	ID3D11Buffer* lcBuffer = nullptr;
+	ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+
+private:
+	objMatrices menuMats;
+	bool menuMsg = false;
+	time_t tButtonPress;
+	time_t lTimePress;
 };

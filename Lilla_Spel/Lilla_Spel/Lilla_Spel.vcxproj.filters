@@ -34,99 +34,144 @@
     <Filter Include="Header Files\Sub Resources\Obj Import">
       <UniqueIdentifier>{24d8fcfd-a091-4ebb-8fe4-f1e7013e7ce1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Particle Effects">
-      <UniqueIdentifier>{250e6dc8-d2d0-41b8-a9f1-ffa89c907d94}</UniqueIdentifier>
+    <Filter Include="Header Files\Sub Resources\Obj Import\New">
+      <UniqueIdentifier>{33e63ca0-1fb6-4be2-a7ee-8a8245969dd7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Particle Effects">
-      <UniqueIdentifier>{2de387a1-4b2a-492f-8276-59ce2aea3d00}</UniqueIdentifier>
+    <Filter Include="Header Files\Sub Resources\Obj Import\Old">
+      <UniqueIdentifier>{b725800b-8658-495f-b683-0c08cadfa22d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Overhead Handler\DirectX">
+      <UniqueIdentifier>{e5eb221d-e9f6-4f60-8f26-01d2e7ce29af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Overhead Handler\Libraries">
+      <UniqueIdentifier>{b1e6f614-f088-4830-8bd8-a20d10cf1fa9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sub Resources\Movement">
+      <UniqueIdentifier>{0cfa19bc-61fe-4842-9ba6-d457c8eae881}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Overhead Handler\DirectX">
+      <UniqueIdentifier>{048ba1e6-c005-47ad-a65c-afd076f76080}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sub Resources\OBJ Import\Old">
+      <UniqueIdentifier>{c35719de-ff72-46fb-a03f-1a242f96b45b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sub Resources\Movement">
+      <UniqueIdentifier>{7017c8ca-50a5-46e7-8ce7-3d71340b6f53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sub Resources\Sound">
+      <UniqueIdentifier>{f99f2c7d-a4d6-4e3b-86ee-c52867343838}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Particles">
+      <UniqueIdentifier>{3235e546-266d-4d03-8827-052bdf986677}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Particles">
+      <UniqueIdentifier>{05913a2c-e644-4af0-9fbf-c1cbbe3fb569}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Shaders\Particle Shaders">
-      <UniqueIdentifier>{c1420093-3373-42bd-8372-af6c7a81c1d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shaders\New Particle Shaders">
-      <UniqueIdentifier>{f5f75347-b777-42e5-b448-c7f165e532cb}</UniqueIdentifier>
+      <UniqueIdentifier>{818057cf-ef85-4439-b0f7-1de39fbe8444}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Includes.h">
-      <Filter>Header Files\Overhead Handler</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX.h">
-      <Filter>Header Files\Overhead Handler</Filter>
-    </ClInclude>
-    <ClInclude Include="Linker.h">
-      <Filter>Header Files\Overhead Handler</Filter>
+    <ClInclude Include="Importers.h">
+      <Filter>Header Files\Sub Resources\Obj Import\Old</Filter>
     </ClInclude>
     <ClInclude Include="WICTextureLoader.h">
-      <Filter>Header Files\Sub Resources\Obj Import</Filter>
-    </ClInclude>
-    <ClInclude Include="Importers.h">
-      <Filter>Header Files\Sub Resources\Obj Import</Filter>
+      <Filter>Header Files\Sub Resources\Obj Import\Old</Filter>
     </ClInclude>
     <ClInclude Include="InputFileReader.hpp">
-      <Filter>Header Files\Overhead Handler</Filter>
+      <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
     </ClInclude>
     <ClInclude Include="OBJLoader.hpp">
-      <Filter>Header Files\Overhead Handler</Filter>
+      <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
     </ClInclude>
     <ClInclude Include="TriangleData.h">
-      <Filter>Header Files\Overhead Handler</Filter>
+      <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
-      <Filter>Header Files\Overhead Handler</Filter>
+      <Filter>Header Files\Sub Resources\Obj Import\New</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="DirectX.h">
+      <Filter>Header Files\Overhead Handler\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes.h">
+      <Filter>Header Files\Overhead Handler\Libraries</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
+      <Filter>Header Files\Overhead Handler\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Header Files\Sub Resources\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleClass.h">
-      <Filter>Header Files\Particle Effects</Filter>
+    <ClInclude Include="BBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PressurePlate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lever.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Linker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMapping.h">
+      <Filter>Header Files\Sub Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Header Files\Sub Resources\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="FbxImport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Handler.h">
+      <Filter>Header Files\Particles</Filter>
     </ClInclude>
     <ClInclude Include="Particle.h">
-      <Filter>Header Files\Particle Effects</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleShader.h">
-      <Filter>Header Files\Particle Effects</Filter>
-    </ClInclude>
-    <ClInclude Include="NewParticle.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Particles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">
-      <Filter>Source Files\Overhead Handler</Filter>
+      <Filter>Source Files\Overhead Handler\DirectX</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
-      <Filter>Source Files\Overhead Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="WICTextureLoader.cpp">
-      <Filter>Source Files\Sub Resources\OBJ Import</Filter>
+      <Filter>Source Files\Overhead Handler\DirectX</Filter>
     </ClCompile>
     <ClCompile Include="OBJ.cpp">
-      <Filter>Source Files\Sub Resources\OBJ Import</Filter>
+      <Filter>Source Files\Sub Resources\OBJ Import\Old</Filter>
     </ClCompile>
-    <ClCompile Include="Linker.cpp">
-      <Filter>Source Files\Overhead Handler</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleClass.cpp">
-      <Filter>Source Files\Particle Effects</Filter>
-    </ClCompile>
-    <ClCompile Include="Particle.cpp">
-      <Filter>Source Files\Particle Effects</Filter>
+    <ClCompile Include="WICTextureLoader.cpp">
+      <Filter>Source Files\Sub Resources\OBJ Import\Old</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\Overhead Handler\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files\Sub Resources\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleShader.cpp">
-      <Filter>Source Files\Particle Effects</Filter>
-    </ClCompile>
-    <ClCompile Include="NewParticle.cpp">
+    <ClCompile Include="BBox.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PressurePlate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Lever.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Handler.cpp">
+      <Filter>Source Files\Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle.cpp">
+      <Filter>Source Files\Particles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -139,23 +184,23 @@
     <FxCompile Include="GeometryShader.hlsl">
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="VSParticle.hlsl">
+    <FxCompile Include="MenuPixelShader.hlsl">
+      <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexShaderShadow.hlsl">
+      <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="CrystalShader.hlsl">
+      <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexShaderParticle.hlsl">
       <Filter>Source Files\Shaders\Particle Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="GSParticle.hlsl">
+    <FxCompile Include="GeometryShaderParticle.hlsl">
       <Filter>Source Files\Shaders\Particle Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PSParticle.hlsl">
+    <FxCompile Include="PixelShaderParticle.hlsl">
       <Filter>Source Files\Shaders\Particle Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="NewParticleVertexShader.hlsl">
-      <Filter>Source Files\Shaders\New Particle Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="NewParticleGeometryShader.hlsl">
-      <Filter>Source Files\Shaders\New Particle Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="NewParticlePixelShader.hlsl">
-      <Filter>Source Files\Shaders\New Particle Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
