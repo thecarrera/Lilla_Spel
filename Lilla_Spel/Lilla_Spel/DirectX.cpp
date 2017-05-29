@@ -189,6 +189,7 @@ void DX::Update()
 
 		interactiveCol.test(col.getCollisionData(), col, player->getPositionX());
 
+		updateLevelPos();
 
 		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
@@ -336,7 +337,7 @@ void DX::Render(int pass, bool isPlayer)
 		if (isPlayer == false)
 		{
 			for (int i = 1; i < this->gVertexBufferArray_size; i++) {
-				if (FBX.getMeshBoundingBox(i) == 0)
+				if (FBX.getMeshAttribute(i) == 0)
 				{
 					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
 					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
@@ -381,9 +382,9 @@ void DX::Render(int pass, bool isPlayer)
 		if (isPlayer == false)
 		{
 			for (int i = 1; i < this->gVertexBufferArray_size; i++) {
-				if (FBX.getMeshBoundingBox(i) == 0)
+				if (FBX.getMeshAttribute(i) == 0)
 				{
-					if (true/*FBX.getMeshes()[i].id == -200 || FBX.getMeshes()[i].id == -100*/)
+					if ((FBX.getMeshes()[i].id == currentLevel || FBX.getMeshes()[i].id == nextLevel) || (FBX.getMeshes()[i].id != -100 && FBX.getMeshes()[i].id != -200 && FBX.getMeshes()[i].id != -300 && FBX.getMeshes()[i].id != -400 && FBX.getMeshes()[i].id != -500 && FBX.getMeshes()[i].id != -600 ))
 					{
 						this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
 						this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
@@ -973,4 +974,34 @@ void DX::printMatrices(objMatrices mat)
 	cout << p._21 << ", " << p._22 << ", " << p._23 << ", " << p._24 << endl;
 	cout << p._31 << ", " << p._32 << ", " << p._33 << ", " << p._34 << endl;
 	cout << p._41 << ", " << p._42 << ", " << p._43 << ", " << p._44 << endl << endl;;
+}
+
+void DX::updateLevelPos()
+{
+	int pos = player->getPositionX();
+
+
+	if (pos > 200 && pos <300)
+	{
+		currentLevel = -200;
+		nextLevel = -300;
+	}
+
+	if (pos > 400 && pos < 500 )
+	{
+		currentLevel = -300;
+		nextLevel = -400;
+	}
+
+	if (pos > 700 && pos < 800)
+	{
+		currentLevel = -400;
+		nextLevel = -500;
+	}
+
+	if (pos > 1200 && pos < 1300)
+	{
+		currentLevel = -500;
+		nextLevel = -600;
+	}
 }

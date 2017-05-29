@@ -234,7 +234,7 @@ public:
 		}
 		return sum;
 	}
-	int getMeshBoundingBox(int position)
+	int getMeshAttribute(int position)
 	{
 		return data[0].meshes[position].customAttribute;
 	}

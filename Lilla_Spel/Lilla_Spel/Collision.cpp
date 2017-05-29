@@ -269,7 +269,7 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col, fl
 
 	if (posX > 0 && posX < 100 )
 	{
-		cout << "Level 1" << endl;
+		//cout << "Level 1" << endl;
 		// Check for the pressure plate collision
 		if (collisionData[eTrigger].id == 2) {
 			m_pressurePlate[__id__(2)].togglePressurePlate();
@@ -296,20 +296,12 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col, fl
 		{
 			col.enableBoundingBox(3);
 		}
-
-		//if (m_pressurePlate[__id__(2)].getPressurePlateData().active && !m_pressurePlate[__id__(2)].getPressurePlateData().ticking) {
-		//	col.disableBoundingBox(3);
-		//}
-		//else {
-		//	//col.enableBoundingBox(3);
-		//}
-
 	}
 
 	// Level 2
 	if (posX > 100 && posX < 300)
 	{
-		cout << "Level 2" << endl;
+		//cout << "Level 2" << endl;
 		if (E && __id == 4)
 		{
 			m_lever[__id__(4)].activateLever();
@@ -379,7 +371,7 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col, fl
 	// Statues
 	if (posX > 500 && posX < 700)
 	{
-		cout << "Level 3" << endl;
+		//cout << "Level 3" << endl;
 
 		if (E && __id == 12)
 		{
@@ -446,9 +438,13 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col, fl
 			);
 		}
 
-		// Level 4
 	}
 
+	
+	// Level 4
+	if (posX > 700 && posX < 875)
+	{
+		
 		//Hint 1
 		if (collisionData[eTrigger].id == 22)
 		{
@@ -528,6 +524,7 @@ void InteractiveCollision::test(CollisionData* collisionData, Collision& col, fl
 		{
 			call_once(flag7, [&]() { col.disableBoundingBox(44); });
 		}
+	}
 }
 int InteractiveCollision::getIndexById(int id)
 {

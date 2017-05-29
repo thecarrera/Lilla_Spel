@@ -16,7 +16,6 @@ Player::~Player()
 
 void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices &lMatrix)
 {
-
 	if (GetAsyncKeyState(0x54))
 	{
 		XMFLOAT4X4 temp;
