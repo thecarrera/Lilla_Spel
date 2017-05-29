@@ -531,6 +531,24 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 			call_once(flag7, [&]() { col.disableBoundingBox(44); });
 		}
 	}
+
+
+	if (true)
+	{
+		if (collisionData[eTrigger].id == 50 )
+		{
+			m_lever[__id__(50)].activateLever();
+		}
+
+		if (m_lever[__id__(50)].getLeverOnOffState())
+		{
+			col.disableBoundingBox(51);
+		}
+	}
+
+
+
+
 	return r;
 }
 int InteractiveCollision::getIndexById(int id)

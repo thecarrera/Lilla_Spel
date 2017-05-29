@@ -90,7 +90,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import(".\\Assets\\Files\\NewLevel_Fixed.GAY", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import(".\\Assets\\Files\\EXPORTED_FILE.GAY", this->gDevice, this->gVertexBufferArray);
 
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
@@ -113,7 +113,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->createMenu();
 
-	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
+	//col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
 
 	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
 
@@ -123,7 +123,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	createLightCaster();
 
-	this->SM.createFMOD();
+	this->/*BD*/SM.createFMOD();
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
