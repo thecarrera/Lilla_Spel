@@ -116,6 +116,7 @@ private:
 	int gVertexBuffer2_size;
 	float* objCoords;	//denna?
 
+	int currentShader;
 
 	int currentLevel = -100;
 	int nextLevel = -200;

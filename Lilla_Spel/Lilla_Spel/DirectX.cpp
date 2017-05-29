@@ -380,7 +380,7 @@ void DX::Render(int pass, bool isPlayer)
 		memcpy(dataPtr.pData, &this->lMatrix, sizeof(this->lMatrix));
 
 		this->gDeviceContext->Unmap(this->lcBuffer, 0);
-		
+		currentShader = 0;
 
 		if (isPlayer == true)
 		{
@@ -397,7 +397,10 @@ void DX::Render(int pass, bool isPlayer)
 			gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
 			memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
 			gDeviceContext->Unmap(boneBuffer, 0);
-			this->gDeviceContext->VSSetShader(this->gBoneShadowVertexShader, nullptr, 0);
+			if (!currentShader) {
+				currentShader = 1;
+				this->gDeviceContext->VSSetShader(this->gBoneShadowVertexShader, nullptr, 0);
+			}
 			gDeviceContext->VSSetConstantBuffers(2, 1, &boneBuffer);
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(5), 0);
@@ -413,21 +416,38 @@ void DX::Render(int pass, bool isPlayer)
 						XMFLOAT4X4 boneMatrixArray[64];
 						if (skeletons.checkAnimating(id) || (id < -10 && id > -24)) {
 							skeletons.UpdateBoneMatrices(boneMatrixArray, id, skeletons.GetConnectedRootjoint(id));
+							D3D11_MAPPED_SUBRESOURCE boneMatrixData;
+							gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
+							memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
+							gDeviceContext->Unmap(boneBuffer, 0);
+							if (!currentShader) {
+								currentShader = 1;
+								this->gDeviceContext->VSSetShader(this->gBoneShadowVertexShader, nullptr, 0);
+							}
+							gDeviceContext->VSSetConstantBuffers(2, 1, &boneBuffer);
+							this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+							this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 						}
 						else {
 							for (int matrixI = 0; matrixI < 64; matrixI++) {
 								boneMatrixArray[matrixI] = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1);
 							}
+							if (currentShader) {
+								currentShader = 0;
+								this->gDeviceContext->VSSetShader(this->gShadowVertexShader, nullptr, 0);
+							}
+							this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+							this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 						}
-						D3D11_MAPPED_SUBRESOURCE boneMatrixData;
-						gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
-						memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
-						gDeviceContext->Unmap(boneBuffer, 0);
-						this->gDeviceContext->VSSetShader(this->gBoneShadowVertexShader, nullptr, 0);
-						gDeviceContext->VSSetConstantBuffers(2, 1, &boneBuffer);
 					}
-					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+					else {
+						if (currentShader) {
+							currentShader = 0;
+							this->gDeviceContext->VSSetShader(this->gShadowVertexShader, nullptr, 0);
+						}
+						this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+						this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+					}
 				}
 			}
 		}
@@ -462,6 +482,7 @@ void DX::Render(int pass, bool isPlayer)
 		this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
 		this->gDeviceContext->GSSetConstantBuffers(1, 1, &this->lcBuffer);
 		this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->lcBuffer);
+		currentShader = 0;
 
 		if (isPlayer == true)
 		{
@@ -480,7 +501,10 @@ void DX::Render(int pass, bool isPlayer)
 			gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
 			memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
 			gDeviceContext->Unmap(boneBuffer, 0);
-			this->gDeviceContext->VSSetShader(this->gBoneVertexShader, nullptr, 0);
+			if (!currentShader) {
+				currentShader = 1;
+				this->gDeviceContext->VSSetShader(this->gBoneVertexShader, nullptr, 0);
+			}
 			gDeviceContext->VSSetConstantBuffers(0, 1, &boneBuffer);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(5), 0);
 		}
@@ -495,21 +519,38 @@ void DX::Render(int pass, bool isPlayer)
 						XMFLOAT4X4 boneMatrixArray[64];
 						if (skeletons.checkAnimating(id) || (id < -10 && id > -24)) {
 							skeletons.UpdateBoneMatrices(boneMatrixArray, id, skeletons.GetConnectedRootjoint(id));
+							D3D11_MAPPED_SUBRESOURCE boneMatrixData;
+							gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
+							memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
+							gDeviceContext->Unmap(boneBuffer, 0);
+							if (!currentShader) {
+								currentShader = 1;
+								this->gDeviceContext->VSSetShader(this->gBoneVertexShader, nullptr, 0);
+							}
+							gDeviceContext->VSSetConstantBuffers(0, 1, &boneBuffer);
+							this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+							this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 						}
 						else {
 							for (int matrixI = 0; matrixI < 64; matrixI++) {
 								boneMatrixArray[matrixI] = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1);
 							}
+							if (currentShader) {
+								currentShader = 0;
+								this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
+							}
+							this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+							this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 						}
-						D3D11_MAPPED_SUBRESOURCE boneMatrixData;
-						gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
-						memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
-						gDeviceContext->Unmap(boneBuffer, 0);
-						this->gDeviceContext->VSSetShader(this->gBoneVertexShader, nullptr, 0);
-						gDeviceContext->VSSetConstantBuffers(0, 1, &boneBuffer);
 					}
-					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+					else {
+						if (currentShader) {
+							currentShader = 0;
+							this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
+						}
+						this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+						this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+					}
 				}
 			}
 		}
