@@ -79,6 +79,13 @@ void Camera::setCameraPos(DirectX::XMFLOAT3 cameraPos)
 	this->cameraPos = cameraPos;
 }
 
+void Camera::setLookAtVec(DirectX::XMFLOAT3 lookAt)
+{
+	this->lookAt = lookAt;
+}
+
+}
+
 void Camera::setView(XMMATRIX& view)
 {
 	this->cameraMatrices.viewM = view;

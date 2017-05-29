@@ -250,7 +250,7 @@ void DX::Update()
 		this->Render(1, true);
 
 
-		//updateraKamera
+	//updateraKamera
 
 		this->resetConstantBuffer();
 		
@@ -263,6 +263,60 @@ void DX::Update()
 		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
 		this->updateCameraConstantBuffer();
 
+		
+
+		//PARTICLES
+		handler.CreateTriangleData(this->gDevice, this->gDeviceContext,
+			this->col.getCollisionData()[0].collisionType, this->player); //NEW
+		handler.updateMatrices(this->gDeviceContext, &this->camera->getCameraMatrices()); //NEW //rotation
+
+		//fucka med kameran för research
+		if (GetAsyncKeyState(49)) //1 //vanligt
+		{
+			this->camera->setCameraPos(DirectX::XMFLOAT3{ 0, 25, -20 });
+			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, -1, 1 });
+			this->camera->updateCamera();
+		}
+
+		if (GetAsyncKeyState(50)) //2 //Framåt //relativt oanvändbar för detta
+		{
+			this->camera->setCameraPos(DirectX::XMFLOAT3{ 0, 1, -1 });
+			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, 1, 0 });
+			this->camera->updateCamera();
+		}
+
+		if (GetAsyncKeyState(51)) //3 //Under
+		{
+			this->camera->setCameraPos(DirectX::XMFLOAT3{ 0, 1, -1 });
+			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, 10, 0 });
+			this->camera->updateCamera();
+		}
+
+		if (GetAsyncKeyState(52)) //4 //Bakifrån
+		{
+			this->camera->setCameraPos(DirectX::XMFLOAT3{ 0, 25, 15 });
+			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, -1, 1 });
+			this->camera->updateCamera();	
+		}
+
+		if (GetAsyncKeyState(53)) //5 //Sidan
+		{
+			this->camera->setCameraPos(DirectX::XMFLOAT3{ 25, 25, 15 });
+			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, -1, 1 });
+			this->camera->updateCamera();
+		}
+
+		if (GetAsyncKeyState(54)) //6 //Andra Sidan
+		{
+			this->camera->setCameraPos(DirectX::XMFLOAT3{ -20, 25, 0 });
+			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, -1, 1 });
+			this->camera->updateCamera();
+		}
+
+
+		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
+		this->updateCameraConstantBuffer();
+	
 		skeletons.UpdateAnimations(0);
 	}
 	else
@@ -514,6 +568,12 @@ void DX::Render(int pass, bool isPlayer)
 			}
 		}
 		
+	}
+	else if (pass == 2)
+	{
+		this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
+		//PARTICLES
+		handler.Render(this->gDeviceContext, this->gBackBufferRTV); //NEW
 	}
 }
 void DX::clearRender()
@@ -937,7 +997,10 @@ void DX::updatePlayerConstantBuffer() //med player matriser
 	this->gDeviceContext->Unmap(this->gCBuffer, 0);
 
 }
-void DX::updateCameraConstantBuffer()
+
+//fixa med kamera
+
+void DX::updateCameraConstantBuffer() //används inte än
 {
 	objMatrices cameraMatrices = this->camera->getCameraMatrices();
 
