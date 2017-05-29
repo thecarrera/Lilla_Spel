@@ -83,7 +83,7 @@ Collision::Collision(FBXImport::Mesh* &meshes, int meshCount)
 				cornerArray[7].y = meshes[i].vertices[0].position[1];
 				cornerArray[7].z = meshes[i].vertices[0].position[2];
 				
-				if (meshes[i].id == 3)
+				if (meshes[i].id == 1)
 				{
 					int z = 0;
 					int x = 5;
@@ -263,7 +263,7 @@ void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
 /*****************************************************************************************/
 /*****************************************************************************************/
 
-string InteractiveCollision::test(CollisionData* collisionData, Collision& col, SoundManager& SM){
+string InteractiveCollision::test(CollisionData* collisionData, Collision& col, SoundManager& SM, float posX ){
 	string r = "";
 	tButtonPress = GetCurrentTime();
 	if (posX > 0 && posX < 100)

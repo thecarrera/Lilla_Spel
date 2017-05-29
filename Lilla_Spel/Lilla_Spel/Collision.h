@@ -124,7 +124,7 @@ private:
 	time_t lTimePress;
 public:
 
-	string test(CollisionData *collisionData, Collision& col, SoundManager& SM);
+	string test(CollisionData *collisionData, Collision& col, SoundManager& SM, float posX);
 
 	int getIndexById(int id);
 

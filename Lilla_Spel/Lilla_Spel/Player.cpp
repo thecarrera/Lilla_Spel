@@ -14,7 +14,7 @@ Player::~Player()
 {
 }
 
-void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices &lMatrix)
+string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices &lMatrix, SoundManager& SM, bool canMove, float deltaTime)
 {
 	if (GetAsyncKeyState(0x54))
 	{
@@ -33,9 +33,6 @@ void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, 
 		camera->updateCamera();
 	}
 
-
-
-{
 	string r = "idle";
 	tButtonPress = GetCurrentTime();
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc

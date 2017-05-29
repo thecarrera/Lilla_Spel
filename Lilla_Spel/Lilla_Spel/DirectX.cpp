@@ -231,13 +231,10 @@ void DX::Update()
 		skeletons.SetPlayerAnimation(player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, skeletons.canMove, deltaTime));
 		//player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, deltaTime);
 
-		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test);
-
-
-
+		
 		updateLevelPos();
 
-		string colR = interactiveCol.test(col.getCollisionData(), col, player->getPositionX(), this->SM);
+		string colR = interactiveCol.test(col.getCollisionData(), col, this->SM, player->getPositionX());
 		if (colR.find("pull_lever") != string::npos) {
 			skeletons.SetPlayerAnimation("pull_lever");
 		}
@@ -403,13 +400,13 @@ void DX::Render(int pass, bool isPlayer)
 			this->gDeviceContext->VSSetShader(this->gBoneShadowVertexShader, nullptr, 0);
 			gDeviceContext->VSSetConstantBuffers(2, 1, &boneBuffer);
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
-			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
+			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(5), 0);
 		}
 
 		if (isPlayer == false)
 		{
 			for (int i = 6; i < this->gVertexBufferArray_size; i++) {
-				if (FBX.getMeshBoundingBox(i) == 0)
+				if (FBX.getMeshAttribute(i) == 0 && ((FBX.getMeshes()[i].id == currentLevel || FBX.getMeshes()[i].id == nextLevel) || (FBX.getMeshes()[i].id != -100 && FBX.getMeshes()[i].id != -200 && FBX.getMeshes()[i].id != -300 && FBX.getMeshes()[i].id != -400 && FBX.getMeshes()[i].id != -500 && FBX.getMeshes()[i].id != -600)))
 				{
 					int id = FBX.getMeshes()[i].id;
 					if (id < -9 && id > -100) {
@@ -485,13 +482,13 @@ void DX::Render(int pass, bool isPlayer)
 			gDeviceContext->Unmap(boneBuffer, 0);
 			this->gDeviceContext->VSSetShader(this->gBoneVertexShader, nullptr, 0);
 			gDeviceContext->VSSetConstantBuffers(0, 1, &boneBuffer);
-			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(), 0);
+			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(5), 0);
 		}
 
 		if (isPlayer == false)
 		{
 			for (int i = 6; i < this->gVertexBufferArray_size; i++) {
-				if (FBX.getMeshBoundingBox(i) == 0 && (FBX.getMeshes()[i].id == currentLevel || FBX.getMeshes()[i].id == nextLevel) || (FBX.getMeshes()[i].id != -100 && FBX.getMeshes()[i].id != -200 && FBX.getMeshes()[i].id != -300 && FBX.getMeshes()[i].id != -400 && FBX.getMeshes()[i].id != -500 && FBX.getMeshes()[i].id != -600))
+				if (FBX.getMeshAttribute(i) == 0 && ((FBX.getMeshes()[i].id == currentLevel || FBX.getMeshes()[i].id == nextLevel) || (FBX.getMeshes()[i].id != -100 && FBX.getMeshes()[i].id != -200 && FBX.getMeshes()[i].id != -300 && FBX.getMeshes()[i].id != -400 && FBX.getMeshes()[i].id != -500 && FBX.getMeshes()[i].id != -600)))
 				{
 					int id = FBX.getMeshes()[i].id;
 					if (id < -9 && id > -100) {
@@ -1269,7 +1266,11 @@ void DX::printMatrices(objMatrices& mat)
 void DX::updateLevelPos()
 {
 	int pos = player->getPositionX();
-
+	if (pos == 0)
+	{
+		currentLevel = -100;
+		nextLevel = -200;
+	}
 
 	if (pos > 200 && pos <300)
 	{
