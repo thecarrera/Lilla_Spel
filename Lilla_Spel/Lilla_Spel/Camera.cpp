@@ -46,6 +46,7 @@ void Camera::createCamera()
 
 	this->cameraMatrices = { (worldM), (viewM), (projM) };
 }
+
 void Camera::updateCamera()
 {
 	DirectX::XMVECTOR cameraPosVec = DirectX::XMLoadFloat3(&this->cameraPos);
@@ -60,10 +61,12 @@ void Camera::updateCamera()
 
 	this->cameraMatrices = { this->cameraMatrices.worldM, DirectX::XMMatrixTranspose(viewM), DirectX::XMMatrixTranspose(projM) };
 }
+
 objMatrices Camera::getCameraMatrices()const
 {
 	return this->cameraMatrices;
 }
+
 void Camera::setCameraMatrices(objMatrices& cameraMatrices)
 {
 	this->cameraMatrices = cameraMatrices;
@@ -74,6 +77,7 @@ void Camera::move(DirectX::XMMATRIX& temp)
 	XMMATRIX viewM = this->cameraMatrices.viewM;
 	this->cameraMatrices.viewM = viewM * temp;
 }
+
 void Camera::setCameraPos(DirectX::XMFLOAT3 cameraPos)
 {
 	this->cameraPos = cameraPos;
@@ -84,7 +88,6 @@ void Camera::setLookAtVec(DirectX::XMFLOAT3 lookAt)
 	this->lookAt = lookAt;
 }
 
-}
 
 void Camera::setView(XMMATRIX& view)
 {

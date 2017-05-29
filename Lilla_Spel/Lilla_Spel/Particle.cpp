@@ -124,7 +124,7 @@ void Particle::updateParticle(float frameTime)
 	this->oppositeVelocityVector.x = oppositeVelocityVector.x + (oppositeVelocityVector.x / 10000);
 	this->oppositeVelocityVector.y = oppositeVelocityVector.y + (oppositeVelocityVector.y / 10000);
 	this->oppositeVelocityVector.z = oppositeVelocityVector.z + (oppositeVelocityVector.z / 10000);
-	
+
 	//new Pos
 	particle.position = { particle.position.x + this->velocityVector.x + this->oppositeVelocityVector.x,
 						  particle.position.y + this->velocityVector.y + this->oppositeVelocityVector.y,

@@ -9,6 +9,8 @@ Player::Player()
 	this->currentTime = GetCurrentTime();
 	this->burrowCD = 1000;
 	this->timeWhenBurrowed = 0;
+
+	this->direction = "nothing";
 }
 Player::~Player()
 {
@@ -137,6 +139,7 @@ string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg
 
 				XMMATRIX viewM = lMatrix.viewM;
 				lMatrix.viewM = viewM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, -movement));
+				this->direction = "w";
 			}
 
 			if (GetAsyncKeyState(0x53))	//s
@@ -147,6 +150,7 @@ string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg
 				camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, movement)));
 				XMMATRIX viewM = lMatrix.viewM;
 				lMatrix.viewM = viewM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, 0.0f, movement));
+				this->direction = "s";
 			}
 
 			if (GetAsyncKeyState(0x41))	//a
@@ -157,6 +161,7 @@ string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg
 				camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(movement, 0.0f, 0.0f)));
 				XMMATRIX viewM = lMatrix.viewM;
 				lMatrix.viewM = viewM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(movement, 0.0f, 0.0f));
+				this->direction = "a";
 			}
 
 			if (GetAsyncKeyState(0x44))	//d
@@ -167,6 +172,7 @@ string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg
 				camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-movement, 0.0f, 0.0f)));
 				XMMATRIX viewM = lMatrix.viewM;
 				lMatrix.viewM = viewM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-movement, 0.0f, -0.0f));
+				this->direction = "d";
 			}
 
 		}
@@ -327,6 +333,20 @@ void Player::getPositionVec(XMVECTOR & pos)
 
 }
 
+XMFLOAT3 Player::getPlayerPos()
+{
+	DirectX::XMFLOAT4X4 temp;
+
+	DirectX::XMStoreFloat4x4(&temp, this->matrices.worldM);
+
+	DirectX::XMFLOAT3 playerPos = { 0, 0, 0 };
+	playerPos.x = temp._14;
+	playerPos.y = temp._24;
+	playerPos.z = temp._34;
+
+	return playerPos;
+}
+
 void Player::InterpolateTo(float angle, float deltaTime) {
 	bool rightOrder = true;
 	float difference = 0;
@@ -370,4 +390,12 @@ void Player::InterpolateTo(float angle, float deltaTime) {
 	else if (rotation > 180) {
 		rotation -= 360;
 	}
+}
+bool Player::getFlyingUp()
+{
+	return this->flyingUp;
+}
+string Player::getDirection()
+{
+	return this->direction;
 }

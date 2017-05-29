@@ -122,6 +122,8 @@ private:
 	int currentLevel = -100;
 	int nextLevel = -200;
 
+	Handler handler;
+
 public:
 	FBXImport FBX;
 	bool isStartMenu = true;

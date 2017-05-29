@@ -86,7 +86,7 @@ void Handler::createVertexBuffer(ID3D11Device* gDevice)
 
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = &this->particleArray;
-	HRESULT hr = gDevice->CreateBuffer(&bufferDesc, &data, &gVertexBuffer); //DEN KRASHAR
+	HRESULT hr = gDevice->CreateBuffer(&bufferDesc, &data, &gVertexBuffer);
 	if (FAILED(hr))
 		exit(-2);
 }
@@ -268,6 +268,7 @@ ID3D11Buffer* Handler::createConstantBuffer(UINT size, bool dynamic, bool CPUupd
 	return(pBuffer);
 }
 
+	
 void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext,
 	int collisionType, Player* player)
 {
@@ -286,7 +287,7 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 	this->spawnTimer4 += elapsed_seconds.count();
 	this->spawnTimer5 += elapsed_seconds.count();
 	this->spawnTimer6 += elapsed_seconds.count();
-
+	
 	player->getDirection(); //DENNA
 
 	if (this->emitParticles)
@@ -489,6 +490,7 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 	this->lastPlaterPos = player->getPlayerPos();
 }
 
+	
 void Handler::Render(ID3D11DeviceContext* gDeviceContext, ID3D11RenderTargetView* gBackbufferRTV)
 {
 	// clear the back buffer to a deep blue

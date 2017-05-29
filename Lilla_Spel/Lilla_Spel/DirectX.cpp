@@ -268,51 +268,7 @@ void DX::Update()
 		//PARTICLES
 		handler.CreateTriangleData(this->gDevice, this->gDeviceContext,
 			this->col.getCollisionData()[0].collisionType, this->player); //NEW
-		handler.updateMatrices(this->gDeviceContext, &this->camera->getCameraMatrices()); //NEW //rotation
-
-		//fucka med kameran för research
-		if (GetAsyncKeyState(49)) //1 //vanligt
-		{
-			this->camera->setCameraPos(DirectX::XMFLOAT3{ 0, 25, -20 });
-			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, -1, 1 });
-			this->camera->updateCamera();
-		}
-
-		if (GetAsyncKeyState(50)) //2 //Framåt //relativt oanvändbar för detta
-		{
-			this->camera->setCameraPos(DirectX::XMFLOAT3{ 0, 1, -1 });
-			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, 1, 0 });
-			this->camera->updateCamera();
-		}
-
-		if (GetAsyncKeyState(51)) //3 //Under
-		{
-			this->camera->setCameraPos(DirectX::XMFLOAT3{ 0, 1, -1 });
-			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, 10, 0 });
-			this->camera->updateCamera();
-		}
-
-		if (GetAsyncKeyState(52)) //4 //Bakifrån
-		{
-			this->camera->setCameraPos(DirectX::XMFLOAT3{ 0, 25, 15 });
-			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, -1, 1 });
-			this->camera->updateCamera();	
-		}
-
-		if (GetAsyncKeyState(53)) //5 //Sidan
-		{
-			this->camera->setCameraPos(DirectX::XMFLOAT3{ 25, 25, 15 });
-			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, -1, 1 });
-			this->camera->updateCamera();
-		}
-
-		if (GetAsyncKeyState(54)) //6 //Andra Sidan
-		{
-			this->camera->setCameraPos(DirectX::XMFLOAT3{ -20, 25, 0 });
-			this->camera->setLookAtVec(DirectX::XMFLOAT3{ 0, -1, 1 });
-			this->camera->updateCamera();
-		}
-
+		//handler.updateMatrices(this->gDeviceContext, &this->camera->getCameraMatrices()); //NEW //rotation
 
 		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
 		this->updateCameraConstantBuffer();
