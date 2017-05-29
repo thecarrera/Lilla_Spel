@@ -413,83 +413,83 @@ public:
 	}
 
 	void SetRootAnimation(string p_animation) {
-		if (p_animation.find("0") != string::npos && !checkAnimating(-11)) {
+		if (p_animation.find(",0,") != string::npos && !checkAnimating(-11)) {
 			PlayAnimation(-11);
 		}
-		else if (p_animation.find("1") != string::npos && !checkAnimating(-12)) {
+		else if (p_animation.find(",1,") != string::npos && !checkAnimating(-12)) {
 			PlayAnimation(-12);
 		}
-		else if (p_animation.find("2") != string::npos && !checkAnimating(-13)) {
+		else if (p_animation.find(",2,") != string::npos && !checkAnimating(-13)) {
 			PlayAnimation(-13);
 		}
-		else if (p_animation.find("3") != string::npos && !checkAnimating(-14)) {
+		else if (p_animation.find(",3,") != string::npos && !checkAnimating(-14)) {
 			PlayAnimation(-14);
 		}
-		else if (p_animation.find("4") != string::npos && !checkAnimating(-15)) {
+		else if (p_animation.find(",4,") != string::npos && !checkAnimating(-15)) {
 			PlayAnimation(-15);
 		}
-		else if (p_animation.find("5") != string::npos && !checkAnimating(-16)) {
+		else if (p_animation.find(",5,") != string::npos && !checkAnimating(-16)) {
 			PlayAnimation(-16);
 		}
-		else if (p_animation.find("6") != string::npos && !checkAnimating(-17)) {
+		else if (p_animation.find(",6,") != string::npos && !checkAnimating(-17)) {
 			PlayAnimation(-17);
 		}
-		else if (p_animation.find("7") != string::npos && !checkAnimating(-18)) {
+		else if (p_animation.find(",7,") != string::npos && !checkAnimating(-18)) {
 			PlayAnimation(-18);
 		}
-		else if (p_animation.find("8") != string::npos && !checkAnimating(-19)) {
+		else if (p_animation.find(",8,") != string::npos && !checkAnimating(-19)) {
 			PlayAnimation(-19);
 		}
-		else if (p_animation.find("9") != string::npos && !checkAnimating(-20)) {
+		else if (p_animation.find(",9,") != string::npos && !checkAnimating(-20)) {
 			PlayAnimation(-20);
 		}
-		else if (p_animation.find("10") != string::npos && !checkAnimating(-21)) {
+		else if (p_animation.find(",10,") != string::npos && !checkAnimating(-21)) {
 			PlayAnimation(-21);
 		}
-		else if (p_animation.find("11") != string::npos && !checkAnimating(-22)) {
+		else if (p_animation.find(",11,") != string::npos && !checkAnimating(-22)) {
 			PlayAnimation(-22);
 		}
-		else if (p_animation.find("12") != string::npos && !checkAnimating(-23)) {
+		else if (p_animation.find(",12,") != string::npos && !checkAnimating(-23)) {
 			PlayAnimation(-23);
 		}
 		if (p_animation.find("-") != string::npos) {
-			if (p_animation.find("-0") != string::npos) {
+			if (p_animation.find(",-0,") != string::npos) {
 				StopAnimation(-11);
 			}
-			else if (p_animation.find("-1") != string::npos) {
+			else if (p_animation.find(",-1,") != string::npos) {
 				StopAnimation(-12);
 			}
-			else if (p_animation.find("-2") != string::npos) {
+			else if (p_animation.find(",-2,") != string::npos) {
 				StopAnimation(-13);
 			}
-			else if (p_animation.find("-3") != string::npos) {
+			else if (p_animation.find(",-3,") != string::npos) {
 				StopAnimation(-14);
 			}
-			else if (p_animation.find("-4") != string::npos) {
+			else if (p_animation.find(",-4,") != string::npos) {
 				StopAnimation(-15);
 			}
-			else if (p_animation.find("-5") != string::npos) {
+			else if (p_animation.find(",-5,") != string::npos) {
 				StopAnimation(-16);
 			}
-			else if (p_animation.find("-6") != string::npos) {
+			else if (p_animation.find(",-6,") != string::npos) {
 				StopAnimation(-17);
 			}
-			else if (p_animation.find("-7") != string::npos) {
+			else if (p_animation.find(",-7,") != string::npos) {
 				StopAnimation(-18);
 			}
-			else if (p_animation.find("-8") != string::npos) {
+			else if (p_animation.find(",-8,") != string::npos) {
 				StopAnimation(-19);
 			}
-			else if (p_animation.find("-9") != string::npos) {
+			else if (p_animation.find(",-9,") != string::npos) {
 				StopAnimation(-20);
 			}
-			else if (p_animation.find("-10") != string::npos) {
+			else if (p_animation.find(",-10,") != string::npos) {
 				StopAnimation(-21);
 			}
-			else if (p_animation.find("-11") != string::npos) {
+			else if (p_animation.find(",-11,") != string::npos) {
 				StopAnimation(-22);
 			}
-			else if (p_animation.find("-12") != string::npos) {
+			else if (p_animation.find(",-12,") != string::npos) {
 				StopAnimation(-23);
 			}
 		}

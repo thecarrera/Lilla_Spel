@@ -90,7 +90,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import(".\\Assets\\Files\\EXPORTED_FILE.GAY", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import(".\\Assets\\Files\\level_29maj.GAY", this->gDevice, this->gVertexBufferArray);
 
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
@@ -113,7 +113,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->createMenu();
 
-	//col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
+	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
 
 	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
 
