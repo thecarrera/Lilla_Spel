@@ -50,6 +50,8 @@ public:
 	float degreeToRadians(float x) { return x*(XM_PI / 180); };
 	void printMatrices(objMatrices& mat);
 
+	void updateLevelPos();
+
 private:
 	ID3D11Device* gDevice = nullptr;
 	ID3D11DeviceContext* gDeviceContext = nullptr;
@@ -113,6 +115,10 @@ private:
 	int* vertexCountOBJ = nullptr;
 	int gVertexBuffer2_size;
 	float* objCoords;	//denna?
+
+
+	int currentLevel = -100;
+	int nextLevel = -200;
 
 public:
 	FBXImport FBX;

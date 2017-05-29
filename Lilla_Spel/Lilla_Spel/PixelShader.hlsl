@@ -30,7 +30,7 @@ SamplerComparisonState BlurSamp : register(s2) {
 };
 float2 texOffset(int u, int v)
 {
-	return float2(u * 1.0f / 800, v*1.0f / 600);
+	return float2(u * 1.0f / 1920, v*1.0f / 1080);
 }
 
 float4 FS_main(FS_IN input) : SV_Target

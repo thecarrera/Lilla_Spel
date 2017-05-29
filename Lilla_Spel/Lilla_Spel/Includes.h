@@ -26,8 +26,8 @@
 #pragma comment (lib, "d3dcompiler.lib")
 
 #define WLABEL "Lilla Spel Projekt"
-#define HEIGHT 640.0
-#define WIDTH 800.0
+#define HEIGHT 1080.0
+#define WIDTH 1920.0
 #define PIXELSAMPLE 1
 
 #define SAFE_RELEASE(x) if(x) x->Release(), x = nullptr

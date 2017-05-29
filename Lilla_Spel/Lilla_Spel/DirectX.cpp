@@ -183,7 +183,7 @@ void DX::createMenu()
 	DirectX::XMMATRIX worldM = DirectX::XMMatrixIdentity();
 
 	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookToLH(cameraPosVec, lookAtVec, upVecVec));
-	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixOrthographicLH(800.0f * factor , 640.0f * factor, nPlane, fPlane));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixOrthographicLH(1920.0f * factor , 1080.0f * factor, nPlane, fPlane));
 
 	this->menuMats.worldM = worldM;
 	this->menuMats.viewM = viewM;
@@ -231,7 +231,13 @@ void DX::Update()
 		skeletons.SetPlayerAnimation(player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, skeletons.canMove, deltaTime));
 		//player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, deltaTime);
 
-		string colR = interactiveCol.test(col.getCollisionData(), col, this->SM);
+		player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test);
+
+
+
+		updateLevelPos();
+
+		string colR = interactiveCol.test(col.getCollisionData(), col, player->getPositionX(), this->SM);
 		if (colR.find("pull_lever") != string::npos) {
 			skeletons.SetPlayerAnimation("pull_lever");
 		}
@@ -268,7 +274,7 @@ void DX::Update()
 		this->menuControls();
 		this->renderInGameMenu();
 	}
-	this->gSwapChain->Present(1, 0);
+	this->gSwapChain->Present(0, 0);
 }
 
 void DX::CreateDirect3DContext(HWND* wndHandle)
@@ -485,7 +491,7 @@ void DX::Render(int pass, bool isPlayer)
 		if (isPlayer == false)
 		{
 			for (int i = 6; i < this->gVertexBufferArray_size; i++) {
-				if (FBX.getMeshBoundingBox(i) == 0)
+				if (FBX.getMeshBoundingBox(i) == 0 && (FBX.getMeshes()[i].id == currentLevel || FBX.getMeshes()[i].id == nextLevel) || (FBX.getMeshes()[i].id != -100 && FBX.getMeshes()[i].id != -200 && FBX.getMeshes()[i].id != -300 && FBX.getMeshes()[i].id != -400 && FBX.getMeshes()[i].id != -500 && FBX.getMeshes()[i].id != -600))
 				{
 					int id = FBX.getMeshes()[i].id;
 					if (id < -9 && id > -100) {
@@ -515,7 +521,7 @@ void DX::Render(int pass, bool isPlayer)
 }
 void DX::clearRender()
 {
-	float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.f };
+	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.f };
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -989,7 +995,7 @@ void DX::createLightCaster()
 	player->getPositionVec(lookTo);
 	
 	DirectX::XMMATRIX viewM = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(XMVECTOR{lMatrix.lightPos.x,lightPos.y,lightPos.z,lightPos.w}, lookTo, upVec));
-	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.70f, 800.0f/640.0f, 0.1f, 100.0f));
+	DirectX::XMMATRIX projM = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(XM_PI * 0.70, 1920.0/1080.0, 0.1f, 100.0f));
 
 	this->lMatrix.worldM = worldM;
 	this->lMatrix.viewM = viewM;
@@ -1258,4 +1264,34 @@ void DX::printMatrices(objMatrices& mat)
 	cout << p._21 << ", " << p._22 << ", " << p._23 << ", " << p._24 << endl;
 	cout << p._31 << ", " << p._32 << ", " << p._33 << ", " << p._34 << endl;
 	cout << p._41 << ", " << p._42 << ", " << p._43 << ", " << p._44 << endl << endl;;
-}  
+}
+
+void DX::updateLevelPos()
+{
+	int pos = player->getPositionX();
+
+
+	if (pos > 200 && pos <300)
+	{
+		currentLevel = -200;
+		nextLevel = -300;
+	}
+
+	if (pos > 400 && pos < 500 )
+	{
+		currentLevel = -300;
+		nextLevel = -400;
+	}
+
+	if (pos > 700 && pos < 800)
+	{
+		currentLevel = -400;
+		nextLevel = -500;
+	}
+
+	if (pos > 1200 && pos < 1300)
+	{
+		currentLevel = -500;
+		nextLevel = -600;
+	}
+}

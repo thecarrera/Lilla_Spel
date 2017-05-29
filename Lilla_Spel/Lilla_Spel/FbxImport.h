@@ -158,6 +158,10 @@ private:
 				//std::cout << data[0].meshes[i].vertices[0].position[2] << std::endl;
 
 				is.read((char*)&data[count].meshes[i].customAttribute, sizeof(int));
+				if (data[count].meshes[i].customAttribute > 0 )
+				{
+					int x = 23;
+				}
 				is.read((char*)&data[count].meshes[i].id, sizeof(int));
 
 			}
@@ -210,12 +214,12 @@ public:
 		this->loadModel(fileDir, gDevice, gVertexBufferArray, fileCount - 1);
 	};
 
-	int getPlayerSumVertices()
+	int getPlayerSumVertices(int index)
 	{
 		int sum = 0;
 
 
-		sum += data[0].meshes[5].vertexCount;
+		sum += data[0].meshes[index].vertexCount;
 
 		return sum;
 	}
@@ -232,7 +236,7 @@ public:
 		}
 		return sum;
 	}
-	int getMeshBoundingBox(int position)
+	int getMeshAttribute(int position)
 	{
 		return data[0].meshes[position].customAttribute;
 	}

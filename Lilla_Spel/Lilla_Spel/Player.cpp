@@ -7,14 +7,34 @@ Player::Player()
 	this->digging = false;
 
 	this->currentTime = GetCurrentTime();
-	this->burrowCD = 3000;
+	this->burrowCD = 1000;
 	this->timeWhenBurrowed = 0;
 }
 Player::~Player()
 {
 }
 
-string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices &lMatrix, SoundManager& SM, bool canMove, float deltaTime)
+void Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices &lMatrix)
+{
+	if (GetAsyncKeyState(0x54))
+	{
+		XMFLOAT4X4 temp;
+		XMStoreFloat4x4(&temp, matrices.worldM);
+
+		temp._14 = 790;
+		temp._34 = 35;
+
+		matrices.worldM = XMLoadFloat4x4(&temp);
+
+		XMFLOAT3 pos = { 790, 25, 10 };
+
+		camera->setCameraPos(pos);
+	
+		camera->updateCamera();
+	}
+
+
+
 {
 	string r = "idle";
 	tButtonPress = GetCurrentTime();
@@ -272,6 +292,7 @@ void Player::flushGame()
 	this->timeWhenBurrowed = 0;
 }
 
+
 bool Player::getIsDigging() const
 {
 	return digging;
@@ -287,6 +308,15 @@ void Player::getPosition(XMFLOAT4 & pos)
 	pos.x = temp._14;
 	pos.z = temp._34;
 	
+}
+
+float Player::getPositionX()
+{
+	XMFLOAT4X4 temp;
+
+	XMStoreFloat4x4(&temp, matrices.worldM);
+
+	return temp._14;
 }
 
 void Player::getPositionVec(XMVECTOR & pos)

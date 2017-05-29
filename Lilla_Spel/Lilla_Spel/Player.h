@@ -44,7 +44,7 @@ public:
 	bool getIsDigging() const;
 
 	void getPosition(XMFLOAT4& pos);
-
+	float getPositionX();
 	void getPositionVec(XMVECTOR& pos);
 
 	void flushGame();

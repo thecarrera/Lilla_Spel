@@ -10,8 +10,8 @@ public:
 
 		D3D11_TEXTURE2D_DESC shadTextDesc;
 		//Width and height want's to be the same resolution as the Render Target view! RTV is (640 x 800) and this is 2000x2000 causing conflicts!
-		shadTextDesc.Width = 800;
-		shadTextDesc.Height = 640;
+		shadTextDesc.Width = 1920;
+		shadTextDesc.Height = 1080;
 		shadTextDesc.MipLevels = 1;
 		shadTextDesc.ArraySize = 1;
 		shadTextDesc.Format = DXGI_FORMAT_R32_TYPELESS;
