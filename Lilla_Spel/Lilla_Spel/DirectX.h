@@ -50,7 +50,7 @@ public:
 	float degreeToRadians(float x) { return x*(XM_PI / 180); };
 	void printMatrices(objMatrices& mat);
 
-	void updateLevelPos();
+	string updateLevelPos();
 
 private:
 	ID3D11Device* gDevice = nullptr;
@@ -117,6 +117,7 @@ private:
 	float* objCoords;	//denna?
 
 	int currentShader;
+	int lastMonkeyAnimation = 0;
 
 	int currentLevel = -100;
 	int nextLevel = -200;

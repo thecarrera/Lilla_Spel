@@ -16,8 +16,8 @@ void Camera::flushGame()
 
 void Camera::createCamera()
 {
-	this->cameraPos = { 0, 12.5, -10 };	// y 50% st�rre �n z ger bra-ish
-	this->lookAt = { 0, -1, 1 };		// lookAT vill vi ska vara p� origo, d�r spelaren �r
+	this->cameraPos = { 0, 12.8f, -10 };	// y 50% st�rre �n z ger bra-ish
+	this->lookAt = { 0, -0.95f, 1 };		// lookAT vill vi ska vara p� origo, d�r spelaren �r
 	this->upVec = { 0, 1, 0 };
 
 	DirectX::XMVECTOR cameraPosVec = DirectX::XMLoadFloat3(&this->cameraPos);

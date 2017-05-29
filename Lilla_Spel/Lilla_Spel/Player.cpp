@@ -327,6 +327,16 @@ float Player::getPositionX()
 	return temp._14;
 }
 
+float Player::getPositionZ()
+{
+	XMFLOAT4X4 temp;
+
+	XMMATRIX worldM = matrices.worldM;
+	XMStoreFloat4x4(&temp, worldM);
+
+	return temp._34;
+}
+
 void Player::getPositionVec(XMVECTOR & pos)
 {
 	XMFLOAT4 test;

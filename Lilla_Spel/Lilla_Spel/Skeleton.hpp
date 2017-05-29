@@ -112,6 +112,7 @@ class Skeleton {
 	string playerAnimation;
 	int collisionTimer = 0;
 	bool canAnimate = true;
+	string monkeyAnimation;
 
 	void ConvertMeshI(int& p_meshI) {
 		p_meshI = -p_meshI - 10;
@@ -131,6 +132,12 @@ class Skeleton {
 		else if (connectedSkeletonAftermath[p_meshI] == "play below") {
 			playerAnimation = "below";
 			ConnectMesh(-10, "Root_BELOW");
+		}
+		else if (connectedSkeletonAftermath[p_meshI] == "1" || connectedSkeletonAftermath[p_meshI] == "2" || connectedSkeletonAftermath[p_meshI] == "3" || connectedSkeletonAftermath[p_meshI] == "4" || connectedSkeletonAftermath[p_meshI] == "5") {
+			connectedSkeletonTime[p_meshI] = animationEnds[connectedSkeleton[p_meshI]];
+		}
+		else {
+			connectedSkeletonTime[p_meshI] = -1;
 		}
 	}
 
@@ -198,7 +205,7 @@ public:
 		boneCount = new_boneCount;
 	}
 
-	void ConnectMesh(int p_meshI, string p_rootName, bool p_playAnimation = true, string p_afterMath = "loop") {
+	void ConnectMesh(int p_meshI, string p_rootName, bool p_playAnimation = true, string p_afterMath = "loop", float p_startTime = 0) {
 		ConvertMeshI(p_meshI);
 		for (int rootI = 0; rootI < rootCount; rootI++) {
 			if (rootJoints[rootI]->name == p_rootName) {
@@ -207,7 +214,7 @@ public:
 				connectedSkeletonAftermath[p_meshI] = p_afterMath;
 				if (p_playAnimation) {
 					ConvertMeshI(p_meshI);
-					PlayAnimation(p_meshI);
+					PlayAnimation(p_meshI, p_startTime);
 				}
 				break;
 			}
@@ -229,6 +236,7 @@ public:
 		ConnectMesh(-21, "root_root10", false, "stop");
 		ConnectMesh(-22, "root_root11", false, "stop");
 		ConnectMesh(-23, "root_root12", false, "stop");
+		ConnectMesh(-90, "Base_Hip_Apa", false);
 	}
 
 	void StartTime() {
@@ -291,6 +299,47 @@ public:
 						}
 					}
 				}
+			}
+		}
+
+		if (connectedSkeletonAftermath[80] == "1") {
+			if (connectedSkeletonTime[80] > 3.22) {
+				connectedSkeletonTime[80] = animationEnds[connectedSkeleton[80]];
+			}
+		}
+		else if (connectedSkeletonAftermath[80] == "2") {
+			if (connectedSkeletonTime[80] > 8.22) {
+				connectedSkeletonTime[80] = animationEnds[connectedSkeleton[80]];
+			}
+		}
+		else if (connectedSkeletonAftermath[80] == "3") {
+			if (connectedSkeletonTime[80] > 11.7) {
+				connectedSkeletonTime[80] = animationEnds[connectedSkeleton[80]];
+			}
+		}
+		else if (connectedSkeletonAftermath[80] == "4") {
+			if (connectedSkeletonTime[80] > 16) {
+				connectedSkeletonTime[80] = 16;
+			}
+		}
+		else if (connectedSkeletonAftermath[80] == "5") {
+			if (connectedSkeletonTime[80] > 25) {
+				connectedSkeletonTime[80] = animationEnds[connectedSkeleton[80]];
+			}
+		}
+		else if (connectedSkeletonAftermath[80] == "6") {
+			if (connectedSkeletonTime[80] > 32.22) {
+				connectedSkeletonTime[80] = -1;
+			}
+		}
+		else if (connectedSkeletonAftermath[80] == "7") {
+			if (connectedSkeletonTime[80] > 38) {
+				connectedSkeletonTime[80] = -1;
+			}
+		}
+		else if (connectedSkeletonAftermath[80] == "8") {
+			if (connectedSkeletonTime[80] > 41) {
+				connectedSkeletonTime[80] = -1;
 			}
 		}
 	}
@@ -491,6 +540,43 @@ public:
 			}
 			else if (p_animation.find(",-12,") != string::npos) {
 				StopAnimation(-23);
+			}
+		}
+	}
+
+	void SetMonkeyAnimation(string p_animation) {
+		if (p_animation != "") {
+			if (p_animation == "1" && monkeyAnimation != "1") {
+				monkeyAnimation = "1";
+				ConnectMesh(-90, "Base_Hip_Apa", true, "1");
+			}
+			else if (p_animation == "2" && monkeyAnimation != "2") {
+				monkeyAnimation = "2";
+				ConnectMesh(-90, "Base_Hip_Apa", true, "2", 4.333);
+			}
+			else if (p_animation == "3" && monkeyAnimation != "3") {
+				monkeyAnimation = "3";
+				ConnectMesh(-90, "Base_Hip_Apa", true, "3", 9.375);
+			}
+			else if (p_animation == "4" && monkeyAnimation != "4") {
+				monkeyAnimation = "4";
+				ConnectMesh(-90, "Base_Hip_Apa", true, "4", 12);
+			}
+			else if (p_animation == "5" && monkeyAnimation != "5") {
+				monkeyAnimation = "5";
+				ConnectMesh(-90, "Base_Hip_Apa", true, "5", 16.292);
+			}
+			else if (p_animation == "6" && monkeyAnimation != "6") {
+				monkeyAnimation = "6";
+				ConnectMesh(-90, "Base_Hip_Apa", true, "6", 25.3);
+			}
+			else if (p_animation == "7" && monkeyAnimation != "7") {
+				monkeyAnimation = "7";
+				ConnectMesh(-90, "Base_Hip_Apa", true, "7", 32.5);
+			}
+			else if (p_animation == "8" && monkeyAnimation != "8") {
+				monkeyAnimation = "8";
+				ConnectMesh(-90, "Base_Hip_Apa", true, "8", 38.4);
 			}
 		}
 	}

@@ -232,7 +232,7 @@ void DX::Update()
 		//player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, deltaTime);
 
 		
-		updateLevelPos();
+		skeletons.SetMonkeyAnimation(updateLevelPos());
 
 		string colR = interactiveCol.test(col.getCollisionData(), col, this->SM, player->getPositionX());
 		if (colR.find("pull_lever") != string::npos) {
@@ -559,7 +559,7 @@ void DX::Render(int pass, bool isPlayer)
 }
 void DX::clearRender()
 {
-	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.f };
+	float clearColor[] = { 0.72, 0.82, 1, 1 };
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -1304,9 +1304,10 @@ void DX::printMatrices(objMatrices& mat)
 	cout << p._41 << ", " << p._42 << ", " << p._43 << ", " << p._44 << endl << endl;;
 }
 
-void DX::updateLevelPos()
+string DX::updateLevelPos()
 {
-	int pos = player->getPositionX();
+	string r = "";
+	float pos = player->getPositionX();
 	if (pos == 0)
 	{
 		currentLevel = -100;
@@ -1336,4 +1337,43 @@ void DX::updateLevelPos()
 		currentLevel = -500;
 		nextLevel = -600;
 	}
+	if (lastMonkeyAnimation == 0 && pos > 12) {
+		lastMonkeyAnimation = 1;
+		r = "1";
+	}
+	else if (lastMonkeyAnimation == 1 && pos > 99) {
+		lastMonkeyAnimation = 2;
+		r = "2";
+	}
+	else if (lastMonkeyAnimation == 2 && pos > 149) {
+		lastMonkeyAnimation = 3;
+		r = "3";
+	}
+	else if (lastMonkeyAnimation == 3 && pos > 398) {
+		lastMonkeyAnimation = 4;
+		r = "4";
+	}
+	else if (lastMonkeyAnimation == 4 && pos > 770) {
+		lastMonkeyAnimation = 5;
+		r = "5";
+	}
+	else if (lastMonkeyAnimation == 5 && pos > 1523) {
+		lastMonkeyAnimation = 6;
+		r = "6";
+	}
+	else if (lastMonkeyAnimation == 6 && pos > 1615) {
+		float posz = player->getPositionZ();
+		if (posz < 55) {
+			lastMonkeyAnimation = 7;
+			r = "7";
+		}
+	}
+	else if ((lastMonkeyAnimation == 7 || lastMonkeyAnimation == 6) && pos > 1653) {
+		float posz = player->getPositionZ();
+		if (posz > 94) {
+			lastMonkeyAnimation = 8;
+			r = "8";
+		}
+	}
+	return r;
 }

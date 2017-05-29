@@ -49,6 +49,7 @@ public:
 
 	void getPosition(XMFLOAT4& pos);
 	float getPositionX();
+	float getPositionZ();
 	void getPositionVec(XMVECTOR& pos);
 
 	void flushGame();
