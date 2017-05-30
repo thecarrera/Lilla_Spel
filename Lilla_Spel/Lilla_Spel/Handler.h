@@ -73,8 +73,8 @@ private:
 	std::random_device rd;
 	Particle partikel;
 
-	hlslParticle particleArray[10000];
-	Particle* particles[10000];
+	hlslParticle particleArray[18000]; //18250 är nära krash, allt kan krasha
+	Particle* particles[18000];
 	int nrOfParticles;
 	int maxParticles;
 

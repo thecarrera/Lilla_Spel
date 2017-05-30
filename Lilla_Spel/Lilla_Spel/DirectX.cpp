@@ -117,9 +117,9 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	handler.initiateThatThing(this->gDevice, this->gDeviceContext);
 	handler.CreateShaders(this->gDevice);
 
-	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());	//NOCLIP
+	//col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());	//NOCLIP
 
-	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
+	//interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount()); //NOCLIP
 
 	this->Texture(this->gDevice, this->gDeviceContext, this->gTextureRTV);
 	
@@ -242,11 +242,11 @@ void DX::Update()
 		
 		updateLevelPos();
 
-		string colR = interactiveCol.test(col.getCollisionData(), col, this->SM, player->getPositionX());
+		/*string colR = interactiveCol.test(col.getCollisionData(), col, this->SM, player->getPositionX());
 		if (colR.find("pull_lever") != string::npos) {
 			skeletons.SetPlayerAnimation("pull_lever");
-		}
-		skeletons.SetRootAnimation(colR);
+		}*/
+		//skeletons.SetRootAnimation(colR);
 		
 		this->updatePlayerConstantBuffer(); //annars ser inte rör
 
