@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <d3d11.h>
+#include "Sound.h"
 using namespace std;
 class Lever
 {
@@ -15,7 +16,7 @@ public:
 	Lever();
 	virtual ~Lever();
 
-	void activateLever();
+	void activateLever(SoundManager& SM);
 
 	void setId(int id);
 

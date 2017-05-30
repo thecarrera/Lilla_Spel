@@ -263,26 +263,22 @@ void Collision::updatePlayerBB(XMMATRIX& playerWorldMatrix)
 /*****************************************************************************************/
 /*****************************************************************************************/
 
-string InteractiveCollision::test(CollisionData* collisionData, Collision& col, SoundManager& SM, float posX ){
+string InteractiveCollision::test(CollisionData* collisionData, Collision& col, SoundManager& SM, float posX, float posZ){
 	string r = "";
 	tButtonPress = GetCurrentTime();
+
+	SM.checkUnique(posX, posZ);
+
 	if (posX > 0 && posX < 100)
 	{
 		// Check for the pressure plate collision
 		if (collisionData[eTrigger].id == 2) {
-			m_pressurePlate[__id__(2)].togglePressurePlate();
+			m_pressurePlate[__id__(2)].togglePressurePlate(SM);
 			//cout << "pressure plate with id " << m_pressurePlate[__id__(2)].getId() << endl;
 		}
 		else if (E && __id == 0) {
 			r += "pull_lever";
-			m_lever[__id__(0)].activateLever();
-
-			if (tButtonPress - lTimePress >= 500)
-			{
-				SM.playSound(8);
-				SM.setVolume(8, 2.0f);
-				lTimePress = GetCurrentTime();
-			}
+			m_lever[__id__(0)].activateLever(SM);
 		}
 	}
 
@@ -310,19 +306,19 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		//cout << "Level 2" << endl;
 		if (E && __id == 4)
 		{
-			m_lever[__id__(4)].activateLever();
+			m_lever[__id__(4)].activateLever(SM);
 		}
 		if (E && __id == 17)
 		{
-			m_lever[__id__(17)].activateLever();
+			m_lever[__id__(17)].activateLever(SM);
 		}
 		if (E && __id == 7)
 		{
-			m_lever[__id__(7)].activateLever();
+			m_lever[__id__(7)].activateLever(SM);
 		}
 		if (E && __id == 18)
 		{
-			m_lever[__id__(18)].activateLever();
+			m_lever[__id__(18)].activateLever(SM);
 		}
 
 
@@ -359,7 +355,7 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		}
 
 		if (collisionData[eTrigger].id == 10) {
-			m_pressurePlate[__id__(10)].togglePressurePlate();
+			m_pressurePlate[__id__(10)].togglePressurePlate(SM);
 		}
 
 		if (m_pressurePlate[__id__(10)].getPressurePlateData().toggled)
@@ -381,19 +377,19 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 
 		if (E && __id == 12)
 		{
-			m_lever[__id__(12)].activateLever();
+			m_lever[__id__(12)].activateLever(SM);
 		}
 		if (E && __id == 13)
 		{
-			m_lever[__id__(13)].activateLever();
+			m_lever[__id__(13)].activateLever(SM);
 		}
 		if (E && __id == 14)
 		{
-			m_lever[__id__(14)].activateLever();
+			m_lever[__id__(14)].activateLever(SM);
 		}
 		if (E && __id == 15)
 		{
-			m_lever[__id__(15)].activateLever();
+			m_lever[__id__(15)].activateLever(SM);
 		}
 
 		if (m_lever[__id__(12)].getLeverOnOffState() && m_lever[__id__(13)].getLeverOnOffState() && !m_lever[__id__(14)].getLeverOnOffState() && m_lever[__id__(15)].getLeverOnOffState())
@@ -414,25 +410,25 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		if (collisionData[eTrigger].id == 47 )
 		{
 			m_pressurePlate[__id__(47)].setActiveTime(30000);
-			m_pressurePlate[__id__(47)].activatePressurePlate();
+			m_pressurePlate[__id__(47)].activatePressurePlate(SM);
 		}
 
 		if (collisionData[eTrigger].id == 46)
 		{
 			m_pressurePlate[__id__(46)].setActiveTime(25000);
-			m_pressurePlate[__id__(46)].activatePressurePlate();
+			m_pressurePlate[__id__(46)].activatePressurePlate(SM);
 		}
 
 		if (collisionData[eTrigger].id == 45)
 		{
 			m_pressurePlate[__id__(45)].setActiveTime(20000);
-			m_pressurePlate[__id__(45)].activatePressurePlate();
+			m_pressurePlate[__id__(45)].activatePressurePlate(SM);
 		}
 
 		if (collisionData[eTrigger].id == 48)
 		{
 			m_pressurePlate[__id__(48)].setActiveTime(15000);
-			m_pressurePlate[__id__(48)].activatePressurePlate();
+			m_pressurePlate[__id__(48)].activatePressurePlate(SM);
 		}
 
 
@@ -455,17 +451,17 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		if (collisionData[eTrigger].id == 22)
 		{
 			m_pressurePlate[__id__(22)].setActiveTime(120000);
-			m_pressurePlate[__id__(22)].activatePressurePlate();
+			m_pressurePlate[__id__(22)].activatePressurePlate(SM);
 		}
 		if (collisionData[eTrigger].id == 25)
 		{
 			m_pressurePlate[__id__(25)].setActiveTime(120000);
-			m_pressurePlate[__id__(25)].activatePressurePlate();
+			m_pressurePlate[__id__(25)].activatePressurePlate(SM);
 		}
 		if (collisionData[eTrigger].id == 26)
 		{
 			m_pressurePlate[__id__(26)].setActiveTime(120000);
-			m_pressurePlate[__id__(26)].activatePressurePlate();
+			m_pressurePlate[__id__(26)].activatePressurePlate(SM);
 		}
 
 		//Fail
@@ -481,17 +477,17 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		if (collisionData[eTrigger].id == 27)
 		{
 			m_pressurePlate[__id__(27)].setActiveTime(120000);
-			m_pressurePlate[__id__(27)].activatePressurePlate();
+			m_pressurePlate[__id__(27)].activatePressurePlate(SM);
 		}
 		if (collisionData[eTrigger].id == 28)
 		{
 			m_pressurePlate[__id__(28)].setActiveTime(120000);
-			m_pressurePlate[__id__(28)].activatePressurePlate();
+			m_pressurePlate[__id__(28)].activatePressurePlate(SM);
 		}
 		if (collisionData[eTrigger].id == 33)
 		{
 			m_pressurePlate[__id__(33)].setActiveTime(120000);
-			m_pressurePlate[__id__(33)].activatePressurePlate();
+			m_pressurePlate[__id__(33)].activatePressurePlate(SM);
 		}
 
 
@@ -499,17 +495,17 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		if (collisionData[eTrigger].id == 38)
 		{
 			m_pressurePlate[__id__(38)].setActiveTime(120000);
-			m_pressurePlate[__id__(38)].activatePressurePlate();
+			m_pressurePlate[__id__(38)].activatePressurePlate(SM);
 		}
 		if (collisionData[eTrigger].id == 43)
 		{
 			m_pressurePlate[__id__(43)].setActiveTime(120000);
-			m_pressurePlate[__id__(43)].activatePressurePlate();
+			m_pressurePlate[__id__(43)].activatePressurePlate(SM);
 		}
 		if (collisionData[eTrigger].id == 42)
 		{
 			m_pressurePlate[__id__(42)].setActiveTime(120000);
-			m_pressurePlate[__id__(42)].activatePressurePlate();
+			m_pressurePlate[__id__(42)].activatePressurePlate(SM);
 		}
 
 

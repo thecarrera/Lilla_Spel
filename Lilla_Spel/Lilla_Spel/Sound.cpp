@@ -1,5 +1,6 @@
 #include "Sound.h"
 #include <d3d11.h>
+#include <mutex>
 
 SoundManager::SoundManager()
 {
@@ -28,8 +29,8 @@ SoundManager::SoundManager()
 	prop[0]->LowShelfGain = 83;
 	prop[0]->WetLevel = 0.5f;
 
-	this->soundList = new FMOD::Sound*[9];
-	this->soundChannel = new FMOD::Channel*[15];
+	this->soundList = new FMOD::Sound*[11];
+	this->soundChannel = new FMOD::Channel*[17];
 
 	/*
 	########################################
@@ -150,6 +151,14 @@ void SoundManager::playSound(int i)
 	{
 		this->system->playSound(this->soundList[i], 0, false, &this->soundChannel[14]);
 	}
+	else if (i == 9)
+	{
+		this->system->playSound(this->soundList[i], 0, false, &this->soundChannel[15]);
+	}
+	else if (i == 10)
+	{
+		this->system->playSound(this->soundList[i], 0, false, &this->soundChannel[16]);
+	}
 
 }
 void SoundManager::setVolume(int i, float volume)
@@ -196,6 +205,14 @@ void SoundManager::setVolume(int i, float volume)
 	{
 		this->soundChannel[14]->setVolume(volume);
 	}
+	else if (i == 9)
+	{
+		this->soundChannel[15]->setVolume(volume);
+	}
+	else if (i == 10)
+	{
+		this->soundChannel[16]->setVolume(volume);
+	}
 }
 void SoundManager::stopSound(int i)
 {
@@ -240,6 +257,14 @@ void SoundManager::stopSound(int i)
 	else if (i == 8)
 	{
 		this->soundChannel[14]->stop();
+	}
+	else if (i == 9)
+	{
+		this->soundChannel[15]->stop();
+	}
+	else if (i == 10)
+	{
+		this->soundChannel[16]->stop();
 	}
 }
 void SoundManager::togglePauseSound(int i, bool state)
@@ -286,6 +311,14 @@ void SoundManager::togglePauseSound(int i, bool state)
 	{
 		this->soundChannel[14]->setPaused(state);
 	}
+	else if (i == 9)
+	{
+		this->soundChannel[15]->setPaused(state);
+	}
+	else if (i == 10)
+	{
+		this->soundChannel[16]->setPaused(state);
+	}
 }
 
 void SoundManager::playAllAmbient()
@@ -297,7 +330,7 @@ void SoundManager::playAllAmbient()
 	//this->system->playSound(this->soundList[1], 0, false, &this->soundChannel[1]);
 
 	////Cave
-	//this->system->playSound(this->soundList[2], 0, false, &this->soundChannel[2]);
+	this->system->playSound(this->soundList[2], 0, false, &this->soundChannel[2]);
 
 	////Water
 	//this->system->playSound(this->soundList[3], 0, false, &this->soundChannel[3]);
@@ -311,38 +344,69 @@ void SoundManager::playAllAmbient()
 	////Easter
 	//this->system->playSound(this->soundList[4], 0, false, &this->soundChannel[10]);
 
+	//Native
+	this->system->playSound(this->soundList[5], 0, false, &this->soundChannel[11]);
+
 	////Cheering
-	//this->system->playSound(this->soundList[7], 0, false, &this->soundChannel[13]);
+	this->system->playSound(this->soundList[8], 0, false, &this->soundChannel[14]);
 
 	//FMOD_VECTOR tempPos = { 1960.82f, 0.0f, 19.0f };
 	//FMOD_VECTOR tempVel = { 0.1f, 0.1f, 0.1f };
 	//this->soundChannel[3]->set3DAttributes(&tempPos, &tempVel, 0);
 
 	//Volume
-	this->setVolume(0, 0.4f);
+	this->setVolume(0, 0.2f);
 	//this->setVolume(1, 0.4f);
-	//this->setVolume(2, 0.4f);
+	this->setVolume(2, 0.4f);
 	//this->setVolume(3, 0.1f);
 	//this->setVolume(4, 0.4f);
-	//this->setVolume(7, 0.7f);
+	this->setVolume(5, 0.4f);
+	this->setVolume(8, 0.4f);
 
+	this->togglePauseSound(2, true);
+	this->togglePauseSound(5, true);
+	this->togglePauseSound(8, true);
 }
 void SoundManager::pauseAllAmbient(bool state)
 {
-	/*for (int i = 0; i < 15; i++)
+	if (this->faze1 == false && this->faze2 == false && this->enteredCave == false && this->enteredSecret == false)
 	{
-		this->soundChannel[i]->setPaused(state);
-	}*/
+		this->soundChannel[0]->setPaused(state);
+	}
+	else if (this->faze1 == false && this->faze2 == false && this->enteredCave == true && this->enteredSecret == false)
+	{
+		this->soundChannel[2]->setPaused(state);
+	}
+	else if (this->faze1 == false && this->faze2 == false && this->enteredCave == false && this->enteredSecret == true)
+	{
+		this->soundChannel[11]->setPaused(state);
+	}
+	else if (this->faze1 == true)
+	{
+		this->soundChannel[0]->setPaused(state);
+		this->soundChannel[2]->setPaused(state);
+	}
+	else if (this->faze2 == true)
+	{
+		this->soundChannel[0]->setPaused(state);
+		this->soundChannel[11]->setPaused(state);
+	}
 
-	this->soundChannel[0]->setPaused(state);
-	this->soundChannel[11]->setPaused(state);
+	if (this->ending == true)
+	{
+		this->soundChannel[14]->setPaused(state);
+	}
+
+	this->soundChannel[10]->setPaused(state);
 	this->soundChannel[12]->setPaused(state);
-	this->soundChannel[14]->setPaused(state);
+	this->soundChannel[13]->setPaused(state);
+	this->soundChannel[15]->setPaused(state);
+	this->soundChannel[16]->setPaused(state);
 
 }
 void SoundManager::stopAllAmbient()
 {
-	/*for (int i = 0; i < 15; i++)
+	/*for (int i = 0; i < 16; i++)
 	{
 		this->soundChannel[i]->stop();
 	}*/
@@ -350,7 +414,10 @@ void SoundManager::stopAllAmbient()
 	this->soundChannel[0]->stop();
 	this->soundChannel[11]->stop();
 	this->soundChannel[12]->stop();
+	this->soundChannel[13]->stop();
 	this->soundChannel[14]->stop();
+	this->soundChannel[15]->stop();
+	this->soundChannel[16]->stop();
 }
 
 void SoundManager::createFMOD()
@@ -401,7 +468,7 @@ void SoundManager::loadSound()
 		exit(-1);
 	}
 
-	fr = system->createSound(".\\Assets\\Sound\\Cave.mp3", FMOD_3D_HEADRELATIVE, 0, &this->soundList[2]);
+	fr = system->createSound(".\\Assets\\Sound\\Cave.mp3", FMOD_LOOP_NORMAL, 0, &this->soundList[2]);
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
@@ -418,7 +485,15 @@ void SoundManager::loadSound()
 	}
 
 
-	fr = system->createSound(".\\Assets\\Sound\\Easter.mp3", FMOD_3D_HEADRELATIVE, 0, &this->soundList[4]);
+	fr = system->createSound(".\\Assets\\Sound\\Easter.mp3", FMOD_2D , 0, &this->soundList[4]);
+	if (fr != FMOD_OK)
+	{
+		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
+		getchar();
+		exit(-1);
+	}
+
+	fr = system->createSound(".\\Assets\\Sound\\Native.mp3", FMOD_LOOP_NORMAL, 0, &this->soundList[5]);
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
@@ -432,7 +507,7 @@ void SoundManager::loadSound()
 	########################################
 	*/
 
-	fr = system->createSound(".\\Assets\\Sound\\Jump.mp3", FMOD_2D, 0, &this->soundList[5]);
+	fr = system->createSound(".\\Assets\\Sound\\Jump.mp3", FMOD_2D, 0, &this->soundList[6]);
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
@@ -440,7 +515,7 @@ void SoundManager::loadSound()
 		exit(-1);
 	}
 
-	fr = system->createSound(".\\Assets\\Sound\\Crumbling.mp3", FMOD_2D, 0, &this->soundList[6]);
+	fr = system->createSound(".\\Assets\\Sound\\Crumbling.mp3", FMOD_2D, 0, &this->soundList[7]);
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
@@ -454,7 +529,7 @@ void SoundManager::loadSound()
 	########################################
 	*/
 
-	fr = system->createSound(".\\Assets\\Sound\\Cheering.mp3", FMOD_3D_HEADRELATIVE, 0, &this->soundList[7]);
+	fr = system->createSound(".\\Assets\\Sound\\Cheering.mp3", FMOD_2D, 0, &this->soundList[8]);
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
@@ -462,7 +537,15 @@ void SoundManager::loadSound()
 		exit(-1);
 	}
 
-	fr = system->createSound(".\\Assets\\Sound\\Lever.mp3", FMOD_2D, 0, &this->soundList[8]);
+	fr = system->createSound(".\\Assets\\Sound\\Lever.mp3", FMOD_2D, 0, &this->soundList[9]);
+	if (fr != FMOD_OK)
+	{
+		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
+		getchar();
+		exit(-1);
+	}
+
+	fr = system->createSound(".\\Assets\\Sound\\Button.mp3", FMOD_2D, 0, &this->soundList[10]);
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
@@ -609,4 +692,176 @@ void SoundManager::placeReverbs()
 void SoundManager::setListnerPos(FMOD_VECTOR pos)
 {
 	this->system->set3DListenerAttributes(0, &pos, 0, 0, 0);
+}
+
+
+void SoundManager::checkUnique(float posX, float posZ)
+{
+	this->checkEnteringCave(posX, posZ);
+	this->checkExitingCave(posX, posZ);
+	this->checkEnding(posX, posZ);
+	this->checkIndian(posX, posZ);
+	this->checkBear(posX, posZ);
+}
+void SoundManager::checkEnteringCave(float posX, float posZ)
+{
+	if (posX >= 1049 && posX <= 1050 && posZ >= 8 && posZ <= 45)
+	{
+		this->enteredCave = false;
+		this->faze1 = false;
+		this->togglePauseSound(2, true);
+		this->togglePauseSound(0, false);
+		this->setVolume(0, 0.2f);
+	}
+	if (posX >= 1054 && posX <= 1055 && posZ >= 8 && posZ <= 45)
+	{
+		this->faze1 = true;
+		this->setVolume(0, 0.18f);
+		this->setVolume(2, 0.001f);
+	}
+	if (posX >= 1059 && posX <= 1060 && posZ >= 8 && posZ <= 45)
+	{
+		this->setVolume(0, 0.15f);
+		this->setVolume(2, 0.05f);
+	}
+	if (posX >= 1069 && posX <= 1070 && posZ >= 8 && posZ <= 45)
+	{
+		this->setVolume(0, 0.10f);
+		this->setVolume(2, 0.15f);
+	}
+	if (posX >= 1079 && posX <= 1080 && posZ >= 8 && posZ <= 45)
+	{
+		this->setVolume(0, 0.05f);
+		this->setVolume(2, 0.25f);
+	}
+	if (posX >= 1084 && posX <= 1085 && posZ >= 8 && posZ <= 50)
+	{
+		this->faze1 = true;
+		this->setVolume(0, 0.01f);
+		this->setVolume(2, 0.2999f);
+	}
+	if (posX >= 1099 && posX <= 1100 && posZ >= 8 && posZ <= 60)
+	{
+		this->enteredCave = true;
+		this->faze1 = false;
+		this->togglePauseSound(0, true);
+		this->togglePauseSound(2, false);
+		this->setVolume(2, 0.3f);
+	}
+}
+void SoundManager::checkExitingCave(float posX, float posZ)
+{
+	if (posX >= 1220 && posX <= 1221 && posZ >= -10 && posZ <= 70)
+	{
+		this->faze1 = false;
+		this->enteredCave = true;
+		this->togglePauseSound(0, true);
+		this->togglePauseSound(2, false);
+		this->setVolume(2, 0.3f);
+	}
+	if (posX >= 1225 && posX <= 1226 && posZ >= -10 && posZ <= 70)
+	{
+		this->faze1 = true;
+		this->setVolume(0, 0.01f);
+		this->setVolume(2, 0.2999f);
+	}
+	if (posX >= 1230 && posX <= 1231 && posZ >= -10 && posZ <= 70)
+	{
+		this->setVolume(0, 0.05f);
+		this->setVolume(2, 0.25f);
+	}
+	if (posX >= 1240 && posX <= 1241 && posZ >= -10 && posZ <= 70)
+	{
+		this->setVolume(0, 0.10f);
+		this->setVolume(2, 0.15f);
+	}
+	if (posX >= 1250 && posX <= 1251 && posZ >= -10 && posZ <= 70)
+	{
+		this->setVolume(0, 0.15f);
+		this->setVolume(2, 0.05f);
+	}
+	if (posX >= 1255 && posX <= 1256 && posZ >= -10 && posZ <= 70)
+	{
+		this->faze1 = true;
+		this->setVolume(0, 0.18f);
+		this->setVolume(2, 0.001f);
+	}
+	if (posX >= 1260 && posX <= 1261 && posZ >= -10 && posZ <= 70)
+	{
+		this->faze1 = false;
+		this->enteredCave = false;
+		this->togglePauseSound(2, true);
+		this->togglePauseSound(0, false);
+		this->setVolume(0, 0.2f);
+	}
+}
+void SoundManager::checkEnding(float posX, float posZ)
+{
+	if (posX >= 1944 && posX <= 1945 && posZ >= -5 && posZ <= 60)
+	{
+		this->togglePauseSound(8, false);
+		this->setVolume(8, 0.3f);
+		this->ending = true;
+	}
+}
+void SoundManager::checkIndian(float posX, float posZ)
+{
+	if (posX >= 987 && posX <= 1036 && posZ >= 59 && posZ <= 60)
+	{
+		this->faze2 = false;
+		this->enteredSecret = false;
+		this->togglePauseSound(5, true);
+		this->togglePauseSound(0, false);
+		this->setVolume(0, 0.2f);
+	}
+	if (posX >= 987 && posX <= 1036 && posZ >= 64 && posZ <= 65)
+	{
+		this->faze2 = true;
+		this->setVolume(0, 0.18f);
+		this->setVolume(5, 0.001f);
+	}
+	if (posX >= 987 && posX <= 1036 && posZ >= 69 && posZ <= 70)
+	{
+		this->setVolume(0, 0.15f);
+		this->setVolume(5, 0.05f);
+	}
+	if (posX >= 987 && posX <= 1036 && posZ >= 79 && posZ <= 80)
+	{
+		this->setVolume(0, 0.10f);
+		this->setVolume(5, 0.15f);
+	}
+	if (posX >= 987 && posX <= 1036 && posZ >= 89 && posZ <= 90)
+	{
+		this->setVolume(0, 0.05f);
+		this->setVolume(5, 0.25f);
+	}
+	if (posX >= 987 && posX <= 1036 && posZ >= 94 && posZ <= 95)
+	{
+		this->faze2 = true;
+		this->setVolume(0, 0.01f);
+		this->setVolume(5, 0.2999f);
+	}
+	if (posX >= 987 && posX <= 1036 && posZ >= 99 && posZ <= 100)
+	{
+		this->faze2 = false;
+		this->enteredSecret = true;
+		this->togglePauseSound(0, true);
+		this->togglePauseSound(5, false);
+		this->setVolume(5, 0.3f);
+	}
+}
+void SoundManager::checkBear(float posX, float posZ)
+{
+	this->tButtonPress = GetCurrentTime();
+	if (posX >= 1270 && posX <= 1272 && posZ <= 53 && posZ >= 52)
+	{
+		if (this->tButtonPress - this->lTimePress >= 25000)
+		{
+			if (GetAsyncKeyState(0x45)) //e
+			{
+				this->playSound(4);
+				lTimePress = GetCurrentTime();
+			}
+		}
+	}
 }

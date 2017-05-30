@@ -49,7 +49,21 @@ public:
 
 	void getPosition(XMFLOAT4& pos);
 	float getPositionX();
+	float getPositionZ();
 	void getPositionVec(XMVECTOR& pos);
+
+	void printMatrices()
+	{
+		XMFLOAT4X4 w;
+
+		XMStoreFloat4x4(&w, matrices.worldM);
+
+		cout << "World: " << endl;
+		cout << w._11 << ", " << w._12 << ", " << w._13 << ", " << w._14 << endl;
+		cout << w._21 << ", " << w._22 << ", " << w._23 << ", " << w._24 << endl;
+		cout << w._31 << ", " << w._32 << ", " << w._33 << ", " << w._34 << endl;
+		cout << w._41 << ", " << w._42 << ", " << w._43 << ", " << w._44 << endl;
+	}
 
 	void flushGame();
 };

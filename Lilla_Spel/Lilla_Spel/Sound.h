@@ -17,6 +17,16 @@ private:
 	int amountOfSounds;
 	int soundCap;
 
+	time_t tButtonPress;
+	time_t lTimePress;
+
+private:
+	bool faze1 = false;
+	bool faze2 = false;
+	bool enteredSecret = false;
+	bool enteredCave = false;
+	bool ending = false;
+
 public:
 	FMOD::Channel** soundChannel = nullptr;
 
@@ -51,4 +61,12 @@ public:
 	
 	void Clean() { system->release(); };
 	
+	void checkUnique(float posX, float posZ);
+	void checkBear(float posX, float posZ);
+private:
+	void checkIndian(float posX, float posZ);
+	void checkEnteringCave(float posX, float posZ);
+	void checkExitingCave(float posX, float posZ);
+	void checkEnding(float posX, float posZ);
+
 };

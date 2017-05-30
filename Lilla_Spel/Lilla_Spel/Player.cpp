@@ -16,25 +16,57 @@ Player::~Player()
 
 string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices &lMatrix, SoundManager& SM, bool canMove, float deltaTime)
 {
-	if (GetAsyncKeyState(0x54))
+	tButtonPress = GetCurrentTime();
+	if (GetAsyncKeyState(0x54)) // T
 	{
 		XMFLOAT4X4 temp;
 		XMStoreFloat4x4(&temp, matrices.worldM);
 
-		temp._14 = 790;
-		temp._34 = 35;
+		temp._14 = 1015;
+		temp._34 = 52;
 
 		matrices.worldM = XMLoadFloat4x4(&temp);
 
-		XMFLOAT3 pos = { 790, 25, 10 };
+		XMFLOAT3 pos = { 1015, 62, 10 };
 
 		camera->setCameraPos(pos);
 	
 		camera->updateCamera();
 	}
+	if (GetAsyncKeyState(0x59)) // Y
+	{
+		XMFLOAT4X4 temp;
+		XMStoreFloat4x4(&temp, matrices.worldM);
+
+		temp._14 = 1220;
+		temp._34 = 38;
+
+		matrices.worldM = XMLoadFloat4x4(&temp);
+
+		XMFLOAT3 pos = { 1220, 48, 10 };
+
+		camera->setCameraPos(pos);
+
+		camera->updateCamera();
+	}
+	if (GetAsyncKeyState(0x55)) // U
+	{
+		XMFLOAT4X4 temp;
+		XMStoreFloat4x4(&temp, matrices.worldM);
+
+		temp._14 = 1870;
+		temp._34 = 32;
+
+		matrices.worldM = XMLoadFloat4x4(&temp);
+
+		XMFLOAT3 pos = { 1870, 22, 10 };
+
+		camera->setCameraPos(pos);
+
+		camera->updateCamera();
+	}
 
 	string r = "idle";
-	tButtonPress = GetCurrentTime();
 	if (GetAsyncKeyState(VK_ESCAPE))//Esc
 	{
 		if (tButtonPress - lTimePress >= 900)
@@ -171,6 +203,15 @@ string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg
 
 		}
 	}
+
+	if (GetAsyncKeyState(0x47)) // g
+	{
+		if (tButtonPress - lTimePress >= 900)
+		{
+			lTimePress = GetCurrentTime();
+			this->printMatrices();
+		}
+	}
 	
 	if (GetAsyncKeyState(0x51)) //q
 	{
@@ -186,8 +227,8 @@ string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg
 					this->digging = false;
 					if (tButtonPress - lTimePress >= 200)
 					{
-						SM.playSound(6);
-						SM.setVolume(6, 1.4f);
+						SM.playSound(7);
+						SM.setVolume(7, 1.1f);
 						lTimePress = GetCurrentTime();
 					}
 					//camera->move(DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.0f, -5.0f, 0.0f)));
@@ -200,8 +241,8 @@ string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg
 					this->digging = true;
 					if (tButtonPress - lTimePress >= 200)
 					{
-						SM.playSound(6);
-						SM.setVolume(6, 1.4f);
+						SM.playSound(7);
+						SM.setVolume(7, 1.1f);
 						lTimePress = GetCurrentTime();
 					}
 					//if (collisionData[0].collisionType != 1) {
@@ -241,8 +282,8 @@ string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg
 		//this->matrices.worldM = worldM * DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(velocity.x, -velocity.y, velocity.z));
 		if (tButtonPress - lTimePress >= 620)
 		{
-			SM.playSound(5);
-			SM.setVolume(5, 1.4f);
+			SM.playSound(6);
+			SM.setVolume(6, 1.4f);
 			lTimePress = GetCurrentTime();
 		}
 		// if payer hitbox = hitbox ground -> velocity.y = 0;
@@ -314,6 +355,15 @@ float Player::getPositionX()
 	XMStoreFloat4x4(&temp, matrices.worldM);
 
 	return temp._14;
+}
+
+float Player::getPositionZ()
+{
+	XMFLOAT4X4 temp;
+
+	XMStoreFloat4x4(&temp, matrices.worldM);
+
+	return temp._34;
 }
 
 void Player::getPositionVec(XMVECTOR & pos)

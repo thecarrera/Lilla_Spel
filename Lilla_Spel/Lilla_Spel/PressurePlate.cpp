@@ -18,7 +18,7 @@ PressurePlate::~PressurePlate()
 {
 }
 
-void PressurePlate::activatePressurePlate()
+void PressurePlate::activatePressurePlate(SoundManager& SM)
 {
 	m_activatedTime = GetCurrentTime();
 	m_active = true;
@@ -72,13 +72,14 @@ PressurePlateData PressurePlate::getPressurePlateData()
 
 	return PPD;
 }
-void PressurePlate::togglePressurePlate()
+void PressurePlate::togglePressurePlate(SoundManager& SM)
 {
 	if (m_activatedTimeEnd - m_activatedTime2 > m_activationDelay) {
 
 		m_activatedTime2 = GetCurrentTime();
-
-
+		SM.playSound(10);
+		SM.setVolume(10, 1.7f);
+		
 		if (this->toggled == false) {
 			this->toggled = true;
 			cout << "Pressureplate toggled on!" << endl;
@@ -86,6 +87,7 @@ void PressurePlate::togglePressurePlate()
 		else {
 			this->toggled = false;
 			cout << "Pressureplate toggled off!" << endl;
+			SM.soundChannel[16]->setPitch(0.7f);
 		}
 	}
 

@@ -2,6 +2,7 @@
 #include <ctime>
 #include <d3d11.h>
 #include <iostream>
+#include "sound.h"
 using namespace std;
 
 struct PressurePlateData
@@ -35,8 +36,8 @@ public:
 
 	// This functions is called when a pressure plate will be activated. 
 	// It will start a timer 
-	void activatePressurePlate();
-	void togglePressurePlate();
+	void activatePressurePlate(SoundManager& SM);
+	void togglePressurePlate(SoundManager& SM);
 	void setActiveTime(int activeTime);
 	void setId(int id);
 

@@ -234,7 +234,7 @@ void DX::Update()
 		
 		updateLevelPos();
 
-		string colR = interactiveCol.test(col.getCollisionData(), col, this->SM, player->getPositionX());
+		string colR = interactiveCol.test(col.getCollisionData(), col, this->SM, player->getPositionX(), player->getPositionZ());
 		if (colR.find("pull_lever") != string::npos) {
 			skeletons.SetPlayerAnimation("pull_lever");
 		}
@@ -488,26 +488,11 @@ void DX::Render(int pass, bool isPlayer)
 		if (isPlayer == false)
 		{
 			for (int i = 6; i < this->gVertexBufferArray_size; i++) {
-				if (FBX.getMeshAttribute(i) == 0 && ((FBX.getMeshes()[i].id == currentLevel || FBX.getMeshes()[i].id == nextLevel) || (FBX.getMeshes()[i].id != -100 && FBX.getMeshes()[i].id != -200 && FBX.getMeshes()[i].id != -300 && FBX.getMeshes()[i].id != -400 && FBX.getMeshes()[i].id != -500 && FBX.getMeshes()[i].id != -600)))
+				if (FBX.getMeshAttribute(i) == 0)
 				{
-					int id = FBX.getMeshes()[i].id;
-					if (id < -9 && id > -100) {
-						XMFLOAT4X4 boneMatrixArray[64];
-						if (skeletons.checkAnimating(id) || (id < -10 && id > -24)) {
-							skeletons.UpdateBoneMatrices(boneMatrixArray, id, skeletons.GetConnectedRootjoint(id));
-						}
-						else {
-							for (int matrixI = 0; matrixI < 64; matrixI++) {
-								boneMatrixArray[matrixI] = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1);
-							}
-						}
-						D3D11_MAPPED_SUBRESOURCE boneMatrixData;
-						gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
-						memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
-						gDeviceContext->Unmap(boneBuffer, 0);
-						this->gDeviceContext->VSSetShader(this->gBoneVertexShader, nullptr, 0);
-						gDeviceContext->VSSetConstantBuffers(0, 1, &boneBuffer);
-					}
+					
+				
+		
 					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
 					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 				}
@@ -1074,12 +1059,12 @@ void DX::menuControls()
 	{
 		if (this->tButtonPress - this->lTimePress >= 900)  
 		{
-			if (GetAsyncKeyState(VK_RETURN))//Esc
+			if (GetAsyncKeyState(VK_RETURN))//Enter
 			{
 				this->lTimePress = GetCurrentTime();
 				this->menuMsg = false;
 				this->isStartMenu = false;
-				//this->SM.playAllAmbient(); // TEMP
+				this->SM.playAllAmbient(); // TEMP
 			}
 		}
 	}
@@ -1087,7 +1072,7 @@ void DX::menuControls()
 	{
 		if (this->tButtonPress - this->lTimePress >= 900)
 		{
-			if (GetAsyncKeyState(VK_RETURN))//Esc
+			if (GetAsyncKeyState(VK_RETURN))//Enter
 			{
 				this->lTimePress = GetCurrentTime();
 				this->menuMsg = false;
