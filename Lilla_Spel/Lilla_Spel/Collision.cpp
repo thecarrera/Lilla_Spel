@@ -416,7 +416,7 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 
 		if (m_lever[__id__(12)].getLeverOnOffState() && m_lever[__id__(13)].getLeverOnOffState() && !m_lever[__id__(14)].getLeverOnOffState() && m_lever[__id__(15)].getLeverOnOffState())
 		{
-			call_once(flag2, [&]() { r += ",7,"; col.removeBoundingBox(16); /* TEMP REMOVE SOON! -->*/ col.removeBoundingBox(44); }
+			call_once(flag2, [&]() { r += ",7,"; col.removeBoundingBox(16); }
 			);
 		}
 
