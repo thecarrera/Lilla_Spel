@@ -14,6 +14,9 @@ Handler::Handler()
 
 	srand(static_cast <unsigned> (time(0)));
 	
+	//Dive?
+	this->now = GetCurrentTime();
+
 	//////time
 	this->spawnTimer = 0;
 	this->spawnTimer2 = 0;
@@ -21,6 +24,7 @@ Handler::Handler()
 	this->spawnTimer4 = 0;
 	this->spawnTimer5 = 0;
 	this->spawnTimer6 = 0;
+	this->spawnTimer7 = 0;
 	this->frameTime = 0;
 	this->spawnDelay = 0.00000025f;	//ground 
 	this->spawnDelay2 = 0.00000025f;	//leafes
@@ -28,6 +32,7 @@ Handler::Handler()
 	this->spawnDelay4 = 0.00000025f; //water
 	this->spawnDelay5 = 0.00000025f;	//fire
 	this->spawnDelay6 = 0.000005f;	//löv
+	this->spawnDelay7 = 0.00000025f;	//dig Splash
 
 	//partikel plats
 
@@ -291,29 +296,48 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 	this->spawnTimer4 += elapsed_seconds.count();
 	this->spawnTimer5 += elapsed_seconds.count();
 	this->spawnTimer6 += elapsed_seconds.count();
+	this->spawnTimer7 += elapsed_seconds.count();
 	
 	player->getDirection(); //DENNA
+
+	//Dig
+	this->now = GetCurrentTime();
+	time_t timePlayer = player->getTimeWhenBurrowed();
 
 	if (this->emitParticles)
 	{
 		//create ground
-		if (this->nrOfParticles < this->maxParticles - 2 && this->spawnTimer > this->spawnDelay) //används flera emmiters för att inte få värden nära 0 på randomizers
+		if (this->nrOfParticles < this->maxParticles - 1 && this->spawnTimer > this->spawnDelay) //används flera emmiters för att inte få värden nära 0 på randomizers
 		{
 			if (this->lastPlaterPos.x != player->getPlayerPos().x || this->lastPlaterPos.y != player->getPlayerPos().y || this->lastPlaterPos.z != player->getPlayerPos().z)
 			{
 				DirectX::XMFLOAT3 particlePos = player->getPlayerPos();
 				particlePos.y = 0.3f;
 
+				DirectX::XMFLOAT3 color = { 139, 69, 19 };
+
 				if (player->getFlyingUp() == true)
 				{
-					bool boll = 0;
+					bool boll = 0; //Fixa ingen mark när man hoppar
+				}
+
+				if (player->getPlayerPos().x > 1130 && player->getPlayerPos().x < 1200)
+				{
+					//grått
+					color = { 90, 77, 65 };
+				}
+
+				if (player->getPlayerPos().x > 1500 && player->getPlayerPos().x < 1840)
+				{
+					//blått
+					color = { 48, 86, 191 };
 				}
 
 				if (collisionType == -1 && player->getFlyingUp() == false)
 				{
 					//under fötterna
 					Particle* newParticle = new Particle();
-					newParticle->createParticle(particlePos, { 0.8f, 0, 0.8f }, { 0, 0, 0 }, { -1, -1, -1 }, { 1, 1, 1 }, { 139, 69, 19 }, 10, 15, 0.000015f, { 0.05f, 0.05f, 0.05f }, 0, 100000, 0);
+					newParticle->createParticle(particlePos, { 0.8f, 0, 0.8f }, { 0, 0, 0 }, { -1, -1, -1 }, { 1, 1, 1 }, color, 10, 15, 0.000015f, { 0.05f, 0.05f, 0.05f }, 0, 100000, 0);
 
 					this->particles[this->nrOfParticles] = newParticle;
 					this->nrOfParticles++;
@@ -322,11 +346,28 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 				}
 			}
 		}
+		//dig splash
+		if (this->now >= timePlayer + 500  && this->now <= timePlayer + 600)
+		{
+			if (this->nrOfParticles < this->maxParticles - 20 && this->spawnTimer7 > this->spawnDelay7)
+			{
+				for (int i = 0; i < 20; i++)
+				{
+					Particle* newParticle = new Particle();
+					newParticle->createParticle(player->getPlayerPos(), { 1, 1, 1 }, { 0, 0, 0 }, { -1, 0, -1 }, { 1, 1, 1 }, { 139, 69, 19 }, 10, 15, 0.00003f, { 0.1f, 0.1f, 0.1f }, 0, 100000, 0);
+
+					this->particles[this->nrOfParticles] = newParticle;
+					this->nrOfParticles++;
+
+					this->spawnTimer7 = 0;
+				}
+			}
+		}
 
 		//176, 0, 0.8
 		//176, 0, -16.2
 		//leaves for bush
-		if (this->nrOfParticles < this->maxParticles -3 && this->spawnTimer2 > this->spawnDelay2)
+		if (this->nrOfParticles < this->maxParticles -1 && this->spawnTimer2 > this->spawnDelay2)
 		{
 			if (this->lastPlaterPos.x != player->getPlayerPos().x || this->lastPlaterPos.y != player->getPlayerPos().y || this->lastPlaterPos.z != player->getPlayerPos().z)
 			{
@@ -358,14 +399,12 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 							directionRand = { 0, 0, 1 };
 						}
 
-						for (int i = 0; i < 3; i++)
-						{
-							Particle* newParticle = new Particle();
-							newParticle->createParticle({ player->getPlayerPos().x, 0.3f, player->getPlayerPos().z }, { 0.2f, 0, 0.2f }, directionVector, { -directionRand.x, -directionRand.y, -directionRand.z }, directionRand, { 0, 255, 0 }, 15, 20, 0.000015f, { 0.05f, 0.05f, 0.05f }, 0, 100000, 0); //{ 150, 0, 30 } //20, 0, 11
+						Particle* newParticle = new Particle();
+						newParticle->createParticle({ player->getPlayerPos().x, 0.3f, player->getPlayerPos().z }, { 0.2f, 0, 0.2f }, directionVector, { -directionRand.x, -directionRand.y, -directionRand.z }, directionRand, { 0, 255, 0 }, 15, 20, 0.000015f, { 0.05f, 0.05f, 0.05f }, 0, 100000, 0); //{ 150, 0, 30 } //20, 0, 11
 
-							this->particles[this->nrOfParticles] = newParticle;
-							this->nrOfParticles++;
-						}
+						this->particles[this->nrOfParticles] = newParticle;
+						this->nrOfParticles++;
+
 						this->spawnTimer2 = 0;
 					}
 				}
@@ -373,20 +412,28 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 		}
 		//löv för träd
 		//88.8, 0, 0
-		if (player->getPlayerPos().x >= 50)
+		if (player->getPlayerPos().x <= 100)
 		{
 			if (this->nrOfParticles < this->maxParticles && this->spawnTimer6 > this->spawnDelay6)
 			{
+				//tree 2
 				Particle* newParticle = new Particle();
-				newParticle->createParticle({ 90, 25, 0 }, { 7, 0, 7 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 255, 0 }, 20, 30, 0.0003f, { 0, 0, 0 }, 0, 10000, 0); //{ 150, 0, 30 } //20, 0, 11
+				newParticle->createParticle({ 90, 25, 0 }, { 7, 0, 7 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 34, 139, 34 }, 20, 30, 1, { 0, 0, 0 }, 0, 10000, 0); //{ 150, 0, 30 } //20, 0, 11
 
 				this->particles[this->nrOfParticles] = newParticle;
+				this->nrOfParticles++;
+
+				//tree 1
+				Particle* newParticle2 = new Particle();
+				newParticle2->createParticle({ 0, 25, 14.3f }, { 7, 0, 7 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 34, 139, 34 }, 20, 30, 1, { 0, 0, 0 }, 0, 10000, 0); //{ 150, 0, 30 } //20, 0, 11
+
+				this->particles[this->nrOfParticles] = newParticle2;
 				this->nrOfParticles++;
 
 				this->spawnTimer6 = 0;
 			}
 		}
-
+		//z 14.3
 
 		//Waterfall
 		if (player->getPlayerPos().x >= 100)
@@ -406,45 +453,51 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 		}
 		
 		//Waterfall splash
-		if (this->startWaterfallSplash == true)
+		if (player->getPlayerPos().x >= 30 && player->getPlayerPos().x <= 370)
 		{
-			if (this->nrOfParticles < this->maxParticles - 15 && this->spawnTimer4 > this->spawnDelay4)
+			if (this->startWaterfallSplash == true)
 			{
-				for (int i = 0; i < 15; i++)
+				if (this->nrOfParticles < this->maxParticles - 15 && this->spawnTimer4 > this->spawnDelay4)
 				{
-					Particle* newParticle = new Particle();
-					newParticle->createParticle({ 248, 0, 79 }, { 0, 0, 10 }, { 1, 0, 0 }, { 0.2f, 0, 0 }, { 0.5f, 0, 0 }, { 0, 255, 255 }, 20, 30, 0.0001f, { 0.15f, 0, 0 }, 0, 1000000, 2); //{ 150, 0, 30 } //20, 0, 11
+					for (int i = 0; i < 15; i++)
+					{
+						Particle* newParticle = new Particle();
+						newParticle->createParticle({ 248, 0, 79 }, { 0, 0, 10 }, { 1, 0, 0 }, { 0.2f, 0, 0 }, { 0.5f, 0, 0 }, { 0, 255, 255 }, 20, 30, 0.0001f, { 0.15f, 0, 0 }, 0, 1000000, 2); //{ 150, 0, 30 } //20, 0, 11
 
-					this->particles[this->nrOfParticles] = newParticle;
-					this->nrOfParticles++;
+						this->particles[this->nrOfParticles] = newParticle;
+						this->nrOfParticles++;
+					}
+					this->spawnTimer4 = 0;
 				}
-				this->spawnTimer4 = 0;
 			}
 		}
 
 		//Waterflow
-		if (this->nrOfParticles < this->maxParticles - 30 && this->spawnTimer5 > this->spawnDelay5)
+		if (player->getPlayerPos().x >= 30 && player->getPlayerPos().x <= 370)
 		{
-			//waterflowRight
-			for (int i = 0; i < 15; i++)
+			if (this->nrOfParticles < this->maxParticles - 30 && this->spawnTimer5 > this->spawnDelay5)
 			{
-				Particle* newParticle = new Particle();
-				newParticle->createParticle({ 160, 0.5f, 79 }, { 1, 0, 10 }, { 3, 0, 0 }, { 0.5f, 0, 0 }, { 2, 0, 0 }, { 0, 255, 255 }, 20, 30, 1, { 0.05f, 0, 0 }, 0, 0, 1); //{ 150, 0, 30 } //20, 0, 11
+				//waterflowRight
+				for (int i = 0; i < 15; i++)
+				{
+					Particle* newParticle = new Particle();
+					newParticle->createParticle({ 160, 0.5f, 79 }, { 1, 0, 10 }, { 3, 0, 0 }, { 0.5f, 0, 0 }, { 2, 0, 0 }, { 0, 255, 255 }, 20, 30, 1, { 0.05f, 0, 0 }, 0, 0, 1); //{ 150, 0, 30 } //20, 0, 11
 
-				this->particles[this->nrOfParticles] = newParticle;
-				this->nrOfParticles++;
+					this->particles[this->nrOfParticles] = newParticle;
+					this->nrOfParticles++;
+				}
+				//waterflowUpp
+				for (int i = 0; i < 15; i++)
+				{
+					Particle* newParticle = new Particle();
+					newParticle->createParticle({ 170, 0.5f, 25 }, { 10, 0, 1 }, { 0, 0, 3 }, { 0, 0, 0.5f }, { 0, 0, 2 }, { 0, 255, 255 }, 20, 30, 1, { 0, 0, 0.05f }, 0, 0, 3); //{ 150, 0, 30 } //20, 0, 11
+
+					this->particles[this->nrOfParticles] = newParticle;
+					this->nrOfParticles++;
+				}
+
+				this->spawnTimer5 = 0;
 			}
-			//waterflowUpp
-			for (int i = 0; i < 15; i++)
-			{
-				Particle* newParticle = new Particle();
-				newParticle->createParticle({ 170, 0.5f, 25 }, { 10, 0, 1 }, { 0, 0, 3 }, { 0, 0, 0.5f }, { 0, 0, 2 }, { 0, 255, 255 }, 20, 30, 1, { 0, 0, 0.05f }, 0, 0, 3); //{ 150, 0, 30 } //20, 0, 11
-
-				this->particles[this->nrOfParticles] = newParticle;
-				this->nrOfParticles++;
-			}
-
-			this->spawnTimer5 = 0;
 		}
 
 		//170, 0.5f, 25
@@ -563,7 +616,8 @@ void Handler::initiateThatThing(ID3D11Device* gDevice, ID3D11DeviceContext* gDev
 
 
 
-
+//löv långsammare, färre
+//mark explosion senare när gräva upp
 
 
 

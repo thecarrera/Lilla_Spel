@@ -85,24 +85,25 @@ void Particle::createParticle(DirectX::XMFLOAT3 centrePoint, DirectX::XMFLOAT3 r
 	std::uniform_real_distribution<> switchTriangle(0, 5);
 	int what = switchTriangle(gen);
 
-	//padding
-	this->particle.padding = { 0, 0, 0 };
-
 	switch (what)
 	{
 	case 1:
 		this->particle.whatTriangle = 0;
 		break;
 	case 2:
-		this->particle.whatTriangle = 11;
+		this->particle.whatTriangle = 12;
 		break;
 	case 3:
 		this->particle.whatTriangle = 24;
 		break;
 	case 4:
-		this->particle.whatTriangle = 37;
+		this->particle.whatTriangle = 36;
 		break;
 	}
+
+	//padding
+	this->particle.padding = { 0, 0, 0 };
+
 	//ID
 	this->ID = ID;
 	//ID = 1 -> triggerWaterfall

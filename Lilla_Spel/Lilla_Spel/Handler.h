@@ -18,6 +18,9 @@ private:
 	};
 	matrixStruct matriser;
 
+	//Dive?
+	time_t now;
+
 	//sun
 	int direction;
 	float angle;
@@ -69,6 +72,9 @@ private:
 
 	float spawnTimer6;
 	float spawnDelay6;
+
+	float spawnTimer7;
+	float spawnDelay7;
 
 	std::random_device rd;
 	Particle partikel;

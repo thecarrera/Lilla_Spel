@@ -54,6 +54,7 @@ public:
 	XMFLOAT3 getPlayerPos();
 	bool getFlyingUp();
 	string getDirection();
+	time_t getTimeWhenBurrowed();
 
 	void flushGame();
 };

@@ -399,3 +399,8 @@ string Player::getDirection()
 {
 	return this->direction;
 }
+
+time_t Player::getTimeWhenBurrowed()
+{
+	return this->timeWhenBurrowed;
+}
