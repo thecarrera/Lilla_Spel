@@ -431,25 +431,25 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		// toggles
 		if (collisionData[eTrigger].id == 47 )
 		{
-			m_pressurePlate[__id__(47)].setActiveTime(30000);
+			m_pressurePlate[__id__(47)].setActiveTime(35000);
 			m_pressurePlate[__id__(47)].activatePressurePlate();
 		}
 
 		if (collisionData[eTrigger].id == 46)
 		{
-			m_pressurePlate[__id__(46)].setActiveTime(25000);
+			m_pressurePlate[__id__(46)].setActiveTime(30000);
 			m_pressurePlate[__id__(46)].activatePressurePlate();
 		}
 
 		if (collisionData[eTrigger].id == 45)
 		{
-			m_pressurePlate[__id__(45)].setActiveTime(20000);
+			m_pressurePlate[__id__(45)].setActiveTime(25000);
 			m_pressurePlate[__id__(45)].activatePressurePlate();
 		}
 
 		if (collisionData[eTrigger].id == 48)
 		{
-			m_pressurePlate[__id__(48)].setActiveTime(15000);
+			m_pressurePlate[__id__(48)].setActiveTime(20000);
 			m_pressurePlate[__id__(48)].activatePressurePlate();
 		}
 
