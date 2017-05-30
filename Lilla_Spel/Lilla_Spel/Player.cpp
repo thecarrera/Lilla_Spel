@@ -18,7 +18,7 @@ Player::~Player()
 
 string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg, time_t &tButtonPress, time_t &lTimePress, objMatrices &lMatrix, SoundManager& SM, bool canMove, float deltaTime)
 {
-	if (GetAsyncKeyState(0x54))
+	if (GetAsyncKeyState(0x54)) //t
 	{
 		XMFLOAT4X4 temp;
 		XMStoreFloat4x4(&temp, matrices.worldM);
@@ -32,6 +32,23 @@ string Player::move(Camera* &camera, CollisionData* collisionData, bool &menuMsg
 
 		camera->setCameraPos(pos);
 	
+		camera->updateCamera();
+	}
+
+	if (GetAsyncKeyState(0x55)) //u
+	{
+		XMFLOAT4X4 temp;
+		XMStoreFloat4x4(&temp, matrices.worldM);
+
+		temp._14 = 1870;
+		temp._34 = 32;
+
+		matrices.worldM = XMLoadFloat4x4(&temp);
+
+		XMFLOAT3 pos = { 1870, 22, 10 };
+
+		camera->setCameraPos(pos);
+
 		camera->updateCamera();
 	}
 
