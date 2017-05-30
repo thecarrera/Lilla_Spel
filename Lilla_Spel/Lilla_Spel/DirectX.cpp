@@ -113,7 +113,11 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->createMenu();
 
-	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
+	//PARTICLES
+	handler.initiateThatThing(this->gDevice, this->gDeviceContext);
+	handler.CreateShaders(this->gDevice);
+
+	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());	//NOCLIP
 
 	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
 
@@ -231,6 +235,10 @@ void DX::Update()
 		skeletons.SetPlayerAnimation(player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, this->player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, skeletons.canMove, deltaTime));
 		//player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, deltaTime);
 
+		//PARTICLES
+		handler.updateMatrices(this->gDeviceContext, &this->camera->getCameraMatrices()); //NEW //rotation
+		handler.CreateTriangleData(this->gDevice, this->gDeviceContext,
+			this->col.getCollisionData()[0].collisionType, this->player); //NEW
 		
 		updateLevelPos();
 
@@ -257,21 +265,15 @@ void DX::Update()
 		// Enviroment Render pass
 		this->Render(0, false);
 		this->Render(1, false);
+		this->Render(2, false); //particle
 
 		//this->printMatrices(this->player->getMatrices());
 
 		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
 		this->updateCameraConstantBuffer();
-
 		
-
-		//PARTICLES
-		handler.CreateTriangleData(this->gDevice, this->gDeviceContext,
-			this->col.getCollisionData()[0].collisionType, this->player); //NEW
-		//handler.updateMatrices(this->gDeviceContext, &this->camera->getCameraMatrices()); //NEW //rotation
-
-		this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
-		this->updateCameraConstantBuffer();
+		//this->gDeviceContext->ClearDepthStencilView(this->ShadowDepthStencilView, 0x1L, 1, 0);
+		//this->updateCameraConstantBuffer();
 	
 		skeletons.UpdateAnimations(0);
 	}
@@ -529,7 +531,7 @@ void DX::Render(int pass, bool isPlayer)
 	{
 		this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
 		//PARTICLES
-		handler.Render(this->gDeviceContext, this->gBackBufferRTV); //NEW
+		handler.Render(this->gDeviceContext); //NEW
 	}
 }
 void DX::clearRender()

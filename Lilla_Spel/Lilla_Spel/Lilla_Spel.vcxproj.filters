@@ -61,6 +61,15 @@
     <Filter Include="Header Files\Sub Resources\Sound">
       <UniqueIdentifier>{f99f2c7d-a4d6-4e3b-86ee-c52867343838}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Particles">
+      <UniqueIdentifier>{129ed7ec-bf1e-429d-871b-6b86d9c5035c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Particles">
+      <UniqueIdentifier>{30e396cc-dc68-4773-b4ca-d44cd3269cbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\Particle Shaders">
+      <UniqueIdentifier>{022e14b3-7678-49af-ba19-563318c8a51d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Importers.h">
@@ -124,10 +133,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Handler.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Particles</Filter>
     </ClInclude>
     <ClInclude Include="Particle.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Particles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -165,10 +174,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Handler.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Particles</Filter>
     </ClCompile>
     <ClCompile Include="Particle.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Particles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -195,6 +204,15 @@
     </FxCompile>
     <FxCompile Include="VertexShaderBoneShadow.hlsl">
       <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="GeometryShaderParticle.hlsl">
+      <Filter>Source Files\Shaders\Particle Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelShaderParticle.hlsl">
+      <Filter>Source Files\Shaders\Particle Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexShaderParticle.hlsl">
+      <Filter>Source Files\Shaders\Particle Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -115,54 +115,22 @@ void main(point VS_OUT input[1], inout TriangleStream<GS_OUT> OutputStream)
     GS_OUT output = (GS_OUT) 0;
 
     float4 pos = mul(input[0].position, world);
-    pos = mul(pos, view);
-    pos = mul(pos, projection);
 
     for (int i = input[0].whatTriangle; i < input[0].whatTriangle + 12; i++)
     {
         output.Pos = pos + ((triangleCorners[i] * input[0].size));
         output.colorPS = input[0].color;
+        
+        output.Pos = mul(output.Pos, view);
+        output.Pos = mul(output.Pos, projection);
         OutputStream.Append(output);
-
-        //if (i == 0 || i == 3 || i == 9)
-        //{
-        //    //vänster
-        //    output.Pos = pos + ((triangleCorners[i] * input[0].size));
-        //    output.colorPS = input[0].color;
-        //    OutputStream.Append(output);
-        //}
-
-        //if (i == 2 || i == 6 || i == 11)
-        //{
-        //    //bakom, stilla
-        //    output.Pos = pos + ((triangleCorners[i] * input[0].size));
-        //    output.colorPS = input[0].color;
-        //    OutputStream.Append(output);
-        //}
-
-        //if (i == 5 || i == 8 || i == 10)
-        //{
-        //    //höger
-        //    output.Pos = pos + ((triangleCorners[i] * input[0].size));
-        //    output.colorPS = input[0].color;
-        //    OutputStream.Append(output);
-        //}
-
-        //if (i == 1 || i == 4 || i == 7)
-        //{
-        //    //upp
-        //    output.Pos = pos + ((triangleCorners[i] * input[0].size));
-        //    output.colorPS = input[0].color;
-        //    OutputStream.Append(output);
-        //}
     }
 }
 
-//WORLD MATRISEN FÅR ETT ANNAT VÄRDE PÅ NÅT SÄTT?
 
 
 
-//quaternions kan användas för att rotera vektorer?
+
 
 //Graveyard
 //float PI = 3.141592653589793238;

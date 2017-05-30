@@ -66,7 +66,8 @@ Handler::~Handler()
 		delete this->particles[i];
 	}
 
-	gVertexBuffer->Release();
+	gVertexBuffer1->Release();
+	//GSCONSTANTBUFFER1->Release();
 
 	gVertexLayout1->Release();
 	gVertexShader1->Release();
@@ -86,7 +87,7 @@ void Handler::createVertexBuffer(ID3D11Device* gDevice)
 
 	D3D11_SUBRESOURCE_DATA data;
 	data.pSysMem = &this->particleArray;
-	HRESULT hr = gDevice->CreateBuffer(&bufferDesc, &data, &gVertexBuffer);
+	HRESULT hr = gDevice->CreateBuffer(&bufferDesc, &data, &gVertexBuffer1);
 	if (FAILED(hr))
 		exit(-2);
 }
@@ -101,11 +102,11 @@ void Handler::updateVertexBuffer(ID3D11DeviceContext * gDeviceContext)
 	D3D11_MAPPED_SUBRESOURCE pData;
 
 	//update constantbuffer
-	gDeviceContext->Map(this->gVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &pData); //GPU kan inte ändra
+	gDeviceContext->Map(this->gVertexBuffer1, 0, D3D11_MAP_WRITE_DISCARD, 0, &pData); //GPU kan inte ändra
 
 	memcpy(pData.pData, &particleArray, sizeof(hlslParticle) * this->nrOfParticles); // subresourcens data blir matriserna och subrecoursen är bindad till constantbuffern så ändrar vi den ändras constantbuffern
 
-	gDeviceContext->Unmap(this->gVertexBuffer, 0); //GPU kan nu ändra igwen
+	gDeviceContext->Unmap(this->gVertexBuffer1, 0); //GPU kan nu ändra igwen
 }
 
 void Handler::CreateShaders(ID3D11Device* gDevice)
@@ -222,6 +223,18 @@ void Handler::updateMatrices(ID3D11DeviceContext* gDeviceContext, objMatrices* c
 	matriser.view = cameraMatrices->viewM;
 	matriser.projection = cameraMatrices->projM;
 
+	this->GSCONSTANTBUFFER1;
+
+	D3D11_MAPPED_SUBRESOURCE pData;
+
+	//update constantbuffer
+	gDeviceContext->Map(GSCONSTANTBUFFER1, 0, D3D11_MAP_WRITE_DISCARD, 0, &pData); //GPU kan inte ändra
+
+	memcpy(pData.pData, &matriser, sizeof(matrixStruct)); // subresourcens data blir matriserna och subrecoursen är bindad till constantbuffern så ändrar vi den ändras constantbuffern
+
+	gDeviceContext->Unmap(GSCONSTANTBUFFER1, 0); //GPU kan nu ändra igwen
+
+
 	////Rotate matrix around Y Axis
 	//matriser.world = DirectX::XMMATRIX(
 	//	cos(snurr), 0, -sin(snurr), 0,
@@ -232,15 +245,6 @@ void Handler::updateMatrices(ID3D11DeviceContext* gDeviceContext, objMatrices* c
 	//snurr += 0.1;
 
 	//matriser.world *= DirectX::XMMatrixRotationRollPitchYaw(0, 0.01, 0); //snurr
-
-	D3D11_MAPPED_SUBRESOURCE pData;
-
-	//update constantbuffer
-	gDeviceContext->Map(GSCONSTANTBUFFER, 0, D3D11_MAP_WRITE_DISCARD, 0, &pData); //GPU kan inte ändra
-
-	memcpy(pData.pData, &matriser, sizeof(matrixStruct)); // subresourcens data blir matriserna och subrecoursen är bindad till constantbuffern så ändrar vi den ändras constantbuffern
-
-	gDeviceContext->Unmap(GSCONSTANTBUFFER, 0); //GPU kan nu ändra igwen
 }
 
 
@@ -491,15 +495,8 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 }
 
 	
-void Handler::Render(ID3D11DeviceContext* gDeviceContext, ID3D11RenderTargetView* gBackbufferRTV)
+void Handler::Render(ID3D11DeviceContext* gDeviceContext)
 {
-	// clear the back buffer to a deep blue
-	//float clearColor[] = { 0, 0, 0, 1 };
-
-	//gDeviceContext->ClearRenderTargetView(gBackbufferRTV, clearColor); //clearar där ute istället
-
-	//gDeviceContext->ClearDepthStencilView(pDSV, D3D11_CLEAR_DEPTH, 1.f, 0); //clearar render och stencil view för ananrs hade vi sätt förra framen på den nya
-
 	gDeviceContext->VSSetShader(gVertexShader1, nullptr, 0);
 	gDeviceContext->HSSetShader(nullptr, nullptr, 0);
 	gDeviceContext->DSSetShader(nullptr, nullptr, 0);
@@ -508,12 +505,12 @@ void Handler::Render(ID3D11DeviceContext* gDeviceContext, ID3D11RenderTargetView
 
 	UINT32 vertexSize = sizeof(float) * 12; //MÅSTE ÄNDRAS NÄR COLOR OCH SÅNT LÄGGGS IN!!!!!!!!!!
 	UINT32 offset = 0;
-	gDeviceContext->IASetVertexBuffers(0, 1, &gVertexBuffer, &vertexSize, &offset);
+	gDeviceContext->IASetVertexBuffers(0, 1, &gVertexBuffer1, &vertexSize, &offset);
 
 	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	gDeviceContext->IASetInputLayout(gVertexLayout1);
 
-	gDeviceContext->GSSetConstantBuffers(0, 1, &GSCONSTANTBUFFER); //0 för b0 föra att använda rätt buffer
+	gDeviceContext->GSSetConstantBuffers(0, 1, &GSCONSTANTBUFFER1); //0 för b0 föra att använda rätt buffer
 
 	gDeviceContext->Draw(this->nrOfParticles, 0); //antal partiklar
 }
@@ -522,30 +519,16 @@ void Handler::initiateThatThing(ID3D11Device* gDevice, ID3D11DeviceContext* gDev
 {
 	this->initiateMatrices(); //inga nya matriser
 	D3D11_SUBRESOURCE_DATA data = this->initiateSubresources(); //HUR FÅR JAG TAG I SUBRESOURCE DATAN? ^
-	GSCONSTANTBUFFER = this->createConstantBuffer(sizeof(matrixStruct), true, true, &data, gDevice);
-	gDeviceContext->GSSetConstantBuffers(0, 1, &GSCONSTANTBUFFER);
+	GSCONSTANTBUFFER1 = this->createConstantBuffer(sizeof(matrixStruct), true, true, &data, gDevice);
+	gDeviceContext->GSSetConstantBuffers(0, 1, &GSCONSTANTBUFFER1);
 	this->createVertexBuffer(gDevice);
 }
 
-//antalet kanster i geometryshadern
 
-//rotation	
-
-//PARTIKLARNA ÄR NU RUNT 100 GÅNGER MINDRE, SÅ SPEEDEN OCH SIZEN OCH LIKNANDE BEHÖVER HÖJAS
-
-//Gör emitters, eller olika buffrar för varje array med partiklar, för att de ska ha olika rotation
-
-//Rotationen är för emitter inte för partikel
-
-//olika varianter av partiklarna
-
-//börja skripta partiklarna, såsom under spelaren
-
-//gör den där funktionen i player så man kan följa den och få spelarens position
 
 //DEPTH BUFFER PROBLEM, PARTIKLAR ALLTID RENDERAS
 
-
+//MERGE PROBLEM
 
 
 
@@ -673,6 +656,3 @@ void Handler::initiateThatThing(ID3D11Device* gDevice, ID3D11DeviceContext* gDev
 //	this->nrOfParticles++;
 //	this->spawnTimer3 = 0;
 //}
-
-
-//flimmer kan bero på användning av samma partikel i for loop

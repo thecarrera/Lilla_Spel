@@ -78,14 +78,14 @@ private:
 	int nrOfParticles;
 	int maxParticles;
 
-	ID3D11Buffer* gVertexBuffer = nullptr;
+	ID3D11Buffer* gVertexBuffer1 = nullptr;
 
 	ID3D11InputLayout* gVertexLayout1 = nullptr;
 	ID3D11VertexShader* gVertexShader1 = nullptr;
 	ID3D11GeometryShader* gGeometryShader1 = nullptr; //GS GÖR FÖRSTA
 	ID3D11PixelShader* gPixelShader1 = nullptr;
 
-	ID3D11Buffer* GSCONSTANTBUFFER = nullptr;
+	ID3D11Buffer* GSCONSTANTBUFFER1 = nullptr;
 
 	DirectX::XMFLOAT3 lastPlaterPos;
 
@@ -102,8 +102,7 @@ public:
 	void CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDeviceContext,
 		int collisionType, Player* player);
 	//finns, men en del av det i denna måste läggas in
-	void Render(ID3D11DeviceContext* gDeviceContext, 
-		ID3D11RenderTargetView* gBackbufferRTV); 
+	void Render(ID3D11DeviceContext* gDeviceContext); 
 	
 
 	//finns nog redan i stora 
