@@ -1095,6 +1095,10 @@ void DX::flushGame()
 	this->player->flushGame();
 	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
 	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
+
+
+	FBXLoader::FL_LoadSkeleton(this->skeletons);
+	skeletons.StartTime();
 }
 void DX::startMenuLoop()
 {

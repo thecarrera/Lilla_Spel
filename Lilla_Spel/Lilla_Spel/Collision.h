@@ -112,6 +112,8 @@ public:
 class InteractiveCollision
 {
 private:
+
+	bool flag, flag2, flag3, flag4, flag5, flag6, flag7;
 	Lever* m_lever;
 	PressurePlate* m_pressurePlate;
 
@@ -122,6 +124,7 @@ private:
 
 	time_t tButtonPress;
 	time_t lTimePress;
+
 public:
 
 	string test(CollisionData *collisionData, Collision& col, SoundManager& SM, float posX, float posZ);

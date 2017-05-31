@@ -1,7 +1,7 @@
 #include "Collision.h"
-#include <mutex>
 
-once_flag flag, flag2, flag3, flag4, flag5, flag6, flag7;
+
+
 
 
 Collision::Collision() {
@@ -285,9 +285,15 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 	if (m_lever[__id__(0)].getLeverOnOffState())
 	{
 		// turn off boundingbox based on id 
-		call_once(flag, [&]() { r += ",0,"; col.removeBoundingBox(1); }
-		);		
+		if(flag) 
+		{
+			r += ",0,"; 
+			col.removeBoundingBox(1); 
+			flag = !flag;
+		}
+			
 	}
+	
 
 	if (m_pressurePlate[__id__(2)].getPressurePlateData().toggled)
 	{
@@ -412,8 +418,13 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 
 		if (m_lever[__id__(12)].getLeverOnOffState() && m_lever[__id__(13)].getLeverOnOffState() && !m_lever[__id__(14)].getLeverOnOffState() && m_lever[__id__(15)].getLeverOnOffState())
 		{
-			call_once(flag2, [&]() { r += ",7,"; col.removeBoundingBox(16); }
-			);
+			if(flag2)
+			{
+				r += ",7,";
+				col.removeBoundingBox(16); 
+				flag2 = !flag2;
+			}
+			
 		}
 
 	}
@@ -454,8 +465,13 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		// Checks
 		if (m_pressurePlate[__id__(47)].getPressurePlateData().ticking && m_pressurePlate[__id__(46)].getPressurePlateData().ticking && m_pressurePlate[__id__(45)].getPressurePlateData().ticking && m_pressurePlate[__id__(48)].getPressurePlateData().ticking)
 		{
-			call_once(flag3, [&]() { r += ",11,"; col.disableBoundingBox(49); }
-			);
+			if(flag3)
+			{
+				r += ",11,";
+				col.disableBoundingBox(49);
+				flag3 = !flag3;
+			}
+			
 		}
 
 	}
@@ -531,19 +547,34 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		//Check Hint 1
 		if (m_pressurePlate[__id__(22)].getPressurePlateData().ticking && m_pressurePlate[__id__(25)].getPressurePlateData().ticking && m_pressurePlate[__id__(26)].getPressurePlateData().ticking)
 		{
-			call_once(flag5, [&]() { r += ",9,"; col.disableBoundingBox(52); });
+			if(flag5)
+			{
+				r += ",9,";
+				col.disableBoundingBox(52); 
+				flag5 = !flag5;
+			}
 		}
 
 		//Check Hint 2
 		if (m_pressurePlate[__id__(27)].getPressurePlateData().ticking && m_pressurePlate[__id__(28)].getPressurePlateData().ticking && m_pressurePlate[__id__(33)].getPressurePlateData().ticking)
 		{
-			call_once(flag6, [&]() { r += ",8,"; col.disableBoundingBox(53); });
+			if(flag6)
+			{
+				r += ",8,"; 
+				col.disableBoundingBox(53);
+				flag6 = !flag6;
+			}
 		}
 
 		//Check Hint 3
 		if (m_pressurePlate[__id__(38)].getPressurePlateData().ticking && m_pressurePlate[__id__(43)].getPressurePlateData().ticking && m_pressurePlate[__id__(42)].getPressurePlateData().ticking)
 		{
-			call_once(flag7, [&]() { r += ",10,"; col.disableBoundingBox(44); });
+			if(flag7)
+			{
+				r += ",10,";
+				col.disableBoundingBox(44); 
+				flag7 = !flag7;
+			}
 		}
 	}
 
