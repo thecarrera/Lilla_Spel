@@ -76,11 +76,14 @@ private:
 	float spawnTimer7;
 	float spawnDelay7;
 
+	float spawnTimer8;
+	float spawnDelay8;
+
 	std::random_device rd;
 	Particle partikel;
 
-	hlslParticle particleArray[18000]; //18250 är nära krash, allt kan krasha
-	Particle* particles[18000];
+	hlslParticle particleArray[17000]; //18250 är nära krash, allt kan krasha
+	Particle* particles[17000];
 	int nrOfParticles;
 	int maxParticles;
 

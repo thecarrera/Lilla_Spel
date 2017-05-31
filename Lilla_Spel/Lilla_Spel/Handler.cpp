@@ -3,7 +3,7 @@
 Handler::Handler()
 {
 	this->nrOfParticles = 0;
-	this->maxParticles = 18000;
+	this->maxParticles = 17000;
 
 	for (int i = 0; i < this->maxParticles; i++)
 	{
@@ -25,14 +25,16 @@ Handler::Handler()
 	this->spawnTimer5 = 0;
 	this->spawnTimer6 = 0;
 	this->spawnTimer7 = 0;
+	this->spawnTimer8 = 0;
 	this->frameTime = 0;
-	this->spawnDelay = 0.00000025f;	//ground 
+	this->spawnDelay = 0.00000035f;	//ground 
 	this->spawnDelay2 = 0.00000025f;	//leafes
 	this->spawnDelay3 = 0.00000025f;	//sun
 	this->spawnDelay4 = 0.00000025f; //water
 	this->spawnDelay5 = 0.00000025f;	//fire
 	this->spawnDelay6 = 0.00005f;	//löv träd
 	this->spawnDelay7 = 0.00000025f;	//dig Splash
+	this->spawnDelay8 = 0.00000025f;	//Diamanter
 
 	//partikel plats
 
@@ -297,6 +299,7 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 	this->spawnTimer5 += elapsed_seconds.count();
 	this->spawnTimer6 += elapsed_seconds.count();
 	this->spawnTimer7 += elapsed_seconds.count();
+	this->spawnTimer8 += elapsed_seconds.count();
 	
 	player->getDirection(); //DENNA
 
@@ -382,10 +385,18 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 			{
 				if (this->nrOfParticles < this->maxParticles - 20 && this->spawnTimer7 > this->spawnDelay7)
 				{
+					DirectX::XMFLOAT3 color = { 139, 69, 19 };
+
+					if (player->getPlayerPos().x > 1130 && player->getPlayerPos().x < 1200)
+					{
+						//grått
+						color = { 90, 77, 65 };
+					}
+
 					for (int i = 0; i < 20; i++)
 					{
 						Particle* newParticle = new Particle();
-						newParticle->createParticle(player->getPlayerPos(), { 1, 1, 1 }, { 0, 0, 0 }, { -1, 0, -1 }, { 1, 1, 1 }, { 139, 69, 19 }, 10, 15, 0.00003f, { 0.1f, 0.1f, 0.1f }, 0, 100000, 0);
+						newParticle->createParticle(player->getPlayerPos(), { 1, 1, 1 }, { 0, 0, 0 }, { -1, 0, -1 }, { 1, 1, 1 }, color, 10, 15, 0.00003f, { 0.1f, 0.1f, 0.1f }, 0, 100000, 0);
 
 						this->particles[this->nrOfParticles] = newParticle;
 						this->nrOfParticles++;
@@ -430,7 +441,7 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 						}
 
 						Particle* newParticle = new Particle();
-						newParticle->createParticle({ player->getPlayerPos().x, 0.3f, player->getPlayerPos().z }, { 0.2f, 0, 0.2f }, directionVector, { -directionRand.x, -directionRand.y, -directionRand.z }, directionRand, { 0, 255, 0 }, 15, 20, 0.000015f, { 0.05f, 0.05f, 0.05f }, 0, 100000, 0); //{ 150, 0, 30 } //20, 0, 11
+						newParticle->createParticle({ player->getPlayerPos().x, 0.3f, player->getPlayerPos().z }, { 0.2f, 0, 0.2f }, directionVector, { -directionRand.x, -directionRand.y, -directionRand.z }, directionRand, { 0, 255, 0 }, 15, 20, 0.000015f, { 0.05f, 0.05f, 0.05f }, 0, 100000, 0); 
 
 						this->particles[this->nrOfParticles] = newParticle;
 						this->nrOfParticles++;
@@ -441,23 +452,37 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 			}
 		}
 		//löv för träd
-		//88.8, 0, 0
-		if (player->getPlayerPos().x <= 100)
+		//286, 0, 54
+		if (player->getPlayerPos().x <= 370)
 		{
-			if (this->nrOfParticles < this->maxParticles && this->spawnTimer6 > this->spawnDelay6)
+			if (this->nrOfParticles < this->maxParticles - 4 && this->spawnTimer6 > this->spawnDelay6)
 			{
 				//tree 2
 				Particle* newParticle = new Particle();
-				newParticle->createParticle({ 90, 12.5f, 0 }, { 8, 0, 8 }, { 0, -1, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 34, 139, 34 }, 10, 15, 1, { 0, 0.01f, 0 }, 0, 100, 0); //{ 150, 0, 30 } //20, 0, 11
+				newParticle->createParticle({ 90, 12.5f, 0 }, { 8, 0, 8 }, { 0, -1, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 34, 139, 34 }, 10, 15, 1, { 0, 0.01f, 0 }, 0, 100, 0); 
 
 				this->particles[this->nrOfParticles] = newParticle;
 				this->nrOfParticles++;
 
 				//tree 1
 				Particle* newParticle2 = new Particle();
-				newParticle2->createParticle({ 0, 12.5f, 14.3f }, { 8, 0, 8 }, { 0, -1, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 34, 139, 34 }, 10, 15, 1, { 0, 0.01f, 0 }, 0, 100, 0); //{ 150, 0, 30 } //20, 0, 11
+				newParticle2->createParticle({ 0, 12.5f, 14.3f }, { 8, 0, 8 }, { 0, -1, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 34, 139, 34 }, 10, 15, 1, { 0, 0.01f, 0 }, 0, 100, 0); 
 
 				this->particles[this->nrOfParticles] = newParticle2;
+				this->nrOfParticles++;
+
+				//tree waterfall
+				Particle* newParticle3 = new Particle();
+				newParticle3->createParticle({ 217, 12.5f, 41 }, { 8.5f, 0, 8.5f }, { 0, -1, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 34, 139, 34 }, 10, 15, 1, { 0, 0.01f, 0 }, 0, 100, 0); 
+
+				this->particles[this->nrOfParticles] = newParticle3;
+				this->nrOfParticles++;
+
+				//tree waterfall2
+				Particle* newParticle4 = new Particle();
+				newParticle4->createParticle({ 286, 12.5f, 54 }, { 8.5f, 0, 8.5f }, { 0, -1, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 34, 139, 34 }, 10, 15, 1, { 0, 0.01f, 0 }, 0, 100, 0); 
+
+				this->particles[this->nrOfParticles] = newParticle4;
 				this->nrOfParticles++;
 
 				this->spawnTimer6 = 0;
@@ -474,7 +499,7 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 					for (int i = 0; i < 15; i++)
 					{
 						Particle* newParticle = new Particle();
-						newParticle->createParticle({ 248, 0, 79 }, { 0, 0, 10 }, { 1, 0, 0 }, { 0.2f, 0, 0 }, { 0.5f, 0, 0 }, { 0, 255, 255 }, 40, 50, 0.0001f, { 0.15f, 0, 0 }, 0, 1000000, 2); //{ 150, 0, 30 } //20, 0, 11
+						newParticle->createParticle({ 248, 0, 79 }, { 0, 0, 10 }, { 1, 0, 0 }, { 0.2f, 0, 0 }, { 0.5f, 0, 0 }, { 0, 255, 255 }, 40, 50, 0.0001f, { 0.15f, 0, 0 }, 0, 1000000, 2); 
 
 						this->particles[this->nrOfParticles] = newParticle;
 						this->nrOfParticles++;
@@ -493,7 +518,7 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 				for (int i = 0; i < 15; i++)
 				{
 					Particle* newParticle = new Particle();
-					newParticle->createParticle({ 160, 0.5f, 79 }, { 1, 0, 10 }, { 3, 0, 0 }, { 0.5f, 0, 0 }, { 2, 0, 0 }, { 0, 255, 255 }, 40, 50, 1, { 0.05f, 0, 0 }, 0, 0, 1); //{ 150, 0, 30 } //20, 0, 11
+					newParticle->createParticle({ 160, 0.5f, 79 }, { 1, 0, 10 }, { 3, 0, 0 }, { 0.5f, 0, 0 }, { 2, 0, 0 }, { 0, 255, 255 }, 40, 50, 1, { 0.05f, 0, 0 }, 0, 0, 1); 
 
 					this->particles[this->nrOfParticles] = newParticle;
 					this->nrOfParticles++;
@@ -502,7 +527,7 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 				for (int i = 0; i < 15; i++)
 				{
 					Particle* newParticle = new Particle();
-					newParticle->createParticle({ 170, 0.5f, 25 }, { 10, 0, 1 }, { 0, 0, 3 }, { 0, 0, 0.5f }, { 0, 0, 2 }, { 0, 255, 255 }, 40, 50, 1, { 0, 0, 0.05f }, 0, 0, 3); //{ 150, 0, 30 } //20, 0, 11
+					newParticle->createParticle({ 170, 0.5f, 23 }, { 10, 0, 1 }, { 0, 0, 3 }, { 0, 0, 0.5f }, { 0, 0, 2 }, { 0, 255, 255 }, 40, 50, 1, { 0, 0, 0.05f }, 0, 0, 3); 
 
 					this->particles[this->nrOfParticles] = newParticle;
 					this->nrOfParticles++;
@@ -511,9 +536,22 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 				this->spawnTimer5 = 0;
 			}
 		}
+		
+		//Diamanter
+		/*if (player->getPlayerPos().x >= 800 && player->getPlayerPos().x <= 1200)
+		{*/
+			if (this->nrOfParticles < this->maxParticles - 1 && this->spawnTimer8 > this->spawnDelay8)
+			{
+				Particle* newParticle = new Particle();
+				newParticle->createParticle({ 1014, 26, 62 }, { 21.5f, 0, 0 }, { 0, -1, -1 }, { 0, 0, 0 }, { 0, 0, 0 }, { 138, 43, 226 }, 10, 20, 0.0005f, { 0.05f, 0.05f, 0.01f }, 0, 0, 0);
 
-		//170, 0.5f, 25
-		//86
+				this->particles[this->nrOfParticles] = newParticle;
+				this->nrOfParticles++;
+
+				this->spawnTimer8 = 0;
+			}
+		//}
+
 	}
 
 	if (this->nrOfParticles == this->maxParticles)
@@ -558,7 +596,7 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 			}
 			else if (this->particles[i]->getID() == 2) //waterfall
 			{
-				if (this->particles[i]->getParticle().position.y <= -25)
+				if (this->particles[i]->getParticle().position.y <= -35)
 				{
 					Particle* temp = this->particles[this->nrOfParticles - 1];
 					this->particles[this->nrOfParticles - 1] = nullptr;
