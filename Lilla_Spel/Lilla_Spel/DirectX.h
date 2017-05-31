@@ -25,6 +25,8 @@ public:
 
 	void CreateDirect3DContext(HWND* wndHandle);
 	void SetViewport();
+	void setDbg();
+	void setDbgName(ID3D11DeviceChild* child, const std::string& name);
 
 	void Update();
 	void Render(int pass, bool isPlayer);
@@ -50,13 +52,15 @@ public:
 	float degreeToRadians(float x) { return x*(XM_PI / 180); };
 	void printMatrices(objMatrices& mat);
 
-	void updateLevelPos();
+	string updateLevelPos();
 
 private:
 	ID3D11Device* gDevice = nullptr;
 	ID3D11DeviceContext* gDeviceContext = nullptr;
+	ID3D11DeviceChild* gChild = nullptr;
 	IDXGISwapChain* gSwapChain = nullptr;
 	ID3D11RenderTargetView* gBackBufferRTV = nullptr;
+	ID3D11Debug* dbg = nullptr;
 
 	ID3D11InputLayout* gVertexLayout = nullptr;
 	ID3D11InputLayout* gShadowLayout = nullptr;
@@ -116,6 +120,8 @@ private:
 	int gVertexBuffer2_size;
 	float* objCoords;	//denna?
 
+	int currentShader;
+	int lastMonkeyAnimation = 0;
 
 	int currentLevel = -100;
 	int nextLevel = -200;

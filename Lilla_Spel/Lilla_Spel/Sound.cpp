@@ -106,6 +106,27 @@ SoundManager::~SoundManager()
 {
 	this->Clean();
 }
+void SoundManager::Clean()
+{
+	for (int i = 0; i < this->soundCap; i++)
+	{
+		SAFE_RELEASE(this->Reverb[i]);
+	} SAFE_DELETE(this->Reverb);
+
+	SAFE_DELETE(this->Reverb);
+
+	for (int i = 0; i < 11; i++)
+	{
+		SAFE_RELEASE(this->soundList[i]);
+	} SAFE_DELETE(this->soundList);
+
+	SAFE_DELETE(this->soundChannel);
+
+	SAFE_DELETE(this->soundGroup);
+
+	SAFE_RELEASE(this->system);
+
+}
 
 void SoundManager::playSound(int i)
 {
@@ -797,7 +818,7 @@ void SoundManager::checkExitingCave(float posX, float posZ)
 }
 void SoundManager::checkEnding(float posX, float posZ)
 {
-	if (posX >= 1944 && posX <= 1945 && posZ >= -5 && posZ <= 60)
+	if (posX >= 1910 && posX <= 1911 && posZ >= -5 && posZ <= 60)
 	{
 		this->togglePauseSound(8, false);
 		this->setVolume(8, 0.3f);

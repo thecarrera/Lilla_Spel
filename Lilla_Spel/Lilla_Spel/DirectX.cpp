@@ -12,16 +12,24 @@
 
 DX::DX()
 {
-	this->gTextureRTV = new ID3D11ShaderResourceView*[5];
+	this->gTextureRTV = new ID3D11ShaderResourceView*[8];
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		this->gTextureRTV[i] = nullptr;
 	}
 }
 DX::~DX()
 {
+	this->setDbg();
+	
 	this->Clean();
+	
+	if (dbg != nullptr)
+	{
+		dbg->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+		dbg = nullptr;
+	}
 }
 void DX::Clean()
 {
@@ -29,6 +37,8 @@ void DX::Clean()
 	SAFE_RELEASE(this->gDeviceContext);
 	SAFE_RELEASE(this->gSwapChain);
 	SAFE_RELEASE(this->gBackBufferRTV);
+	SAFE_RELEASE(this->gChild);
+	SAFE_RELEASE(this->dbg);
 
 	SAFE_RELEASE(this->gVertexLayout);
 	SAFE_RELEASE(this->gShadowLayout);
@@ -72,7 +82,7 @@ void DX::Clean()
 
 	SAFE_RELEASE(this->txSamplerState);
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		SAFE_RELEASE(this->gTextureRTV[i]);
 	}SAFE_DELETE(this->gTextureRTV);
@@ -80,6 +90,7 @@ void DX::Clean()
 	SAFE_DELETE(this->vertexCountOBJ);
 
 	SAFE_RELEASE(this->lcBuffer);
+	SAFE_RELEASE(this->boneBuffer);
 	SAFE_RELEASE(this->nullSRV[0]);
 
 }
@@ -90,7 +101,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import(".\\Assets\\Files\\NewLevel_Fixed.GAY", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import(".\\Assets\\Files\\level_29maj.GAY", this->gDevice, this->gVertexBufferArray);
 
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
@@ -123,7 +134,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	createLightCaster();
 
-	this->SM.createFMOD();
+	this->/*BD*/SM.createFMOD();
 	//Vertex** vtx = CreateTriangleData(this->gDevice, this->gVertexBufferArray,
 	//	this->vertexCountOBJ, this->gVertexBuffer2_size, this->objCoords);
 
@@ -232,7 +243,7 @@ void DX::Update()
 		//player->move(this->camera, col.calculateCollisionData(player->getMatrices().worldM, player->getIsDigging()), this->menuMsg, this->tButtonPress, this->lTimePress, test, this->SM, deltaTime);
 
 		
-		updateLevelPos();
+		skeletons.SetMonkeyAnimation(updateLevelPos());
 
 		string colR = interactiveCol.test(col.getCollisionData(), col, this->SM, player->getPositionX(), player->getPositionZ());
 		if (colR.find("pull_lever") != string::npos) {
@@ -325,6 +336,8 @@ void DX::CreateDirect3DContext(HWND* wndHandle)
 		pBackBuffer->Release();
 
 		this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->gDSV);
+
+		hr = gDevice->QueryInterface(IID_PPV_ARGS(&dbg));
 	}
 }
 void DX::SetViewport()
@@ -341,6 +354,10 @@ void DX::SetViewport()
 }
 void DX::Render(int pass, bool isPlayer) 
 {	
+	this->gDeviceContext->PSSetShaderResources(1, 1, this->nullSRV);
+
+	this->gDeviceContext->OMSetRenderTargets(1, &this->gBackBufferRTV, this->ShadowDepthStencilView);
+
 	UINT32 vertexSize = sizeof(Vertex);
 	UINT32 offset = 0;
 	if (pass == 0) 
@@ -380,7 +397,7 @@ void DX::Render(int pass, bool isPlayer)
 		memcpy(dataPtr.pData, &this->lMatrix, sizeof(this->lMatrix));
 
 		this->gDeviceContext->Unmap(this->lcBuffer, 0);
-		
+		currentShader = 0;
 
 		if (isPlayer == true)
 		{
@@ -397,7 +414,10 @@ void DX::Render(int pass, bool isPlayer)
 			gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
 			memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
 			gDeviceContext->Unmap(boneBuffer, 0);
-			this->gDeviceContext->VSSetShader(this->gBoneShadowVertexShader, nullptr, 0);
+			if (!currentShader) {
+				currentShader = 1;
+				this->gDeviceContext->VSSetShader(this->gBoneShadowVertexShader, nullptr, 0);
+			}
 			gDeviceContext->VSSetConstantBuffers(2, 1, &boneBuffer);
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(5), 0);
@@ -413,21 +433,38 @@ void DX::Render(int pass, bool isPlayer)
 						XMFLOAT4X4 boneMatrixArray[64];
 						if (skeletons.checkAnimating(id) || (id < -10 && id > -24)) {
 							skeletons.UpdateBoneMatrices(boneMatrixArray, id, skeletons.GetConnectedRootjoint(id));
+							D3D11_MAPPED_SUBRESOURCE boneMatrixData;
+							gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
+							memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
+							gDeviceContext->Unmap(boneBuffer, 0);
+							if (!currentShader) {
+								currentShader = 1;
+								this->gDeviceContext->VSSetShader(this->gBoneShadowVertexShader, nullptr, 0);
+							}
+							gDeviceContext->VSSetConstantBuffers(2, 1, &boneBuffer);
+							this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+							this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 						}
 						else {
 							for (int matrixI = 0; matrixI < 64; matrixI++) {
 								boneMatrixArray[matrixI] = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1);
 							}
+							if (currentShader) {
+								currentShader = 0;
+								this->gDeviceContext->VSSetShader(this->gShadowVertexShader, nullptr, 0);
+							}
+							this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+							this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
 						}
-						D3D11_MAPPED_SUBRESOURCE boneMatrixData;
-						gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
-						memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
-						gDeviceContext->Unmap(boneBuffer, 0);
-						this->gDeviceContext->VSSetShader(this->gBoneShadowVertexShader, nullptr, 0);
-						gDeviceContext->VSSetConstantBuffers(2, 1, &boneBuffer);
 					}
-					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+					else {
+						if (currentShader) {
+							currentShader = 0;
+							this->gDeviceContext->VSSetShader(this->gShadowVertexShader, nullptr, 0);
+						}
+						this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+						this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+					}
 				}
 			}
 		}
@@ -449,7 +486,6 @@ void DX::Render(int pass, bool isPlayer)
 
 		this->gDeviceContext->CSSetShaderResources(0, 1, &this->gTextureRTV[4]);
 
-		this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[4]);
 		this->gDeviceContext->PSSetShaderResources(1, 1, &this->ShadowShaderRecourceView);
 		this->gDeviceContext->PSSetShaderResources(2, 1, &this->ShadowMaskResourceView);
 		this->gDeviceContext->PSSetShaderResources(3, 1, &this->GroundMaskRV);
@@ -462,11 +498,13 @@ void DX::Render(int pass, bool isPlayer)
 		this->gDeviceContext->GSSetConstantBuffers(0, 1, &this->gCBuffer);
 		this->gDeviceContext->GSSetConstantBuffers(1, 1, &this->lcBuffer);
 		this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->lcBuffer);
+		currentShader = 0;
 
 		if (isPlayer == true)
 		{
 			this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[3]);
 			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[5], &vertexSize, &offset);
+			
 			XMFLOAT4X4 boneMatrixArray[64];
 			if (skeletons.checkAnimating(-10)) {
 				skeletons.UpdateBoneMatrices(boneMatrixArray, -10, skeletons.GetConnectedRootjoint(-10), player->rotation);
@@ -476,25 +514,82 @@ void DX::Render(int pass, bool isPlayer)
 					boneMatrixArray[matrixI] = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1);
 				}
 			}
+			
 			D3D11_MAPPED_SUBRESOURCE boneMatrixData;
 			gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
 			memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
 			gDeviceContext->Unmap(boneBuffer, 0);
-			this->gDeviceContext->VSSetShader(this->gBoneVertexShader, nullptr, 0);
+			if (!currentShader) {
+				currentShader = 1;
+				this->gDeviceContext->VSSetShader(this->gBoneVertexShader, nullptr, 0);
+			}
+			
 			gDeviceContext->VSSetConstantBuffers(0, 1, &boneBuffer);
 			this->gDeviceContext->Draw(FBX.getPlayerSumVertices(5), 0);
 		}
 
 		if (isPlayer == false)
 		{
-			for (int i = 6; i < this->gVertexBufferArray_size; i++) {
-				if (FBX.getMeshAttribute(i) == 0)
+
+			this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[5]);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[6], &vertexSize, &offset);
+			this->gDeviceContext->Draw(FBX.getMeshVertexCount(6), 0);
+
+			this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[6]);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[7], &vertexSize, &offset);
+			this->gDeviceContext->Draw(FBX.getMeshVertexCount(7), 0);
+
+			this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[7]);
+			this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[8], &vertexSize, &offset);
+			this->gDeviceContext->Draw(FBX.getMeshVertexCount(8), 0);
+
+			for (int i = 9; i < this->gVertexBufferArray_size; i++) {
+				if (FBX.getMeshAttribute(i) == 0 && ((FBX.getMeshes()[i].id == currentLevel || FBX.getMeshes()[i].id == nextLevel) || (FBX.getMeshes()[i].id != -100 && FBX.getMeshes()[i].id != -200 && FBX.getMeshes()[i].id != -300 && FBX.getMeshes()[i].id != -400 && FBX.getMeshes()[i].id != -500 && FBX.getMeshes()[i].id != -600)))
 				{
-					
-				
-		
-					this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
-					this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+					int id = FBX.getMeshes()[i].id;
+					if (id < -9 && id > -100) 
+					{
+						XMFLOAT4X4 boneMatrixArray[64];
+						if (skeletons.checkAnimating(id) || (id < -10 && id > -24)) 
+						{
+							skeletons.UpdateBoneMatrices(boneMatrixArray, id, skeletons.GetConnectedRootjoint(id));
+							D3D11_MAPPED_SUBRESOURCE boneMatrixData;
+							gDeviceContext->Map(boneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &boneMatrixData);
+							memcpy(boneMatrixData.pData, boneMatrixArray, sizeof(XMFLOAT4X4) * 64);
+							gDeviceContext->Unmap(boneBuffer, 0);
+							if (!currentShader) {
+								currentShader = 1;
+								this->gDeviceContext->VSSetShader(this->gBoneVertexShader, nullptr, 0);
+							}
+							gDeviceContext->VSSetConstantBuffers(0, 1, &boneBuffer);
+							
+							this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+							this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+						}
+						else 
+						{
+							for (int matrixI = 0; matrixI < 64; matrixI++) {
+								boneMatrixArray[matrixI] = XMFLOAT4X4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1);
+							}
+							if (currentShader) {
+								currentShader = 0;
+								this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
+							}
+							this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+							this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+						}
+					}
+					else 
+					{
+						if (currentShader) 
+						{
+							currentShader = 0;
+							this->gDeviceContext->VSSetShader(this->gVertexShader, nullptr, 0);
+						}
+						this->gDeviceContext->PSSetShaderResources(0, 1, &this->gTextureRTV[4]);
+						this->gDeviceContext->IASetVertexBuffers(0, 1, &this->gVertexBufferArray[i], &vertexSize, &offset);
+						this->gDeviceContext->Draw(FBX.getMeshVertexCount(i), 0);
+					}
 				}
 			}
 		}
@@ -503,7 +598,7 @@ void DX::Render(int pass, bool isPlayer)
 }
 void DX::clearRender()
 {
-	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.f };
+	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	this->gDeviceContext->ClearRenderTargetView(this->gBackBufferRTV, clearColor);
 	this->gDeviceContext->ClearDepthStencilView(this->gDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -1157,6 +1252,9 @@ void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, I
 	char temp3[256] = ".\\Assets\\Textures\\Menu\\Buttons_Pause_BG.jpg";
 	char temp4[256] = ".\\Assets\\Textures\\Models\\Merlin_Lowpoly.png";
 	char temp5[256] = ".\\Assets\\Textures\\Models\\ColorLookUp_Table.png";
+	char temp6[256] = ".\\Assets\\Textures\\Models\\sign_1.png";
+	char temp7[256] = ".\\Assets\\Textures\\Models\\sign_2.png";
+	char temp8[256] = ".\\Assets\\Textures\\Models\\sign_3.png";
 	
 
 	for (int i = 0; i < sizeof(temp1); i++)
@@ -1219,6 +1317,42 @@ void DX::Texture(ID3D11Device* &gDevice, ID3D11DeviceContext* &gDeviceContext, I
 		return exit(-1);
 	}
 
+	for (int i = 0; i < sizeof(temp6); i++)
+	{
+		fileName[i] = temp6[i];
+	}
+
+	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, fileName, NULL, &RTV[5], NULL);
+
+	if (FAILED(hr))
+	{
+		return exit(-1);
+	}
+
+	for (int i = 0; i < sizeof(temp7); i++)
+	{
+		fileName[i] = temp7[i];
+	}
+
+	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, fileName, NULL, &RTV[6], NULL);
+
+	if (FAILED(hr))
+	{
+		return exit(-1);
+	}
+
+	for (int i = 0; i < sizeof(temp8); i++)
+	{
+		fileName[i] = temp8[i];
+	}
+
+	hr = DirectX::CreateWICTextureFromFile(gDevice, gDeviceContext, fileName, NULL, &RTV[7], NULL);
+
+	if (FAILED(hr))
+	{
+		return exit(-1);
+	}
+
 }
 
 void DX::printMatrices(objMatrices& mat)
@@ -1248,9 +1382,10 @@ void DX::printMatrices(objMatrices& mat)
 	cout << p._41 << ", " << p._42 << ", " << p._43 << ", " << p._44 << endl << endl;;
 }
 
-void DX::updateLevelPos()
+string DX::updateLevelPos()
 {
-	int pos = player->getPositionX();
+	string r = "";
+	float pos = player->getPositionX();
 	if (pos == 0)
 	{
 		currentLevel = -100;
@@ -1279,5 +1414,70 @@ void DX::updateLevelPos()
 	{
 		currentLevel = -500;
 		nextLevel = -600;
+	}
+	if (lastMonkeyAnimation == 0 && pos > 12) {
+		lastMonkeyAnimation = 1;
+		r = "1";
+	}
+	else if (lastMonkeyAnimation == 1 && pos > 99) {
+		lastMonkeyAnimation = 2;
+		r = "2";
+	}
+	else if (lastMonkeyAnimation == 2 && pos > 149) {
+		lastMonkeyAnimation = 3;
+		r = "3";
+	}
+	else if (lastMonkeyAnimation == 3 && pos > 398) {
+		lastMonkeyAnimation = 4;
+		r = "4";
+	}
+	else if (lastMonkeyAnimation == 4 && pos > 770) {
+		lastMonkeyAnimation = 5;
+		r = "5";
+	}
+	else if (lastMonkeyAnimation == 5 && pos > 1523) {
+		lastMonkeyAnimation = 6;
+		r = "6";
+	}
+	else if (lastMonkeyAnimation == 6 && pos > 1615) {
+		float posz = player->getPositionZ();
+		if (posz < 55) {
+			lastMonkeyAnimation = 7;
+			r = "7";
+		}
+	}
+	else if ((lastMonkeyAnimation == 7 || lastMonkeyAnimation == 6) && pos > 1653) {
+		float posz = player->getPositionZ();
+		if (posz > 94) {
+			lastMonkeyAnimation = 8;
+			r = "8";
+		}
+	}
+	return r;
+}
+
+void DX::setDbg()
+{
+	this->setDbgName(this->gShadowLayout, "Shadow Layout");
+
+	this->setDbgName(this->gVertexLayout, "Vertex Layout");
+
+	this->setDbgName(this->gCBuffer, "gCBuffer");
+
+	for (int i = 0; i < this->gVertexBufferArray_size; i++)
+	{
+		this->setDbgName(this->gVertexBufferArray[i], "VertexArray");
+	}
+
+	this->setDbgName(this->menuBuffer, "menuBuffer");
+	this->setDbgName(this->gMenuVertexArray, "lcBuffer");
+
+	this->setDbgName(this->lcBuffer, "lcBuffer");
+}
+void DX::setDbgName(ID3D11DeviceChild* child, const std::string& name)
+{
+	{
+		if (child != nullptr)
+			child->SetPrivateData(WKPDID_D3DDebugObjectName, name.size() - 1, name.c_str());
 	}
 }

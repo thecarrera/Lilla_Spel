@@ -285,18 +285,19 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 	if (m_lever[__id__(0)].getLeverOnOffState())
 	{
 		// turn off boundingbox based on id 
-		call_once(flag, [&]() { r += "0"; col.removeBoundingBox(1); }
+		call_once(flag, [&]() { r += ",0,"; col.removeBoundingBox(1); }
 		);		
 	}
 
 	if (m_pressurePlate[__id__(2)].getPressurePlateData().toggled)
 	{
-		r += "1";
+		r += ",1,";
 		//cout << "pressureplate toggled" << endl;
 		col.disableBoundingBox(3);
 	}
 	else
 	{
+		r += ",-1,";
 		col.enableBoundingBox(3);
 	}
 
@@ -306,51 +307,63 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		//cout << "Level 2" << endl;
 		if (E && __id == 4)
 		{
+			r += "pull_lever";
 			m_lever[__id__(4)].activateLever(SM);
 		}
 		if (E && __id == 17)
 		{
+			r += "pull_lever";
 			m_lever[__id__(17)].activateLever(SM);
 		}
 		if (E && __id == 7)
 		{
+			r += "pull_lever";
 			m_lever[__id__(7)].activateLever(SM);
 		}
 		if (E && __id == 18)
 		{
+			r += "pull_lever";
 			m_lever[__id__(18)].activateLever(SM);
 		}
 
 
 		if (m_lever[__id__(4)].getLeverOnOffState())
 		{
+			r += ",2,";
 			col.disableBoundingBox(5);
 		}
 		else {
+			r += ",-2,";
 			col.enableBoundingBox(5);
 		}
 
 		if (m_lever[__id__(17)].getLeverOnOffState())
 		{
+			r += ",4,";
 			col.disableBoundingBox(8);
 		}
 		else {
+			r += ",-4,";
 			col.enableBoundingBox(8);
 		}
 
 		if (m_lever[__id__(7)].getLeverOnOffState())
 		{
+			r += ",3,";
 			col.disableBoundingBox(6);
 		}
 		else {
+			r += ",-3,";
 			col.enableBoundingBox(6);
 		}
 
 		if (m_lever[__id__(18)].getLeverOnOffState())
 		{
+			r += ",5,";
 			col.disableBoundingBox(9);
 		}
 		else {
+			r += ",-5,";
 			col.enableBoundingBox(9);
 		}
 
@@ -360,11 +373,12 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 
 		if (m_pressurePlate[__id__(10)].getPressurePlateData().toggled)
 		{
-		
+			r += ",6,";
 			col.disableBoundingBox(11);
 		}
 		else
 		{
+			r += ",-6,";
 			col.enableBoundingBox(11);
 		}
 
@@ -377,24 +391,28 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 
 		if (E && __id == 12)
 		{
+			r += "pull_lever";
 			m_lever[__id__(12)].activateLever(SM);
 		}
 		if (E && __id == 13)
 		{
+			r += "pull_lever";
 			m_lever[__id__(13)].activateLever(SM);
 		}
 		if (E && __id == 14)
 		{
+			r += "pull_lever";
 			m_lever[__id__(14)].activateLever(SM);
 		}
 		if (E && __id == 15)
 		{
+			r += "pull_lever";
 			m_lever[__id__(15)].activateLever(SM);
 		}
 
 		if (m_lever[__id__(12)].getLeverOnOffState() && m_lever[__id__(13)].getLeverOnOffState() && !m_lever[__id__(14)].getLeverOnOffState() && m_lever[__id__(15)].getLeverOnOffState())
 		{
-			call_once(flag2, [&]() { col.removeBoundingBox(16); /* TEMP REMOVE SOON! -->*/ col.removeBoundingBox(44); }
+			call_once(flag2, [&]() { r += ",7,"; col.removeBoundingBox(16); }
 			);
 		}
 
@@ -409,25 +427,25 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		// toggles
 		if (collisionData[eTrigger].id == 47 )
 		{
-			m_pressurePlate[__id__(47)].setActiveTime(30000);
+			m_pressurePlate[__id__(47)].setActiveTime(35000);
 			m_pressurePlate[__id__(47)].activatePressurePlate(SM);
 		}
 
 		if (collisionData[eTrigger].id == 46)
 		{
-			m_pressurePlate[__id__(46)].setActiveTime(25000);
+			m_pressurePlate[__id__(46)].setActiveTime(30000);
 			m_pressurePlate[__id__(46)].activatePressurePlate(SM);
 		}
 
 		if (collisionData[eTrigger].id == 45)
 		{
-			m_pressurePlate[__id__(45)].setActiveTime(20000);
+			m_pressurePlate[__id__(45)].setActiveTime(25000);
 			m_pressurePlate[__id__(45)].activatePressurePlate(SM);
 		}
 
 		if (collisionData[eTrigger].id == 48)
 		{
-			m_pressurePlate[__id__(48)].setActiveTime(15000);
+			m_pressurePlate[__id__(48)].setActiveTime(20000);
 			m_pressurePlate[__id__(48)].activatePressurePlate(SM);
 		}
 
@@ -436,7 +454,7 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		// Checks
 		if (m_pressurePlate[__id__(47)].getPressurePlateData().ticking && m_pressurePlate[__id__(46)].getPressurePlateData().ticking && m_pressurePlate[__id__(45)].getPressurePlateData().ticking && m_pressurePlate[__id__(48)].getPressurePlateData().ticking)
 		{
-			call_once(flag3, [&]() { col.disableBoundingBox(49); }
+			call_once(flag3, [&]() { r += ",11,"; col.disableBoundingBox(49); }
 			);
 		}
 
@@ -471,6 +489,7 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 			col.enableBoundingBox(52);
 			col.enableBoundingBox(53);
 			col.enableBoundingBox(44);
+			r += ",-9,"; r += ",-8,"; r += ",-10,";
 		}
 
 		//Hint 2
@@ -512,21 +531,34 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		//Check Hint 1
 		if (m_pressurePlate[__id__(22)].getPressurePlateData().ticking && m_pressurePlate[__id__(25)].getPressurePlateData().ticking && m_pressurePlate[__id__(26)].getPressurePlateData().ticking)
 		{
-			call_once(flag5, [&]() { col.disableBoundingBox(52); });
+			call_once(flag5, [&]() { r += ",9,"; col.disableBoundingBox(52); });
 		}
 
 		//Check Hint 2
 		if (m_pressurePlate[__id__(27)].getPressurePlateData().ticking && m_pressurePlate[__id__(28)].getPressurePlateData().ticking && m_pressurePlate[__id__(33)].getPressurePlateData().ticking)
 		{
-			call_once(flag6, [&]() { col.disableBoundingBox(53); });
+			call_once(flag6, [&]() { r += ",8,"; col.disableBoundingBox(53); });
 		}
 
 		//Check Hint 3
 		if (m_pressurePlate[__id__(38)].getPressurePlateData().ticking && m_pressurePlate[__id__(43)].getPressurePlateData().ticking && m_pressurePlate[__id__(42)].getPressurePlateData().ticking)
 		{
-			call_once(flag7, [&]() { col.disableBoundingBox(44); });
+			call_once(flag7, [&]() { r += ",10,"; col.disableBoundingBox(44); });
 		}
 	}
+
+	if (E && collisionData[eTrigger].id == 50 && !m_lever[__id__(50)].getLeverOnOffState())
+	{
+		r += "pull_lever";
+		m_lever[__id__(50)].activateLever(SM);
+	}
+
+	if (m_lever[__id__(50)].getLeverOnOffState())
+	{
+		r += ",12,";
+		col.disableBoundingBox(51);
+	}
+
 	return r;
 }
 int InteractiveCollision::getIndexById(int id)

@@ -28,6 +28,9 @@ private:
 	time_t m_activatedTime2;
 	time_t m_activatedTimeEnd;
 
+	time_t soundTick1;
+	time_t soundTick2;
+
 public:
 	// Custructor. Sets the default active time to 3 seconds (ms) 
 	PressurePlate(int activeTime = 3000);

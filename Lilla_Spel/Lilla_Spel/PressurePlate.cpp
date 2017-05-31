@@ -22,6 +22,16 @@ void PressurePlate::activatePressurePlate(SoundManager& SM)
 {
 	m_activatedTime = GetCurrentTime();
 	m_active = true;
+
+	this->soundTick1 = GetCurrentTime();
+	if (this->soundTick1 - this->soundTick2 >= 1500) 
+	{
+		SM.playSound(10);
+		SM.setVolume(10, 1.7f);
+
+		this->soundTick2 = GetCurrentTime();
+	}
+
 }
 
 

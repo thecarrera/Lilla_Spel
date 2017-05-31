@@ -4,6 +4,9 @@
 #include <fmod_errors.h>
 #include <iostream>
 
+#define SAFE_RELEASE(x) if(x) x->release(), x = nullptr
+#define SAFE_DELETE(x) if(x) delete[] x, x = nullptr
+
 class SoundManager
 {
 private:
@@ -59,7 +62,7 @@ public:
 
 	void setListnerPos(FMOD_VECTOR pos);
 	
-	void Clean() { system->release(); };
+	void Clean();
 	
 	void checkUnique(float posX, float posZ);
 	void checkBear(float posX, float posZ);
