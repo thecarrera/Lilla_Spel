@@ -488,7 +488,7 @@ string InteractiveCollision::test(CollisionData* collisionData, Collision& col, 
 		{
 			col.enableBoundingBox(52);
 			col.enableBoundingBox(53);
-			col.enableBoundingBox(44);
+			
 			r += ",-9,"; r += ",-8,"; r += ",-10,";
 		}
 
