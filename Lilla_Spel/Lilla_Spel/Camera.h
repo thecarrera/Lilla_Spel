@@ -38,4 +38,6 @@ public:
 
 
 	void setView(XMMATRIX& view);
+
+	void setLookAtVec(XMFLOAT3 lookAt);
 };

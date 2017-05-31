@@ -29,6 +29,7 @@ private:
 	bool canPressS = true;
 	bool canPressA = true;
 	bool canPressD = true;
+	string direction;
 
 	void InterpolateTo(float angle, float deltaTime);
 public:
@@ -51,6 +52,10 @@ public:
 	float getPositionX();
 	float getPositionZ();
 	void getPositionVec(XMVECTOR& pos);
+	XMFLOAT3 getPlayerPos();
+	bool getFlyingUp();
+	string getDirection();
+	time_t getTimeWhenBurrowed();
 
 	void printMatrices()
 	{

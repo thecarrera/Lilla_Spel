@@ -3,6 +3,8 @@
 #include "includes.h"
 #include "Camera.h"
 #include "Player.h"
+#include "Handler.h"
+
 
 /*
 #################################################################################################################################
@@ -125,6 +127,8 @@ private:
 
 	int currentLevel = -100;
 	int nextLevel = -200;
+
+	Handler handler;
 
 public:
 	FBXImport FBX;
