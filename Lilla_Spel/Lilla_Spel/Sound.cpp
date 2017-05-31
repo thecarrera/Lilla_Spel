@@ -454,7 +454,6 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
 		exit(-1);
 	}
 
@@ -462,7 +461,6 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
 		exit(-1);
 	}
 
@@ -476,7 +474,7 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
+		exit(-1);;
 		exit(-1);
 	}
 
@@ -485,7 +483,7 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
+		exit(-1);;
 		exit(-1);
 	}
 
@@ -493,7 +491,7 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
+		exit(-1);;
 		exit(-1);
 	}
 
@@ -501,7 +499,7 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
+		exit(-1);;
 		exit(-1);
 	}
 
@@ -510,7 +508,7 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
+		exit(-1);;
 		exit(-1);
 	}
 
@@ -518,7 +516,7 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
+		exit(-1);;
 		exit(-1);
 	}
 
@@ -532,7 +530,7 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
+		exit(-1);;
 		exit(-1);
 	}
 
@@ -540,7 +538,7 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
+		exit(-1);;
 		exit(-1);
 	}
 
@@ -554,7 +552,7 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
+		exit(-1);;
 		exit(-1);
 	}
 
@@ -562,7 +560,7 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
+		exit(-1);;
 		exit(-1);
 	}
 
@@ -570,7 +568,7 @@ void SoundManager::loadSound()
 	if (fr != FMOD_OK)
 	{
 		printf("FMOD error! (%d) %s\n", fr, FMOD_ErrorString(fr));
-		getchar();
+		exit(-1);;
 		exit(-1);
 	}
 	

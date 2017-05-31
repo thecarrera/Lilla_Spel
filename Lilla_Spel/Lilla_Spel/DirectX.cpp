@@ -734,7 +734,7 @@ void DX::CreateShaders()
 
 	if (FAILED(hr))
 	{
-		getchar();
+		exit(-1);;
 	}
 
 	//#############################################################
@@ -793,7 +793,7 @@ void DX::CreateShaders()
 
 	if (FAILED(hr))
 	{
-		getchar();
+		exit(-1);;
 	}
 
 	//#############################################################
@@ -1149,8 +1149,8 @@ void DX::menuControls()
 			if (this->tButtonPress - this->lTimePress >= 900)
 			{
 				this->lTimePress = GetCurrentTime();
-				this->flushGame();
 				this->menuMsg = false;
+				this->flushGame();
 				this->isStartMenu = true;
 				this->SM.stopAllAmbient();
 			}

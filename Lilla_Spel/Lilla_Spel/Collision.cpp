@@ -83,11 +83,6 @@ Collision::Collision(FBXImport::Mesh* &meshes, int meshCount)
 				cornerArray[7].y = meshes[i].vertices[0].position[1];
 				cornerArray[7].z = meshes[i].vertices[0].position[2];
 				
-				if (meshes[i].id == 1)
-				{
-					int z = 0;
-					int x = 5;
-				}
 
 				m_BoundingBox[bbIndex].createBoundingBoxFromCorners(cornerArray);
 				m_BoundingBox[bbIndex].setCollisionType(meshes[i].customAttribute);
@@ -95,7 +90,7 @@ Collision::Collision(FBXImport::Mesh* &meshes, int meshCount)
 				m_BoundingBox[bbIndex].setId(meshes[i].id);
 
 
-				cout << "id: " << m_BoundingBox[bbIndex].getId() << " Coltype: " << m_BoundingBox[bbIndex].getCollisionType() << endl;
+				/*cout << "id: " << m_BoundingBox[bbIndex].getId() << " Coltype: " << m_BoundingBox[bbIndex].getCollisionType() << endl;*/
 				bbIndex++;
 
 		}

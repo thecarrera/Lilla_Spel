@@ -8,11 +8,6 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI wWinMain(HMODULE hModule, HMODULE hPrevModule, LPWSTR lpCmdLine, int nCmdShow)
 {
-	AllocConsole();
-	freopen("conin$", "r", stdin);
-	freopen("conout$", "w", stdout);
-	freopen("conout$", "w", stderr);
-	
 	DX Dx;
 	MSG msg = { 0 };
 	HWND wndHandle = InitWindow(hModule);
@@ -44,8 +39,6 @@ int WINAPI wWinMain(HMODULE hModule, HMODULE hPrevModule, LPWSTR lpCmdLine, int 
 		}
 		DestroyWindow(wndHandle);
 	}
-
-	FreeConsole();
 
 	return (int)msg.wParam;
 }
