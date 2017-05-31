@@ -499,7 +499,7 @@ void Handler::CreateTriangleData(ID3D11Device* gDevice, ID3D11DeviceContext* gDe
 					for (int i = 0; i < 15; i++)
 					{
 						Particle* newParticle = new Particle();
-						newParticle->createParticle({ 248, 0, 79 }, { 0, 0, 10 }, { 1, 0, 0 }, { 0.2f, 0, 0 }, { 0.5f, 0, 0 }, { 0, 255, 255 }, 40, 50, 0.0001f, { 0.15f, 0, 0 }, 0, 1000000, 2); 
+						newParticle->createParticle({ 248, 0, 79 }, { 0, 0, 10 }, { 1, 0, 0 }, { 0.2f, 0, 0 }, { 0.5f, 0, 0 }, { 122, 160, 250 }, 40, 50, 0.0001f, { 0.15f, 0, 0 }, 0, 1000000, 2);
 
 						this->particles[this->nrOfParticles] = newParticle;
 						this->nrOfParticles++;
