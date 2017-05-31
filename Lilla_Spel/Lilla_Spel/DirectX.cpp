@@ -1093,6 +1093,8 @@ void DX::flushGame()
 	this->camera->flushGame();
 	this->player->setMatrices(camera->getCameraMatrices());
 	this->player->flushGame();
+	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());
+	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount());
 }
 void DX::startMenuLoop()
 {

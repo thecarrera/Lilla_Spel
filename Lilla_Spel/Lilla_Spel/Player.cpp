@@ -336,7 +336,7 @@ void Player::flushGame()
 	this->velocity.y = 0;
 	this->velocity.z = 0;
 	this->digging = false;
-	this->burrowCD = 3000;
+	this->burrowCD = 1000;
 	this->timeWhenBurrowed = 0;
 }
 
