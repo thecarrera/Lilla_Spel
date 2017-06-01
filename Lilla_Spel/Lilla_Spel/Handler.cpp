@@ -72,7 +72,7 @@ Handler::~Handler()
 	}
 
 	gVertexBuffer1->Release();
-	//GSCONSTANTBUFFER1->Release();
+	GSCONSTANTBUFFER1->Release();
 
 	gVertexLayout1->Release();
 	gVertexShader1->Release();
