@@ -101,7 +101,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 
 	this->SetViewport();
 
-	this->FBX.Import(".\\Assets\\Files\\level_29maj.GAY", this->gDevice, this->gVertexBufferArray);
+	this->FBX.Import(".\\Assets\\Files\\level_31maj.GAY", this->gDevice, this->gVertexBufferArray);
 
 	this->gVertexBufferArray_size = FBX.getTotalMeshes();
 
@@ -128,7 +128,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	handler.initiateThatThing(this->gDevice, this->gDeviceContext);
 	handler.CreateShaders(this->gDevice);
 
-	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());	//NOCLIP
+//	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());	//NOCLIP
 
 	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount()); //NOCLIP
 
