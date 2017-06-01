@@ -128,7 +128,7 @@ void DX::OfflineCreation(HMODULE hModule, HWND* wndHandle)
 	handler.initiateThatThing(this->gDevice, this->gDeviceContext);
 	handler.CreateShaders(this->gDevice);
 
-//	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());	//NOCLIP
+	col = Collision(this->FBX.getMeshes(), FBX.getMeshCount());	//NOCLIP
 
 	interactiveCol = InteractiveCollision(this->FBX.getMeshes(), FBX.getMeshCount()); //NOCLIP
 
