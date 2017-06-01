@@ -656,8 +656,6 @@ void Handler::initiateThatThing(ID3D11Device* gDevice, ID3D11DeviceContext* gDev
 }
 
 
-//löv långsammare, färre, löv bra nu?
-
 
 
 
