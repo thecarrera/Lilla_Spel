@@ -61,7 +61,7 @@ Handler::Handler()
 	this->emitParticles = true;
 
 	//water
-	this->startWaterfallSplash == false;
+	this->startWaterfallSplash = false;
 }
 
 Handler::~Handler()
