@@ -29,7 +29,7 @@ private:
 	float gravity;
 	float lifetime;
 	float size;
-	float gravityIncrease; //0.000000001 ganska bra
+	float gravityIncrease; 
 	int ID;
 
 public:
@@ -50,6 +50,3 @@ public:
 };
 
 #endif // !PARTICLE_H
-
-
-//FIXA EN SNURR PÅ DEM

@@ -8,8 +8,6 @@ Handler::Handler()
 	for (int i = 0; i < this->maxParticles; i++)
 	{
 		this->particles[i] = nullptr;
-
-		//this->particleArray[i] = hlslParticle(DirectX::XMFLOAT3(0, 0, 0), 0, DirectX::XMFLOAT4(0, 0, 0, 0));
 	}
 
 	srand(static_cast <unsigned> (time(0)));
